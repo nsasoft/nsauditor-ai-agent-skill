@@ -1,0 +1,401 @@
+---
+name: nsauditor-ai
+description: >
+  Use this skill whenever the user wants to perform network security scanning, auditing,
+  vulnerability assessment, or host reconnaissance using NSAuditor AI. Triggers include:
+  any mention of 'scan', 'audit', 'vulnerability', 'CVE', 'network security', 'port scan',
+  'service detection', 'OS fingerprinting', 'security assessment', 'penetration test',
+  'probe', 'MITRE ATT&CK', 'CPE', 'NVD', 'TLS audit', 'cipher check', 'banner grab',
+  'SNMP', 'NetBIOS', 'SMB', 'DNS security', 'DKIM', 'SPF', 'DMARC', 'DNSSEC',
+  'certificate audit', 'SARIF', 'CTEM', 'continuous monitoring', 'host discovery',
+  'mDNS', 'UPnP', 'SSDP', 'ARP scan', 'subnet scan', or references to NSAuditor,
+  nsauditor-ai, or the nsauditor MCP server. Also triggers when the user asks to check
+  if a host is up, enumerate services, detect TLS versions, find open ports, look up
+  CVEs for a software version, audit DNS records, check certificate expiry, or perform
+  continuous security monitoring. Use this skill even if the user doesn't explicitly say
+  "NSAuditor" — if they want network security scanning and the nsauditor-ai MCP tools
+  are available, this is the skill to use. Do NOT use for general coding tasks, web
+  development, or non-security topics.
+---
+
+# NSAuditor AI — Agent Skill
+
+> **Version:** 0.1.10 · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
+
+NSAuditor AI is a modular, AI-assisted network security audit platform with 27+ scanner
+plugins, CVE matching, MITRE ATT&CK mapping, and Zero Data Exfiltration by design. This
+skill teaches you how to operate it via MCP tools and CLI.
+
+---
+
+## MCP Tools Reference
+
+NSAuditor AI exposes tools via Model Context Protocol (stdio transport). Available tools
+depend on the license tier (Community / Pro / Enterprise).
+
+### Community Edition Tools (always available)
+
+#### `scan_host`
+Run a full plugin scan against a target host. Executes ALL enabled plugins in priority
+order (discovery → service probes → OS detection → result fusion).
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `host` | string | ✅ | — | Target hostname or IP address |
+| `timeout` | number | ❌ | 30000 | Per-plugin timeout in ms |
+
+**Returns:** `{ summary, host, services[], findings[] }` — see `references/schemas.md`
+
+**Example:**
+```json
+{ "host": "192.168.1.1", "timeout": 10000 }
+```
+
+**Important:**
+- For RFC 1918 / private IPs, the MCP server must have `NSA_ALLOW_ALL_HOSTS=1` set.
+- The server blocks loopback (127.x, ::1), link-local (169.254.x, fe80:), and cloud
+  metadata endpoints (169.254.169.254) — this is SSRF protection, not a bug.
+- Plugins with unmet requirements auto-skip (e.g., SSH scanner skips if port 22 is closed).
+
+---
+
+#### `list_plugins`
+List all available scanner plugins with metadata.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| *(none)* | — | — | — |
+
+**Returns:** Array of `{ id, name, description, priority, protocols[], ports[], requirements }`
+
+**When to use:** Before a scan to understand available plugins, or to help the user select
+specific plugins for a targeted probe.
+
+---
+
+#### `probe_service` *(Pro license required)*
+Run a single plugin against a specific host:port for deep-dive investigation.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `host` | string | ✅ | Target hostname or IP |
+| `pluginName` | string | ✅ | Plugin name or numeric ID (e.g. `"ssh_scanner"` or `"002"`) |
+| `port` | number | ✅ | Target port number |
+
+**Returns:** Raw plugin output with full evidence for that specific service.
+
+**Common plugin IDs:**
+| ID | Name | Best For |
+|----|------|----------|
+| 002 | SSH Scanner | Banner, version, weak algorithms/ciphers |
+| 004 | FTP Banner | FTP daemon identification, anonymous login |
+| 006 | HTTP Probe | Server headers, tokens, vendor hints |
+| 007 | SNMP Scanner | Device info via sysDescr, hardware/firmware |
+| 009 | DNS Scanner | DNS server version (CHAOS query) |
+| 010 | Webapp Detector | Technology stack fingerprinting (Wappalyzer) |
+| 011 | TLS Scanner | TLS versions, cipher suites, deprecation |
+| 014 | NetBIOS Scanner | SMB/NetBIOS enumeration, null sessions |
+| 040 | TLS Cert & Cipher Auditor | Certificate chain, expiry, weak ciphers *(Pro)* |
+| 050 | TRIBE v2 Probe | Debug leaks, stack traces, CORS misconfig *(Pro)* |
+| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer *(Pro)* |
+
+---
+
+#### `get_vulnerabilities` *(Pro license required)*
+Look up known CVEs for a CPE string via the NVD 2.0 API.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cpe` | string | ✅ | CPE 2.3 format (see CPE guide below) |
+| `maxResults` | number | ❌ | Max CVE results to return |
+
+**Returns:** `{ cpe, totalResults, vulnerabilities[] }` — each CVE includes ID, description,
+CVSS v3.1 score, severity, vector string, publication date.
+
+**CPE Construction Guide:**
+
+Format: `cpe:2.3:a:<vendor>:<product>:<version>:*:*:*:*:*:*:*`
+
+| Detected Program | Detected Version | CPE String |
+|------------------|------------------|------------|
+| OpenSSH | 8.9p1 | `cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*` |
+| Apache httpd | 2.4.54 | `cpe:2.3:a:apache:http_server:2.4.54:*:*:*:*:*:*:*` |
+| nginx | 1.24.0 | `cpe:2.3:a:f5:nginx:1.24.0:*:*:*:*:*:*:*` |
+| OpenSSL | 3.0.8 | `cpe:2.3:a:openssl:openssl:3.0.8:*:*:*:*:*:*:*` |
+| ISC BIND | 9.18.12 | `cpe:2.3:a:isc:bind:9.18.12:*:*:*:*:*:*:*` |
+| vsftpd | 3.0.5 | `cpe:2.3:a:beasts:vsftpd:3.0.5:*:*:*:*:*:*:*` |
+| Samba | 4.17.5 | `cpe:2.3:a:samba:samba:4.17.5:*:*:*:*:*:*:*` |
+| Log4j | 2.14.1 | `cpe:2.3:a:apache:log4j:2.14.1:*:*:*:*:*:*:*` |
+| MySQL | 8.0.32 | `cpe:2.3:a:oracle:mysql:8.0.32:*:*:*:*:*:*:*` |
+| PostgreSQL | 15.2 | `cpe:2.3:a:postgresql:postgresql:15.2:*:*:*:*:*:*:*` |
+
+**Tip:** If vendor is ambiguous, search NVD with just the product name first.
+
+---
+
+### Pro/Enterprise Tools (license gated)
+
+These tools return a license upgrade prompt on CE installations:
+
+| Tool | Tier | Purpose |
+|------|------|---------|
+| `risk_summary` | Pro | Prioritized risk overview with severity breakdown |
+| `scan_compare` | Pro | Diff two scan results with risk-weighted delta analysis |
+| `save_finding` | Pro | Persist a validated finding to the finding queue |
+| `start_assessment` | Enterprise | Multi-host orchestrated security assessment |
+| `prioritize_risks` | Enterprise | Cross-host risk prioritization and ranking |
+| `compliance_check` | Enterprise | NIST/HIPAA/GDPR/PCI-DSS gap analysis |
+| `export_report` | Enterprise | Formatted compliance/risk report (PDF, HTML) |
+
+---
+
+## Five-Phase Pipeline Architecture
+
+NSAuditor AI follows an institutional five-phase pipeline:
+
+```
+Phase 1: DISCOVERY (CE)        License → Plugin loading → PluginManager.run() → Concluder
+                                Output: Fused scan with summary, OS, services[], evidence[]
+                                        ↓
+Phase 2: BASIC ANALYSIS (CE)   Redaction → MITRE mapping → AI analysis (any provider)
+                                Output: Admin raw JSON/HTML + AI reports + scan history
+                                        ↓
+                                   [ License Gate: Pro required ]
+                                        ↓
+Phase 3: INTELLIGENCE (Pro)    CPE generation → NVD CVE lookup → Parallel verification agents:
+                                  • Auth Agent (weak auth, default credentials)
+                                  • Crypto Agent (TLS, ciphers, certificates)
+                                  • Config Agent (misconfigs, debug exposure, CORS)
+                                  • Service Agent (CVE-specific targeted probes)
+                                Output: Structured finding queue
+                                        ↓
+Phase 4: VERIFICATION (Pro)    For each finding: run SAFE non-destructive verification probe
+                                Classify: VERIFIED | POTENTIAL | FALSE_POSITIVE
+                                Output: Verified finding queue with evidence
+                                        ↓
+Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance mapping
+                                Output: Risk report + compliance report + PDF
+```
+
+---
+
+## Plugin Reference (27+ Scanners)
+
+See `references/plugins.md` for the complete catalog. Summary:
+
+**Core (17):** Ping, SSH, Port Scanner, FTP, Host Up, HTTP Probe, SNMP, Result Concluder,
+DNS, Webapp Detector, TLS, OpenSearch, OS Detector, NetBIOS/SMB, SUN RPC, WS-Discovery,
+TCP SYN (Nmap wrapper)
+
+**Discovery (6):** ARP, mDNS/Bonjour, UPnP/SSDP, DNS-SD, LLMNR, DB Scanner
+
+**Pro (3):** TLS Certificate & Cipher Auditor, TRIBE v2 Probe, DNS Security Auditor
+
+**Enterprise (4):** AWS Cloud, GCP Cloud, Azure Cloud, Zero Trust Checker
+
+Execution order: Discovery (100–150) → Service probes (200–400) → OS Detector (99000) →
+Result Concluder (100000). Plugins with unmet requirements auto-skip.
+
+---
+
+## Workflow Recipes
+
+See `references/workflows.md` for detailed multi-step patterns:
+
+1. **Full Security Audit** — list_plugins → scan_host → get_vulnerabilities per service
+2. **Targeted Service Investigation** — probe_service(pluginId) → get_vulnerabilities
+3. **Subnet Discovery** — CLI: `nsauditor-ai scan --host <CIDR> --parallel 10`
+4. **CI/CD Pipeline** — SARIF output with `--fail-on` severity gating
+5. **Continuous Monitoring (CTEM)** — `--watch --interval <min> --webhook-url <url>`
+6. **AI-Powered Report** — Scan with AI provider (OpenAI/Claude/Ollama) + redaction
+
+### Decision Tree: Which Tool to Use
+
+```
+User wants to...
+├── Scan a host comprehensively         → scan_host
+├── Check a specific service/port       → probe_service (Pro)
+├── Look up CVEs for software version   → get_vulnerabilities (Pro)
+├── See available plugins               → list_plugins
+├── Audit TLS certificates              → probe_service with plugin 040 (Pro)
+├── Check DNS security (SPF/DKIM/DMARC) → probe_service with plugin 060 (Pro)
+├── Detect debug leaks / CORS issues    → probe_service with plugin 050 (Pro)
+├── Scan a subnet                       → CLI with --parallel (not MCP)
+├── Set up continuous monitoring         → CLI with --watch (not MCP)
+├── Compare two scans                   → scan_compare (Pro)
+└── Generate compliance report          → compliance_check + export_report (Enterprise)
+```
+
+---
+
+## Data Schemas
+
+See `references/schemas.md` for complete structures:
+
+- **Scan Result** — `{ summary, host{os,mac,vendor,names}, services[], findings[] }`
+- **ServiceRecord** — `{ port, protocol, service, program, version, status, banner, evidence[] }`
+- **Finding** — `{ id, category, severity, title, evidence, remediation, cwe, mitre_attack[] }`
+- **CVE Response** — `{ cpe, totalResults, vulnerabilities[]{cve_id, cvss, severity} }`
+- **Plugin Interface** — `{ id, name, priority, run(), conclude(), requirements }`
+- **SARIF Output** — 2.1.0 format for CI/CD consumers
+
+---
+
+## Security Constraints
+
+**CRITICAL — Always observe these constraints:**
+
+1. **Zero Data Exfiltration (ZDE):** NSAuditor AI NEVER sends scan data externally unless
+   the user explicitly opts in to AI analysis with their own API keys. Nsasoft infrastructure
+   never sees scan data. Never suggest workflows that violate this boundary.
+
+2. **SSRF Protection:** The MCP server blocks loopback (127.x, ::1), link-local (169.254.x,
+   fe80:), and cloud metadata endpoints. Set `NSA_ALLOW_ALL_HOSTS=1` **only** for legitimate
+   local network auditing. DNS rebinding is also blocked via pre-resolution.
+
+3. **AI Redaction:** When AI analysis is enabled, the redaction pipeline scrubs:
+   - Private IPv4 addresses → `[REDACTED]`
+   - MAC addresses → `[MAC]`
+   - Serial numbers → `[REDACTED_HIDDEN]`
+   - Email addresses → `[REDACTED_EMAIL]`
+   - Bearer tokens → `[REDACTED_BEARER]`
+   - AWS keys → `[REDACTED_AWS_KEY]`
+   - Configurable via `CONFIDENTIAL_KEYWORDS` env var
+
+4. **Scan Authorization:** ALWAYS confirm the user has authorization to scan the target.
+   Never scan hosts without explicit user instruction. Unauthorized scanning is illegal.
+
+5. **Non-Destructive:** All verification probes are safe read-only queries. NSAuditor AI
+   never exploits vulnerabilities or modifies target systems.
+
+---
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `NSA_ALLOW_ALL_HOSTS` | unset | Set to `1` to scan RFC 1918 private ranges |
+| `PLUGIN_TIMEOUT_MS` | 30000 | Global per-plugin timeout |
+| `AI_ENABLED` | false | Enable AI analysis |
+| `AI_PROVIDER` | openai | `openai` · `claude` · `ollama` |
+| `OPENAI_API_KEY` | — | OpenAI API key (or `keychain:OPENAI_API_KEY`) |
+| `ANTHROPIC_API_KEY` | — | Claude/Anthropic API key |
+| `OPENAI_MODEL` | gpt-4o-mini | OpenAI model name |
+| `ANTHROPIC_MODEL` | claude-sonnet-4-20250514 | Anthropic model name |
+| `OPENAI_REDACT` | true | Redact PII before AI submission |
+| `CONFIDENTIAL_KEYWORDS` | serial,password,token,secret | Comma-separated keys to scrub |
+| `NSAUDITOR_LICENSE_KEY` | — | Pro/Enterprise JWT license key |
+| `SCAN_OUT_PATH` | out/ | Output directory for scan results |
+| `SMB_NULL_SESSION` | false | Allow SMB null session probe |
+| `ENABLE_SYN_SCAN` | false | Enable Nmap TCP SYN scanning (requires root) |
+
+### Plugin-Specific Timeouts
+
+| Variable | Default | Plugin |
+|----------|---------|--------|
+| `TLS_SCANNER_TIMEOUT_MS` | 8000 | TLS Scanner |
+| `HTTP_PROBE_TIMEOUT_MS` | 6000 | HTTP Probe |
+| `WEBAPP_DETECTOR_TIMEOUT_MS` | 6000 | Webapp Detector |
+| `DNS_TIMEOUT_MS` | 800 | DNS Scanner |
+| `OPENSEARCH_SCANNER_TIMEOUT_MS` | 6000 | OpenSearch Scanner |
+
+---
+
+## Installation & Setup
+
+```bash
+# Install globally
+npm install -g nsauditor-ai
+
+# Start MCP server (stdio transport)
+nsauditor-ai-mcp
+
+# Or via npx (no global install)
+npx nsauditor-ai-mcp
+```
+
+### Agent Integration
+
+**Claude Code:**
+```bash
+claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
+```
+
+**Claude Desktop** (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "nsauditor-ai": {
+      "command": "npx",
+      "args": ["-y", "nsauditor-ai-mcp"],
+      "env": {
+        "NSA_ALLOW_ALL_HOSTS": "1",
+        "PLUGIN_TIMEOUT_MS": "5000"
+      }
+    }
+  }
+}
+```
+
+**Cursor / Windsurf / VS Code:**
+Add to your MCP configuration with the same command/args pattern.
+
+---
+
+## Editions & Licensing
+
+| Edition | Price | Key Features |
+|---------|-------|-------------|
+| **Community** | Free / MIT | 27 plugins, basic AI, CTEM, SARIF, scan history |
+| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040/050/060) |
+| **Enterprise** | $2k+/yr | + Cloud scanners, Zero Trust, compliance, air-gapped deployment |
+
+→ [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
+
+---
+
+## Error Handling
+
+| Error | Cause | Resolution |
+|-------|-------|-----------|
+| SSRF block | Target is loopback/metadata/private | Set `NSA_ALLOW_ALL_HOSTS=1` for local scanning |
+| License gate (`🔒`) | Pro/Enterprise tool on CE | Upgrade license or use CE alternative |
+| Plugin timeout | Network unreachable / slow target | Increase `timeout` param or `PLUGIN_TIMEOUT_MS` |
+| No DNS banner | Provider blocks CHAOS/TXT queries | Expected; not all DNS servers expose version |
+| CPE format error | Malformed CPE string | Use `cpe:2.3:a:vendor:product:version:*:*:*:*:*:*:*` |
+| No services found | Host down or heavily firewalled | Try `NSA_VERBOSE=true` to debug; check connectivity |
+| AI analysis failed | Bad API key or provider down | Check `AI_PROVIDER` and API key env vars |
+
+---
+
+## MITRE ATT&CK Mapping
+
+Findings are auto-tagged with MITRE techniques:
+
+| Finding Type | Technique | ID |
+|-------------|-----------|-----|
+| SSH vulnerability | Remote Services: SSH | T1021.004 |
+| SMB vulnerability | Remote Services: SMB | T1021.002 |
+| FTP anonymous login | Valid Accounts | T1078 |
+| DNS zone transfer | Gather Victim Network Info | T1590.002 |
+| SNMP default community | Network Sniffing | T1040 |
+| TLS weakness | Adversary-in-the-Middle | T1557 |
+| Debug/stack trace exposure | Gather Victim Host Info | T1592 |
+| Weak authentication | Brute Force | T1110 |
+
+---
+
+## Output Formats
+
+| File | Format | Purpose |
+|------|--------|---------|
+| `scan_conclusion_raw.json` | JSON | Full unredacted scan data (admin) |
+| `scan_conclusion_raw.html` | HTML | Admin dashboard with filters |
+| `scan_response_ai_payload.json` | JSON | Redacted payload sent to AI |
+| `scan_response_ai.html` | HTML | Styled report with CVE links, severity badges |
+| `scan_response_ai.txt` | Markdown | AI vulnerability assessment (text) |
+| SARIF | JSON | CI/CD integration (GitHub Advanced Security, Azure DevOps) |
+| CSV | CSV | Tabular export of findings |
+| JSONL | JSONL | Scan history for CTEM delta analysis |
