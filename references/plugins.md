@@ -159,14 +159,30 @@ listings, and default pages.
 
 ---
 
-## Enterprise Plugins (4)
+## Enterprise Plugins (18)
 
-| ID | Name | Tier | Purpose |
-|----|------|------|---------|
-| 020 | AWS Cloud Scanner | Enterprise | Security group analysis, IAM policy review, S3 bucket checks |
-| 021 | GCP Cloud Scanner | Enterprise | Firewall rule audit, IAM bindings, project-level security |
-| 022 | Azure Cloud Scanner | Enterprise | NSG rule analysis, RBAC review, resource exposure |
-| 023 | Zero Trust Checker | Enterprise | Network segmentation, encryption posture, identity verification scoring |
+> **EE plugin ID range.** As of EE 0.3.9 (2026-05-12), all EE plugins use the disjoint **1000+ ID range** to avoid CE collision. The earlier 020/021/022/023/030/040/050/060 IDs were renumbered to 1020/1021/1022/1023/1030/1040/1050/1060. CE reserves 001-099. EE plugins audit AWS / GCP / Azure cloud substrate end-to-end against the AICPA Trust Services Criteria 2017 (SOC 2) framework; every plugin is enterprise-gated by the `cloudScanners` capability and runs against customer-supplied cloud credentials.
+
+| ID | Name | Tier | Purpose | SOC 2 Controls |
+|----|------|------|---------|----------------|
+| 1020 | AWS Cloud Scanner | Enterprise | S3 bucket hardening (PAB, encryption, versioning, Object Lock, MFA Delete, logging) | C1.1 / C1.2 / CC7.1 |
+| 1021 | GCP Cloud Scanner | Enterprise | Firewall rule audit + IAM bindings + Storage bucket public-access | CC6.1 / CC6.6 / C1.1 |
+| 1022 | Azure Cloud Scanner | Enterprise | NSG rule analysis + RBAC role assignments + Storage account hardening | CC6.1 / CC6.6 / C1.1 |
+| 1023 | Zero Trust Checker | Enterprise | Segmentation + encryption + identity + lateral movement scoring (reads OBSERVED open ports) | CC6.6 |
+| 1030 | AWS IAM Deep Auditor | Enterprise | Shadow-admin path detection via BFS over PassRole / AssumeRole / federated trust; restrictive-Condition allowlist (Auth0 / Okta / Cognito) | CC6.1 |
+| 1040 | AWS CloudTrail Operational Integrity | Enterprise | Trail health + log-file validation + KMS-CMK; CloudWatch alarm coverage vs CIS AWS Foundations Benchmark v1.5 §3.1–3.14; cross-account S3 trail-destination WORM verification (SEC 17a-4 / FINRA 4511) | CC7.2 / CC7.3 |
+| 1050 | AWS API Gateway Assurance | Enterprise | Per-method/route authorization classifier; custom-domain TLS policy; stage-level access logging / throttling / WAF; public-endpoint exposure; Lambda authorizer cross-reference via lambda:GetFunction | CC6.1 / CC6.6 / CC6.7 / CC7.1 / A1.2 |
+| 1060 | AWS DynamoDB Audit Integrity | Enterprise | Per-table PITR + deletion protection + KMS-CMK; resource-policy presence; CloudTrail DynamoDB data-event coverage cross-reference (first PI1.5 evidence) | CC6.6 / CC7.1 / C1.1 / PI1.5 |
+| 1070 | AWS KMS Auditor | Enterprise | Per-key rotation status; 5-tier wildcard-principal classifier (CRITICAL/HIGH/INFO/PASS) across Principal.AWS / Federated / Service / CanonicalUser; NotPrincipal-Allow + NotAction-Allow + glob-action support | CC6.3 / C1.1 |
+| 1080 | AWS Lambda Security Auditor | Enterprise | Runtime EOL detection (case-normalized); public function-URL exposure; resource-policy permissive principals; env-var secret-suggestive name detection (ZDE-safe — names only, never values); VPC config; KMS-CMK; DLQ + reserved concurrency | CC6.1 / CC6.6 / CC7.1 / C1.1 |
+| 1090 | AWS Secrets Manager + SSM Parameter Store Auditor | Enterprise | ListSecrets + DescribeSecret (rotation cadence, KMS-CMK, prod-tier tagging) + SSM DescribeParameters (String/SecureString + secret-suggestive name detection). ZDE-critical: NEVER calls GetSecretValue / GetParameter — only metadata APIs | CC6.1 / CC6.6 / C1.1 |
+| 1100 | AWS CodePipeline + CodeBuild Operational Integrity | Enterprise | Pipeline source-stage encryption; CodeBuild `privilegedMode` detection; buildspec inlined-vs-S3 drift; secrets via env vars vs Secrets Manager; IAM role wildcard-Action; S3 artifact-store encryption; stale-execution detection | CC6.1 / CC7.1 / CC8.1 / C1.1 |
+| 1110 | AWS IAM Effective Decrypt-Path Auditor | Enterprise | Cross-plugin reconciler: walks IAM policies for kms:Decrypt / kms:ReEncrypt / kms:GenerateDataKey grants and cross-references against destination KMS key policies (plugin 1070) to compute effective decrypt path; closes NotAction-implicit-decrypt false-PASS class | CC6.1 / CC6.6 / C1.1 / C1.2 |
+| 1120 | AWS S3 Lifecycle + Cross-Region Replication Auditor | Enterprise | S3 lifecycle policy enumeration (CC7.1 retention-cadence) + cross-region replication topology (A1.2 DR substrate); destination-bucket reachability verification closes silent-PASS class where replication source FAILED but emitted clean | C1.1 / C1.2 / A1.2 |
+| 1130 | AWS Backup Auditor — headline thread | Enterprise | The largest single-plugin institutional-hardening arc in the EE codebase (~7800 lines, 545 tests). Audits Plans + Vaults + Recovery Points + Selections + Frameworks + Restore Testing + ReportPlans + Legal Holds + VaultType + Vault Tags + Vault Access Policy. **12-dimension air-gapped vault attestation arc** for LogicallyAirGappedBackupVault: 6 cryptographic-isolation mechanisms (vault TYPE + ARN account-segment-separation + destination KMS key-policy clean + destination KMS Grants clean + MRK-replica topology clean + source-account VPC-endpoint policy clean) + 6 substrate dimensions (PITR/retention/encryption/RestoreTesting/Legal Holds/vault Access Policy) | CC6.3 / CC6.6 / CC7.1 / CC8.1 / C1.1 / C1.2 / A1.2 |
+| 1140 | AWS RDS Auditor (v2 — extended in EE 0.4.5) | Enterprise | 7 SOC 2 substrate-evidence dimensions: Multi-AZ (A1.2) + storage encryption at rest with KMS-key custody classification + **kms:DescribeKey cross-reference promotes UNVERIFIABLE `:key/UUID` ARN shapes to deterministic PASS/MEDIUM** + parameter-group SSL enforcement (postgres rds.force_ssl + mysql require_secure_transport) + BackupRetentionPeriod (7-day baseline) + PubliclyAccessible + IAMDatabaseAuthenticationEnabled + snapshot encryption | A1.2 / CC6.1 / CC6.6 / C1.1 |
+| 1150 | AWS SQS/SNS Auditor (NEW EE 0.4.4) | Enterprise | First multi-service plugin in EE codebase. 5 dimensions: SQS encryption at rest (SqsManagedSseEnabled OR KmsMasterKeyId; four-tier classification) + SQS transit-encryption policy (aws:SecureTransport Deny statement) + SNS topic encryption at rest + SNS topic-policy permissive-Principal (full NotAction-Allow + NotPrincipal-Allow + Resource-scope filtering per plugin 1070 + 1110 precedent) + SQS dead-letter queue presence (dual-mapped A1.2 + CC7.1) | C1.1 / CC6.6 / A1.2 / CC7.1 |
+| 1170 | AWS EC2 SG Perimeter Auditor (NEW EE 0.4.5) | Enterprise | Orthogonal evidence to plugin 1023 zero-trust-checker (1023 reads OBSERVED open ports; 1170 reads DECLARED SG policy via DescribeSecurityGroups). 6 dimensions: IPv4 0.0.0.0/0 ingress to RESTRICTED_PORTS (SSH/RDP/MS SQL/MySQL/Postgres/Redis/Memcached/MongoDB/Elasticsearch/CouchDB/Docker/Kubelet) CRITICAL + IPv6 ::/0 sibling CRITICAL + all-protocol (-1) wildcard CRITICAL + public ingress to non-restricted ports INFO + egress 0.0.0.0/0 INFO + orphan SG (no attached ENI) LOW governance. UserIdGroupPairs (SG-as-source) rules surfaced as INFO + evidenceGap; transitive SG→SG chain analysis deferred to v2 | CC6.6 / CC6.2 |
 
 ---
 

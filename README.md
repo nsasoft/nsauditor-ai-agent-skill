@@ -17,7 +17,7 @@ nsauditor-ai-agent-skill/
 ├── references/
 │   ├── workflows.md                  # Multi-step workflow recipes (full audit, CI/CD, CTEM)
 │   ├── schemas.md                    # Complete data structures (scan results, CVEs, findings)
-│   └── plugins.md                    # Full plugin catalog (30+ scanners with ports & protocols)
+│   └── plugins.md                    # Full plugin catalog (44+ scanners with ports & protocols)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
 ├── package.json
@@ -74,7 +74,7 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 30+ scanner plugins with protocols, ports, and capabilities |
+| **Plugin awareness** | 44+ scanner plugins (23 CE + 3 Pro + 18 Enterprise) with protocols, ports, capabilities, and SOC 2 substrate-evidence dimensions |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |
@@ -106,9 +106,9 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 
 | Edition | Price | Highlights |
 |---------|-------|-----------|
-| **Community** | Free / MIT | 27 plugins, basic AI, SARIF, CTEM, scan history |
-| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins |
-| **Enterprise** | $2k+/yr | + Cloud scanners, Zero Trust, compliance, air-gapped |
+| **Community** | Free / MIT | 23 plugins (17 core + 6 discovery), basic AI, SARIF, CTEM, scan history |
+| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
+| **Enterprise** | $2k+/yr | + 18 cloud-substrate auditor plugins (1020-1170 range; AWS / GCP / Azure SOC 2 evidence-pack), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
 

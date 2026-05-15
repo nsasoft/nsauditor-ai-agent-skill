@@ -179,7 +179,7 @@ Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance ma
 
 ---
 
-## Plugin Reference (27+ Scanners)
+## Plugin Reference (44+ Scanners)
 
 See `references/plugins.md` for the complete catalog. Summary:
 
@@ -191,7 +191,23 @@ TCP SYN (Nmap wrapper)
 
 **Pro (3):** TLS Certificate & Cipher Auditor, TRIBE v2 Probe, DNS Security Auditor
 
-**Enterprise (4):** AWS Cloud, GCP Cloud, Azure Cloud, Zero Trust Checker
+**Enterprise (18):** AWS Cloud Scanner (1020), GCP Cloud Scanner (1021), Azure Cloud
+Scanner (1022), Zero Trust Checker (1023), AWS IAM Deep Auditor (1030), AWS CloudTrail
+Operational Integrity (1040), AWS API Gateway Assurance (1050), AWS DynamoDB Audit
+Integrity (1060), AWS KMS Auditor (1070), AWS Lambda Security Auditor (1080), AWS
+Secrets Manager + SSM Parameter Store Auditor (1090), AWS CodePipeline + CodeBuild
+Operational Integrity (1100), AWS IAM Effective Decrypt-Path Auditor (1110), AWS S3
+Lifecycle + Cross-Region Replication Auditor (1120), AWS Backup Auditor (1130), AWS
+RDS Auditor (1140), AWS SQS/SNS Auditor (1150), AWS EC2 SG Perimeter Auditor (1170).
+**EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
+CE collision. CE reserves 001-099.
+
+**EE SOC 2 substrate-evidence coverage (post-EE 0.4.5):** 10 covered controls (CC6.1 /
+CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
+(CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
+is institutionally honest: substrate-evidence depth grows release-over-release without
+the matrix being shifted (the matrix-shift requires net-new control coverage, not just
+more evidence on already-covered controls).
 
 Execution order: Discovery (100–150) → Service probes (200–400) → OS Detector (99000) →
 Result Concluder (100000). Plugins with unmet requirements auto-skip.
@@ -348,9 +364,9 @@ Add to your MCP configuration with the same command/args pattern.
 
 | Edition | Price | Key Features |
 |---------|-------|-------------|
-| **Community** | Free / MIT | 27 plugins, basic AI, CTEM, SARIF, scan history |
-| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040/050/060) |
-| **Enterprise** | $2k+/yr | + Cloud scanners, Zero Trust, compliance, air-gapped deployment |
+| **Community** | Free / MIT | 23 plugins (17 core + 6 discovery), basic AI, CTEM, SARIF, scan history |
+| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
+| **Enterprise** | $2k+/yr | + 18 cloud-substrate auditor plugins (1020-1170 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
 
