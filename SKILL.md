@@ -199,11 +199,12 @@ Secrets Manager + SSM Parameter Store Auditor (1090), AWS CodePipeline + CodeBui
 Operational Integrity (1100), AWS IAM Effective Decrypt-Path Auditor (1110), AWS S3
 Lifecycle + Cross-Region Replication Auditor (1120), AWS Backup Auditor (1130), AWS
 RDS Auditor (1140), AWS SQS/SNS Auditor (1150), AWS EC2 SG Perimeter Auditor (1170 v2 —
-RESTRICTED_PORTS 23 ports per CIS AWS Foundations v3.0), AWS ElastiCache Redis Auditor (1180).
+RESTRICTED_PORTS 23 ports per CIS AWS Foundations v3.0), AWS ElastiCache Redis Auditor (1180),
+AWS SES Email Integrity Auditor (1190 — NEW EE 0.4.7).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.4.6):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.4.7):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without
@@ -367,7 +368,7 @@ Add to your MCP configuration with the same command/args pattern.
 |---------|-------|-------------|
 | **Community** | Free / MIT | 23 plugins (17 core + 6 discovery), basic AI, CTEM, SARIF, scan history |
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 19 cloud-substrate auditor plugins (1020-1180 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
+| **Enterprise** | $2k+/yr | + 20 cloud-substrate auditor plugins (1020-1190 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
 
