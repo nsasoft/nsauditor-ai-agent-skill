@@ -4,6 +4,32 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.16 — Catalog refresh: plugin 1190 AWS SES Email Integrity Auditor v2 extension (DKIM CNAME DNS resolution + DMARC TXT record parser + SES classic API parity; first plugin in EE to depend on node:dns/promises for live DNS cross-reference) — EE 0.5.0; plugin count UNCHANGED at 20
+
+**Trio-publish institutionalization continued.** Paired with EE 0.5.0 + CE 0.1.49 — **sixth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8/0.4.9). The 0.1.16 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
+
+### What changed
+
+- **`references/plugins.md`** — **plugin 1190 row** updated v1 → v2: dim 1 DKIM now includes CNAME DNS resolution (each `<token>._domainkey.<domain>` resolved + matched against `<token>.dkim.amazonses.com`; four outcomes including HIGH `ses-dkim-dns-missing` false-CLEAN closure); dim 2 MailFrom now includes DMARC TXT record parser + MailFrom promotion (RFC 7489 §6.4 tag-list parser; five outcomes including HIGH `ses-dmarc-missing` + HIGH `ses-dmarc-policy-none`); dim 4 sending-auth policies now includes SES classic GetIdentityPolicies cross-API parity (HIGH `ses-classic-policy-discrepancy` on classic-only policies — canonical false-NEGATIVE class). v1 base preserved (TLS + dedicated IP + suppression list dimensions).
+- **`SKILL.md`** — plugin 1190 v2 narrative added to enumeration; "post-EE 0.4.9" → "post-EE 0.5.0". EE plugin count UNCHANGED at 20 (no new plugin in 0.5.0; existing plugin 1190 grew in scope across dims 1 + 2 + 4).
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### EE 0.5.0 paired-release context
+
+- **EE plugin count UNCHANGED at 20** — the 0.5.0 minor-version milestone bump is a single-plugin EXTENSION (fourth extension cycle after EE-RT.16 v2 in 0.4.6 + EE-RT.14 v3 in 0.4.8 + EE-RT.17 v2 in 0.4.9). Plugin 1190 v2 closes the canonical false-CLEAN window where SES `Status=SUCCESS` substrate alone could not rule out post-verification DNS drift.
+- **Part A — DKIM CNAME DNS resolution promotion** (dim 1) — `_resolveDkimCnames` + `_promoteDkimFromDns`. Each `<token>._domainkey.<identityDomain>` CNAME resolved via node:dns/promises + matched against `<token>.dkim.amazonses.com` (case-insensitive per RFC 1035 §2.3.3). Four outcomes: PASS `ses-dkim-dns-verified` / MEDIUM `ses-dkim-dns-partial` / HIGH `ses-dkim-dns-missing` (production false-CLEAN closure) / LOW + evidenceGap `ses-dkim-dns-unverifiable`.
+- **Part B — DMARC TXT record parser + MailFrom promotion** (dim 2) — RFC 7489 §6.4 tag-list parser + `_dmarc.<identityDomain>` TXT lookup. Five outcomes. **R-CRITICAL-1 same-session fold (false-CLEAN closure)**: `pct=0` on `p=reject`/`p=quarantine` functionally equivalent to `p=none`; now routes to HIGH `ses-dmarc-policy-none`. **R-HIGH-1 same-session fold (subdomain-takeover false-NEGATIVE closure)**: `sp` subdomain-policy override now evaluated — `p=reject; sp=none` downgrades to HIGH.
+- **Part C — SES classic GetIdentityPolicies parity** (dim 4) — `_loadSesClassicSdk` restored (was removed in v1 reviewer-fold MEDIUM as dead-code load-check). Cross-API discrepancy detection emits HIGH `ses-classic-policy-discrepancy` on classic-only policies (canonical false-NEGATIVE class). Conservative on classic SDK unavailable / AccessDenied → LOW + evidenceGap `ses-classic-policy-unverifiable`.
+- **8 same-session reviewer folds across the cycle** (1 CRITICAL + 3 HIGH + 2 MEDIUM + 2 LOW); 6 queued in Pick-up Block.
+- **First plugin in EE to depend on `node:dns/promises`** — first ship to add NETWORK-LAYER cross-reference to AWS-SDK-substrate evidence baseline; structurally distinct evidence-acquisition surface from prior 0.4.x cycles.
+- **Real-DNS smoke validation END-TO-END** against production DNS resolvers — `_dmarc.nsasoft.us` parsed correctly: `p=reject, sp=reject (default), pct=100`; forward-compat `fo=1` tag preserved in `rawTags`. Empty-account SESv2 enumeration baseline succeeded end-to-end against 522412052794.
+- **EE full regression: 4787/4787** (was 4696 at EE 0.4.9 publish; +91 tests cumulative across the v2 cycle). 46-session 100% green streak preserved.
+- **Coverage matrix UNCHANGED at 10/4/33** — substrate evidence depth growth on already-covered CC6.1 + CC6.6 via 11 new aws-ses-auditor mapping rules. The 0.5.0 bump (vs the natural 0.4.10) is an institutional milestone marker — first non-0.4.x release in the 0.4.5–0.5.0 trio-publish series + first ship to add NETWORK-LAYER cross-reference.
+
+**Recommended install path:** `npm install nsauditor-ai-agent-skill@0.1.16` (for AI-coding-agent users; pair with `npm install -g nsauditor-ai@0.1.49 @nsasoft/nsauditor-ai-ee@0.5.0`).
+
+---
+
 ## 0.1.15 — Catalog refresh: plugin 1180 AWS ElastiCache Redis Auditor v2 extension (kms:DescribeKey promotion + subnet route-table verifier; closes both v1 deferred items) — EE 0.4.9; plugin count UNCHANGED at 20
 
 **Trio-publish institutionalization continued.** Paired with EE 0.4.9 + CE 0.1.48 — **fifth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8). The 0.1.15 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
