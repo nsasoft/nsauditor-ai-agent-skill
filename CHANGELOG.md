@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.21 — Catalog refresh: NEW plugin 1160 AWS VPC Endpoints / PrivateLink Auditor — paired with EE 0.6.0 trio-publish (minor-version milestone — first new plugin since EE 0.4.7; plugin count 20 → 21)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.0 + CE 0.1.54 — **eleventh consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.0). Opens the v0.6.x line with new plugin breadth.
+
+### What changed
+
+- **`references/plugins.md`** — **NEW plugin 1160 row** added: 4 SOC 2 dimensions (endpoint policy permissive principals CC6.6, PrivateDNS enabled CC6.6, endpoint state A1.2+CC7.2, type substrate Privacy+CC6.6). First plugin to specifically audit the PrivateLink isolation boundary. CRITICAL on unconditional wildcard breaking isolation; MEDIUM on PrivateDNS-disabled silent-bypass; HIGH on `failed` state silent-failure.
+- **`SKILL.md`** — plugin count enumeration 20 → 21; "post-EE 0.5.4" → "post-EE 0.6.0".
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Recommended upgrade path
+
+```bash
+npm install nsauditor-ai-agent-skill@0.1.21
+# (paired with EE 0.6.0 + CE 0.1.54; AI-coding-agent users only)
+```
+
+---
+
 ## 0.1.20 — Catalog refresh: cross-plugin Thread H sweep — §7.5 `_promote*FromKms` signature hardening (plugin 1140 v2 + 1180 v2) + §8 operator-config DoS caps (plugin 1170 v2) — paired with EE 0.5.4 trio-publish
 
 **Trio-publish institutionalization continued.** Paired with EE 0.5.4 + CE 0.1.53 — **tenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.5.4). Final v0.5.x close-out cycle.
