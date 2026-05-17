@@ -4,6 +4,29 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.20 — Catalog refresh: cross-plugin Thread H sweep — §7.5 `_promote*FromKms` signature hardening (plugin 1140 v2 + 1180 v2) + §8 operator-config DoS caps (plugin 1170 v2) — paired with EE 0.5.4 trio-publish
+
+**Trio-publish institutionalization continued.** Paired with EE 0.5.4 + CE 0.1.53 — **tenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.5.4). Final v0.5.x close-out cycle.
+
+### What changed
+
+- **`references/plugins.md`** — cross-plugin notes added: plugins 1140 v2 + 1180 v2 `_promote*FromKms` accept BOTH legacy `keyManager` string OR new `keyManagerByArn: Map<arn, keyManager>` form (Map looks up by `finding.details.kmsKeyArn` — single source of truth; closes parallel-threading false-CLEAN class). Plugin 1170 v2 adds `_OPERATOR_CONFIG_MAX_ENTRIES = 1000` constant + operator-tunable caps via `opts.additionalRestrictedPortsCap` / `opts.additionalSystemManagedSgNamePrefixesCap`.
+- **`SKILL.md`** — "post-EE 0.5.3" → "post-EE 0.5.4". EE plugin count UNCHANGED at 20.
+
+### Notes
+
+- Pure catalog refresh; no SKILL contract changes.
+- v0.5.x close-out summary: 5 ship cycles (0.5.0–0.5.4). Ready for 0.6.0 milestone.
+
+### Recommended upgrade path
+
+```bash
+npm install nsauditor-ai-agent-skill@0.1.20
+# (paired with EE 0.5.4 + CE 0.1.53; AI-coding-agent users only)
+```
+
+---
+
 ## 0.1.19 — Catalog refresh: plugin 1190 AWS SES Email Integrity Auditor v3 extension (Part A DKIM public-key fingerprint capture/pin + Part B in-band DMARC alignment classifier; 5 same-session reviewer folds incl. 1 R-CRITICAL false-CLEAN closure on truncated DKIM keys) — EE 0.5.3; plugin count UNCHANGED at 20
 
 **Trio-publish institutionalization continued.** Paired with EE 0.5.3 + CE 0.1.52 — **ninth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8/0.4.9/0.5.0/0.5.1/0.5.2). The 0.1.19 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
