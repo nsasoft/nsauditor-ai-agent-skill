@@ -206,18 +206,28 @@ ApproximateAgeOfOldestMessage + SNS NumberOfNotificationsFailed; closes 1 CRITIC
 false-CLEAN class on empty-AlarmActions silent-PASS per R-CRITICAL fold; first
 plugin-1150 dim to cross an SDK boundary — SQS+SNS → CloudWatch), AWS EC2
 SG Perimeter Auditor (1170 v2 — RESTRICTED_PORTS 23 ports per CIS AWS Foundations
-v3.0), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9: kms:DescribeKey
-promotion + subnet route-table verifier; closes both v1 deferred items R-MEDIUM-3 +
-R-LOW-2; main-RT-inheritance false-NEGATIVE closure per R-MEDIUM-2 reviewer-fold),
-AWS SES Email Integrity Auditor (1190 v3 — extended in EE 0.5.0 + consolidated in
-EE 0.5.2 + v3 extension in EE 0.5.3: DKIM CNAME DNS resolution + DMARC TXT record
-parser + SES classic API parity + deferred-items sweep + DKIM public-key fingerprint
-capture/pin + in-band DMARC alignment classifier; closes 1 CRITICAL false-CLEAN class on DMARC pct=0 per
-R-CRITICAL-1 fold + 1 HIGH false-NEGATIVE class on DMARC sp subdomain-policy override
-per R-HIGH-1 fold + new MEDIUM ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2
-fold + silent-loss-class closure on SES classic API quota exhaustion via cause:
-"classic-sdk-quota-exhausted" per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to
-depend on node:dns/promises for live DNS cross-reference).
+v3.0), AWS VPC Endpoints / PrivateLink Auditor (1160 — NEW in EE 0.6.0; first plugin
+to audit the PrivateLink isolation boundary; 4 dims: endpoint policy permissive
+principals CC6.6, PrivateDNS enabled CC6.6, endpoint state A1.2+CC7.2, type substrate
+Privacy+CC6.6), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9:
+kms:DescribeKey promotion + subnet route-table verifier; closes both v1 deferred items
+R-MEDIUM-3 + R-LOW-2; main-RT-inheritance false-NEGATIVE closure per R-MEDIUM-2
+reviewer-fold), AWS SES Email Integrity Auditor (1190 v3 — extended in EE 0.5.0 +
+consolidated in EE 0.5.2 + v3 extension in EE 0.5.3: DKIM CNAME DNS resolution + DMARC
+TXT record parser + SES classic API parity + deferred-items sweep + DKIM public-key
+fingerprint capture/pin + in-band DMARC alignment classifier; closes 1 CRITICAL
+false-CLEAN class on DMARC pct=0 per R-CRITICAL-1 fold + 1 HIGH false-NEGATIVE class
+on DMARC sp subdomain-policy override per R-HIGH-1 fold + new MEDIUM
+ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2 fold + silent-loss-class
+closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
+per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to depend on node:dns/promises
+for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 —
+NEW in EE 0.6.1; first AWS-managed-threat-detection substrate audit; bundles two
+services per the plugin 1150 precedent; 4 active dims: GuardDuty Detector enablement
+per region CC7.1, GuardDuty protection-feature coverage CC7.1, Inspector2 enablement
+CC7.1+CC7.2, Inspector2 scan-target coverage CC7.1 zero / CC7.2 partial; 6 R1
+reviewer folds incl. R1-CRITICAL-1 soc2.json titlePattern misalignment closure
+preventing mapping-layer false-CLEAN).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
@@ -383,9 +393,9 @@ Add to your MCP configuration with the same command/args pattern.
 
 | Edition | Price | Key Features |
 |---------|-------|-------------|
-| **Community** | Free / MIT | 23 plugins (17 core + 6 discovery), basic AI, CTEM, SARIF, scan history |
+| **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, CTEM, SARIF, scan history |
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 20 cloud-substrate auditor plugins (1020-1190 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
+| **Enterprise** | $2k+/yr | + 22 cloud-substrate auditor plugins (1020-1200 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
 
