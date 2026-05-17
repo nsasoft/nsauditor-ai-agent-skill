@@ -209,15 +209,18 @@ SG Perimeter Auditor (1170 v2 — RESTRICTED_PORTS 23 ports per CIS AWS Foundati
 v3.0), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9: kms:DescribeKey
 promotion + subnet route-table verifier; closes both v1 deferred items R-MEDIUM-3 +
 R-LOW-2; main-RT-inheritance false-NEGATIVE closure per R-MEDIUM-2 reviewer-fold),
-AWS SES Email Integrity Auditor (1190 v2 — extended in EE 0.5.0: DKIM CNAME DNS
-resolution + DMARC TXT record parser + SES classic API parity; closes 1 CRITICAL
-false-CLEAN class on DMARC pct=0 per R-CRITICAL-1 fold + 1 HIGH false-NEGATIVE class
-on DMARC sp subdomain-policy override per R-HIGH-1 fold; first plugin in EE to depend
-on node:dns/promises for live DNS cross-reference).
+AWS SES Email Integrity Auditor (1190 v2.1 — extended in EE 0.5.0 + consolidated in
+EE 0.5.2: DKIM CNAME DNS resolution + DMARC TXT record parser + SES classic API parity
++ deferred-items sweep; closes 1 CRITICAL false-CLEAN class on DMARC pct=0 per
+R-CRITICAL-1 fold + 1 HIGH false-NEGATIVE class on DMARC sp subdomain-policy override
+per R-HIGH-1 fold + new MEDIUM ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2
+fold + silent-loss-class closure on SES classic API quota exhaustion via cause:
+"classic-sdk-quota-exhausted" per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to
+depend on node:dns/promises for live DNS cross-reference).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.5.1):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.5.2):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without

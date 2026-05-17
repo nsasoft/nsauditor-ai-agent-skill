@@ -4,6 +4,35 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.18 — Catalog refresh: plugin 1190 AWS SES Email Integrity Auditor v2.1 deferred-items sweep (7 deferred reviewer-fold items closed from 0.5.0 cycle + 6 same-session reviewer folds incl. 1 CRITICAL soc2 mapping closure + silent-loss-class closure on SES classic API quota exhaustion) — EE 0.5.2; plugin count UNCHANGED at 20
+
+**Trio-publish institutionalization continued.** Paired with EE 0.5.2 + CE 0.1.51 — **eighth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8/0.4.9/0.5.0/0.5.1). The 0.1.18 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin consolidation.
+
+### What changed
+
+- **`references/plugins.md`** — **plugin 1190 row** updated v2 → v2.1: 7 deferred reviewer-fold items closed. NEW emission category `ses-dkim-dns-partial-with-transients` MEDIUM (matched>0 + transient on remainder — preserves partial-match evidence rather than collapsing to LOW). NEW named Sets `_DNS_TRANSIENT_ERROR_CODES` + `_SES_CLASSIC_NOT_FOUND_ERROR_NAMES` + `_SES_CLASSIC_QUOTA_ERROR_NAMES` per [[emit_literal_set_drift]] discipline. NEW module-load-time disjointness IIFE `_assertDnsErrorCodeSetsDisjoint()` promotes invariant from test-time to Node startup. R-LOW-6 producer→consumer identityType normalization at both promoter sites.
+- **`SKILL.md`** — plugin 1190 v2.1 narrative added; "post-EE 0.5.1" → "post-EE 0.5.2". EE plugin count UNCHANGED at 20.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Why
+
+The agent-skill catalog must stay current with EE plugin consolidation cycles so that AI coding agents (Claude Code / Cursor / Windsurf / VS Code Copilot) querying the skill for plugin-1190 capabilities get accurate guidance on the v2.1 emission categories (especially the new `ses-dkim-dns-partial-with-transients` MEDIUM and the `cause: "classic-sdk-quota-exhausted"` LOW + evidenceGap) — without the catalog refresh, agents would incorrectly tell users that plugin 1190 only emits 4 DKIM-DNS categories and 3 classic-policy categories.
+
+### Recommended upgrade path
+
+```bash
+npm install nsauditor-ai-agent-skill@0.1.18
+# (paired with EE 0.5.2 + CE 0.1.51; AI-coding-agent users only)
+```
+
+### Notes
+
+- No SKILL contract changes; pure catalog refresh.
+- `references/schemas.md` + `references/workflows.md` unchanged (no plugin-schema or workflow changes in EE 0.5.2; plugin 1190 v2.1 consolidation uses the same `cloudScanners` capability + same `run()` envelope established in EE-RT.12.25).
+- Eighth consecutive trio-publish institutionalizes the discipline across 8 ship cycles.
+
+---
+
 ## 0.1.17 — Catalog refresh: plugin 1150 AWS SQS/SNS Auditor v2 extension (5 → 7 dimensions: CloudWatch alarm coverage on SQS ApproximateAgeOfOldestMessage + SNS NumberOfNotificationsFailed; first plugin-1150 dim to cross an SDK boundary — SQS+SNS → CloudWatch) — EE 0.5.1; plugin count UNCHANGED at 20
 
 **Trio-publish institutionalization continued.** Paired with EE 0.5.1 + CE 0.1.50 — **seventh consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8/0.4.9/0.5.0). The 0.1.17 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
