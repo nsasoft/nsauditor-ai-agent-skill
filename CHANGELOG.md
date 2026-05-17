@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.22 — Catalog refresh: NEW plugin 1200 AWS Inspector2 / GuardDuty Enablement Auditor — paired with EE 0.6.1 trio-publish (patch-level new-plugin extension — first AWS-managed-threat-detection substrate audit; plugin count 21 → 22)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.1 + CE 0.1.55 — **twelfth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.1).
+
+### What changed
+
+- **`references/plugins.md`** — **NEW plugin 1200 row** added: 4 active SOC 2 dimensions (GuardDuty Detector enablement per region CC7.1, GuardDuty protection-feature coverage CC7.1 — institutional baseline S3_DATA_EVENTS / EKS_AUDIT_LOGS / EBS_MALWARE_PROTECTION / RDS_LOGIN_EVENTS / LAMBDA_NETWORK_LOGS / RUNTIME_MONITORING, Inspector2 enablement CC7.1+CC7.2, Inspector2 scan-target coverage CC7.1 zero / CC7.2 partial). First AWS-managed-threat-detection substrate audit. HIGH on `gd-not-enabled` silent-blind class; HIGH on `inspector2-disabled` / SUSPENDED silent-blind class for CVE coverage on EC2/ECR/Lambda; HIGH on `inspector2-coverage-zero` (enabled overall but zero scan targets active); MEDIUM on partial coverage with explicit `disabledResources`. **6 same-session R1 reviewer folds applied** including R1-CRITICAL-1 soc2.json titlePattern misalignment closure (4 patterns; would have silently failed CC7.1/CC7.2 compliance routing) + R1-CRITICAL-1 AccessDenied distinct findings + R1-CRITICAL-2 legacy DataSources case normalization + R1-HIGH-2 SUSPENDED/DISABLED Detector silent-blind closure + R1-HIGH-3/4 dead-code drift closures.
+- **`SKILL.md`** — plugin count enumeration 21 → 22; "post-EE 0.6.0" → "post-EE 0.6.1".
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Recommended upgrade path
+
+```bash
+npm install nsauditor-ai-agent-skill@0.1.22
+# (paired with EE 0.6.1 + CE 0.1.55; AI-coding-agent users only)
+```
+
+---
+
 ## 0.1.21 — Catalog refresh: NEW plugin 1160 AWS VPC Endpoints / PrivateLink Auditor — paired with EE 0.6.0 trio-publish (minor-version milestone — first new plugin since EE 0.4.7; plugin count 20 → 21)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.0 + CE 0.1.54 — **eleventh consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.0). Opens the v0.6.x line with new plugin breadth.
