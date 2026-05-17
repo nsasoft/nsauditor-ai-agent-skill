@@ -199,7 +199,7 @@ Scan history is stored in .scan_history/ as JSONL for trend analysis."
 3. Agent response:
    "CVE lookup via NSAuditor requires a Pro license. Here are your options:
 
-   1. Start a free trial: nsauditor.com/ai/trial
+   1. View Pro/Enterprise pricing: https://www.nsauditor.com/ai/pricing/
    2. Set NSAUDITOR_LICENSE_KEY in your MCP server environment
    3. Manual lookup: search nvd.nist.gov for 'openssh 8.9' directly
 

@@ -298,4 +298,4 @@ User wants to...
 1. `probe_service` and `get_vulnerabilities` require Pro license
 2. Set `NSAUDITOR_LICENSE_KEY` environment variable
 3. CE alternative: use `scan_host` (always available) + manual CVE research
-4. Trial available at nsauditor.com/ai/trial
+4. Pro/Enterprise pricing: https://www.nsauditor.com/ai/pricing/
