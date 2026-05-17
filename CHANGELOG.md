@@ -4,6 +4,31 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.15 — Catalog refresh: plugin 1180 AWS ElastiCache Redis Auditor v2 extension (kms:DescribeKey promotion + subnet route-table verifier; closes both v1 deferred items) — EE 0.4.9; plugin count UNCHANGED at 20
+
+**Trio-publish institutionalization continued.** Paired with EE 0.4.9 + CE 0.1.48 — **fifth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8). The 0.1.15 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
+
+### What changed
+
+- **`references/plugins.md`** — **plugin 1180 row** updated v1 → v2: dim 2 at-rest+KMS now includes kms:DescribeKey cross-reference promotion (mirrors plugin 1140 v2 pattern: UNVERIFIABLE `:key/UUID` → PASS/MEDIUM via KeyMetadata.KeyManager); dim 6 subnet placement now includes ec2:DescribeRouteTables verifier (HIGH on IGW-routed subnets with per-subnet `igwDestinationsBySubnet` evidence; PASS on all-verified-private; LOW + evidenceGap on main-RT-inheritance per R-MEDIUM-2 false-NEGATIVE closure; LOW + evidenceGap on AccessDenied). Cross-plugin sister of plugin 1170 SG perimeter (layer-3 subnet→IGW vs layer-4 SG ingress). Per-resource caching (kmsKeyManagerCache + subnetGroupCache + subnetSetRoutingCache).
+- **`SKILL.md`** — plugin 1180 v2 narrative added to enumeration; "post-EE 0.4.8" → "post-EE 0.4.9". EE plugin count UNCHANGED at 20 (no new plugin in 0.4.9; existing plugin 1180 grew in scope).
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### EE 0.4.9 paired-release context
+
+- **EE plugin count UNCHANGED at 20** — seventh-ship-cycle in the 0.4.x stream is another single-plugin EXTENSION (third extension cycle after EE-RT.16 v2 in 0.4.6 + EE-RT.14 v3 in 0.4.8). Plugin 1180 v2 closes **both** v1 deferred items (R-MEDIUM-3 KMS-DescribeKey promotion + R-LOW-2 subnet route-table cross-reference).
+- **Part A — kms:DescribeKey cross-reference promotion** (dim 2 at-rest encryption; mirrors plugin 1140 v2 pattern). UNVERIFIABLE `:key/UUID` ARN shapes promoted via `KeyMetadata.KeyManager` to deterministic PASS (CUSTOMER) / MEDIUM (AWS). Conservative on AccessDenied / NotFound / unknown KeyManager.
+- **Part B — Subnet route-table verifier** (dim 6 subnet placement; closes v1 R-LOW-2). `elasticache:DescribeCacheSubnetGroups` + `ec2:DescribeRouteTables` walk. Per-subnet IGW-route detection via `/^igw-[a-f0-9]+$/i` (correctly excludes egress-only `eigw-`). HIGH on IGW-routed subnet(s) (with per-subnet `igwDestinationsBySubnet` evidence per R-HIGH-1 fold) / PASS on all-verified-private / **LOW + evidenceGap on main-RT-inheritance per R-MEDIUM-2 reviewer-fold false-NEGATIVE closure** (default-VPC main-RT typically routes `0.0.0.0/0 → igw-*`).
+- **7 same-session reviewer folds across the cycle** (independent `general-purpose-agent` review yielded 12 findings; 7 folded same-session, 1 deferred to cross-plugin Thread H sweep, 4 withdrawn after verification).
+- **No new SDK dependencies** — `@aws-sdk/client-kms` + `@aws-sdk/client-ec2` already declared in optionalDependencies since EE 0.4.5.
+- **Real-AWS smoke validation END-TO-END**: smoke against `522412052794` (no fixture changes needed). `redis-leaky-cache` → dim 6 LOW `elasticache-subnet-main-rt-inheritance` (the R-MEDIUM-2 fold escalation demonstrably firing against the real default-VPC main-RT-inheritance pattern); `findingsBySeverity: { pass:1, medium:3, high:5, low:2, info:1 }`; durationMs=1428. KMS promotion path NOT exercised against real AWS (existing fixtures use alias-form CMK keys; unit tests + plugin 1140 v2 real-AWS validation cover the promotion path).
+- **EE full regression: 4696/4696** (was 4642 at EE 0.4.8 publish; +54 tests). 45-session 100% green streak preserved.
+- **Coverage matrix UNCHANGED at 10/4/33** — substrate evidence depth growth on already-covered CC6.6 + C1.1 via 5 new aws-elasticache-redis-auditor mapping rules.
+
+**Recommended install path:** `npm install nsauditor-ai-agent-skill@0.1.15` (for AI-coding-agent users; pair with `npm install -g nsauditor-ai@0.1.48 @nsasoft/nsauditor-ai-ee@0.4.9`).
+
+---
+
 ## 0.1.14 — Catalog refresh: plugin 1140 AWS RDS Auditor v3 extension (7 → 10 dimensions; +database audit-logging) — EE 0.4.8; plugin count UNCHANGED at 20
 
 **Trio-publish institutionalization continued.** Paired with EE 0.4.8 + CE 0.1.47 — **fourth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5 institutionalized the pattern, 0.4.6 confirmed it as institutional discipline, 0.4.7 ratified the cadence). The 0.1.14 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
