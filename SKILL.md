@@ -202,11 +202,14 @@ RDS Auditor (1140 v3 — extended in EE 0.4.8 with database audit-logging; 7→1
 +pgAudit / +CloudWatch Logs exports / +CloudWatch Logs retention; aurora-aware
 log-path detection per R-HIGH-1 reviewer-fold), AWS SQS/SNS Auditor (1150), AWS EC2
 SG Perimeter Auditor (1170 v2 — RESTRICTED_PORTS 23 ports per CIS AWS Foundations
-v3.0), AWS ElastiCache Redis Auditor (1180), AWS SES Email Integrity Auditor (1190).
+v3.0), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9: kms:DescribeKey
+promotion + subnet route-table verifier; closes both v1 deferred items R-MEDIUM-3 +
+R-LOW-2; main-RT-inheritance false-NEGATIVE closure per R-MEDIUM-2 reviewer-fold),
+AWS SES Email Integrity Auditor (1190).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.4.8):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.4.9):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without
