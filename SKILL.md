@@ -397,7 +397,7 @@ Add to your MCP configuration with the same command/args pattern.
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
 | **Enterprise** | $2k+/yr | + 22 cloud-substrate auditor plugins (1020-1200 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
 
-→ [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
+→ [Pricing](https://www.nsauditor.com/ai/pricing/)
 
 ---
 

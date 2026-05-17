@@ -110,7 +110,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
 | **Enterprise** | $2k+/yr | + 22 cloud-substrate auditor plugins (1020-1200 range; AWS / GCP / Azure SOC 2 evidence-pack), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
 
-→ [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
+→ [Pricing](https://www.nsauditor.com/ai/pricing/)
 
 ## Related
 
