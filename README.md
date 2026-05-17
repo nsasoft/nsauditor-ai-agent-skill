@@ -106,9 +106,9 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 
 | Edition | Price | Highlights |
 |---------|-------|-----------|
-| **Community** | Free / MIT | 23 plugins (17 core + 6 discovery), basic AI, SARIF, CTEM, scan history |
+| **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 20 cloud-substrate auditor plugins (1020-1190 range; AWS / GCP / Azure SOC 2 evidence-pack), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
+| **Enterprise** | $2k+/yr | + 22 cloud-substrate auditor plugins (1020-1200 range; AWS / GCP / Azure SOC 2 evidence-pack), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing) · [Free trial](https://www.nsauditor.com/ai/trial)
 
