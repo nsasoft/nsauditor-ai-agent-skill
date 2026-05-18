@@ -221,8 +221,8 @@ on DMARC sp subdomain-policy override per R-HIGH-1 fold + new MEDIUM
 ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2 fold + silent-loss-class
 closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
 per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to depend on node:dns/promises
-for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v4 —
-NEW in EE 0.6.1, extended through EE 0.6.4; first AWS-managed-threat-detection
+for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v5 —
+NEW in EE 0.6.1, extended through EE 0.6.5; first AWS-managed-threat-detection
 substrate audit; bundles two services per the plugin 1150 precedent.
 **v4 EE 0.6.4 reviewer-cleanup cycle** (closes 3 of 4 R2-deferred items from
 EE-RT.20.2): **R-HIGH-2 EventBridge target verification** — new `_listEventBridgeRuleTargets`
@@ -251,15 +251,29 @@ ec2:DescribeRegions + GuardDuty FindingPublishingFrequency check + Inspector2
 baseline expansion (+lambdaCode +codeRepository). Operator opts: `regions[]` /
 `skipMultiRegion` / `regionListCap` / `gdFrequencyPassFrequency` /
 `skipAlertingDestination` / `skipEventBridgeTargetVerification` /
-`targetVerificationRuleCap`. **Documented limitation queued for 0.6.5**: target
-COUNT verified but per-target LIVENESS not (companion-LOW finding for deleted
-Lambda / detached SNS topic targets needs ~6 new IAM grants). Dim 5 org-scope
-deferred to a future cycle. Total folds across all cycles: 6 v1 + 4 v2 + 4 v3
-(1 R-CRITICAL) + 5 v4 = 19 R1 folds applied same-session).
+`targetVerificationRuleCap` / `skipTargetLivenessProbe` / `deadTargetProbeTimeoutMs`.
+**v5 EE 0.6.5 closes the 0.6.4 R-HIGH-2 documented limitation** via per-target
+liveness probes for Lambda (`lambda:GetFunction` on full qualified ARN — alias/
+version correctness verified server-side) + SNS (`sns:GetTopicAttributes`) +
+SQS (`sqs:GetQueueUrl` + `GetQueueAttributes` — partition-aware via SDK URL
+resolution; works on aws-cn / aws-us-gov / aws-iso). Companion-LOW emitted
+alongside PASS when targets dead. Parallel probes via Promise.all + 2s default
+timeout. One-retry on NotFound with 750ms backoff (eventual-consistency defense).
+Case-insensitive NotFound matching per `[[aws_string_case_normalization]]`.
+Sentinel observability — `targetVerificationReason` enum (AccessDenied /
+SdkUnavailable / BeyondCap / SkippedByOpts) on rule shape. R-NIT
+`SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set. IAM role + API destination +
+CloudWatch Logs target probes deferred to 0.6.6. Dim 5 org-scope deferred to
+a future cycle. Total folds across all cycles: 6 v1 + 4 v2 + 4 v3 (1 R-CRITICAL)
++ 5 v4 + 5 v5 (0 R-CRITICAL) = 24 R1 folds applied same-session.
+
+**v5 also brings a cross-plugin contract change**: all 18 EE AWS plugins
+(1020-1200) now thread `sessionToken` through their AWS-SDK credentials block,
+unblocking AssumeRole-style auditor credentials uniformly across the catalog).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.6.4):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.6.5):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without

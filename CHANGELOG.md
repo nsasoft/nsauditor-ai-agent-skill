@@ -4,6 +4,46 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.26 — Catalog refresh: plugin 1200 v5 v4-reviewer-cleanup cycle — paired with EE 0.6.5 trio-publish (patch-level cycle: R-NIT named-constants + sentinel observability + sessionToken cross-plugin sweep + dead-target companion-LOW; 5 R1 reviewer folds; plugin count UNCHANGED at 22; sixteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.5 + CE 0.1.59 — **sixteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.5).
+
+### What changed
+
+- **`references/plugins.md`** — plugin 1200 row updated with v5 dim list:
+  - **Dead-target companion-LOW (item)** — per-target liveness probes for Lambda + SNS + SQS via new `_probeTargetLiveness` helper (parallel via Promise.all + 2s default timeout). New MEDIUM verdict `*-alerting-destination-dead-targets` emitted as companion alongside PASS when targets point to deleted resources. New operator opts: `skipTargetLivenessProbe: true` + `deadTargetProbeTimeoutMs`. IAM role + API destination + CloudWatch Logs target probes deferred to 0.6.6.
+  - **Sentinel observability** — `targetVerificationReason` enum (AccessDenied / SdkUnavailable / BeyondCap / SkippedByOpts) on rule shape; classifier surfaces `targetVerificationReasonBreakdown` in finding details.
+  - **R-NIT named-constants** — `SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set replaces 2 bare-string sites in SecurityHub helpers per `[[emit_literal_set_drift]]`.
+  - **5 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass; 3 R-HIGH + 1 R-MEDIUM + 1 consolidated R-LOW/R-NIT): R-HIGH-1 case-insensitive NotFound matching + R-HIGH-2 one-retry on NotFound (eventual-consistency defense) + R-HIGH-3 Lambda probe passes FULL ARN (alias-correctness server-side) + R-HIGH (Explore) parallel probes with per-target timeout + R-MEDIUM-1 SQS partition-aware via `GetQueueUrl` (closes false-DEAD on aws-cn / aws-us-gov / aws-iso partitions).
+- **Cross-plugin sessionToken sweep** — note added to the EE plugin catalog narrative: 18 EE AWS plugins (1020-1200) now thread `sessionToken` through their AWS-SDK credentials block. AssumeRole-style auditor credentials work uniformly across the entire EE catalog.
+- **`SKILL.md`** — "post-EE 0.6.4" → "post-EE 0.6.5"; plugin count enumeration stays at 22.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Why the catalog refresh matters
+
+AI coding agents using this skill now know that plugin 1200:
+
+- **Verifies per-target liveness** for Lambda / SNS / SQS targets via probes — a verified rule with a Target.Arn pointing to a deleted resource emits a companion LOW alongside the PASS verdict (not just a count-based PASS).
+- Distinguishes **eventual-consistency NotFound from real DEAD** via a one-retry with 750ms backoff (defends against false-DEAD on freshly-created resources).
+- Calls `events:ListTargetsByRule` with **full qualified Lambda ARNs** to verify alias/version correctness server-side (alias `PROD` pointing to a deleted version surfaces as DEAD).
+- Supports **GovCloud / aws-cn / aws-iso SQS targets** via `GetQueueUrl` (partition-aware) instead of synthesized commercial-AWS URL.
+- Surfaces unverifiable rules with **explicit failure-mode taxonomy** (AccessDenied / SdkUnavailable / BeyondCap / SkippedByOpts) so auditors can drill down.
+
+AI coding agents using this skill also now know that **all 18 EE AWS plugins** support AssumeRole-style auditor credentials uniformly — auditors no longer need to inject ambient credentials separately.
+
+### Compatibility
+
+No agent-skill API surface changes; pure documentation refresh. AI agents using earlier agent-skill versions against EE 0.6.5 still work, they just lack the v5 dim awareness.
+
+**Customer install (paired):**
+
+```bash
+npm install -g nsauditor-ai@0.1.59 @nsasoft/nsauditor-ai-ee@0.6.5
+npm install nsauditor-ai-agent-skill@0.1.26
+```
+
+---
+
 ## 0.1.25 — Catalog refresh: plugin 1200 v4 reviewer-cleanup cycle — paired with EE 0.6.4 trio-publish (patch-level cycle: EventBridge target verification + multi-failedAccount surface + trigger uniformity; 5 R1 reviewer folds incl. R-HIGH-1 cap-skew classifier closure; plugin count UNCHANGED at 22; fifteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.4 + CE 0.1.58 — **fifteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.4).
