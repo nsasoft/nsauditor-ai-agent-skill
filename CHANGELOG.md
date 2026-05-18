@@ -4,6 +4,39 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.23 — Catalog refresh: plugin 1200 v2 evidence-acquisition extension — paired with EE 0.6.2 trio-publish (patch-level extension: multi-region GuardDuty + Inspector2 enumeration + GovCloud / ISO region support + `FindingPublishingFrequency` check + Inspector2 baseline expansion; plugin count UNCHANGED at 22; thirteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.2 + CE 0.1.56 — **thirteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.2).
+
+### What changed
+
+- **`references/plugins.md`** — plugin 1200 row updated with v2 dim list. Multi-region enumeration (item a) replaces single-region scope; `FindingPublishingFrequency` check (item b) added as CC7.1 detection-latency dimension; Inspector2 baseline expansion (item e) grows scan-target baseline from {ec2, ecr, lambda} → {ec2, ecr, lambda, lambdaCode, codeRepository}. 4 same-session R1 reviewer folds applied (0 R-CRITICAL clean review pass): R-HIGH-1 region regex GovCloud + ISO support (closes FedRAMP / StateRAMP / IL5+ false-PASS class) + R-HIGH-2 frequency ordering not equality + R-MEDIUM-1 region cap defensibility + R-LOW-1 EC2 client instrumentation parity.
+- **`SKILL.md`** — "post-EE 0.6.1" → "post-EE 0.6.2"; plugin count enumeration stays at 22 (existing plugin grew in scope).
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Why the catalog refresh matters
+
+AI coding agents using this skill now know that plugin 1200:
+
+- Audits GuardDuty and Inspector2 across **all opted-in regions** by default (not just the client's configured region).
+- Supports **GovCloud (`us-gov-*`) and ISO (`us-iso*-*`) regions** — operators on those substrates were silently skipped pre-0.6.2.
+- Classifies the GuardDuty `FindingPublishingFrequency` against an institutional baseline of 15 minutes (operator-tunable).
+- Treats Inspector2 Lambda code scanning and code-repository scanning as part of the institutional baseline (Inspector2 GA 2024+ scan-target additions).
+- Exposes operator opts: `regions: string[]` / `skipMultiRegion: true` / `regionListCap: 1..256` / `gdFrequencyPassFrequency: FIFTEEN_MINUTES | ONE_HOUR | SIX_HOURS`.
+
+### Compatibility
+
+No agent-skill API surface changes; pure documentation refresh. AI agents using earlier agent-skill versions against EE 0.6.2 still work, they just lack the v2 dim awareness.
+
+**Customer install (paired):**
+
+```bash
+npm install -g nsauditor-ai@0.1.56 @nsasoft/nsauditor-ai-ee@0.6.2
+npm install nsauditor-ai-agent-skill@0.1.23
+```
+
+---
+
 ## 0.1.22 — Catalog refresh: NEW plugin 1200 AWS Inspector2 / GuardDuty Enablement Auditor — paired with EE 0.6.1 trio-publish (patch-level new-plugin extension — first AWS-managed-threat-detection substrate audit; plugin count 21 → 22)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.1 + CE 0.1.55 — **twelfth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.1).

@@ -221,17 +221,24 @@ on DMARC sp subdomain-policy override per R-HIGH-1 fold + new MEDIUM
 ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2 fold + silent-loss-class
 closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
 per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to depend on node:dns/promises
-for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 —
-NEW in EE 0.6.1; first AWS-managed-threat-detection substrate audit; bundles two
-services per the plugin 1150 precedent; 4 active dims: GuardDuty Detector enablement
-per region CC7.1, GuardDuty protection-feature coverage CC7.1, Inspector2 enablement
-CC7.1+CC7.2, Inspector2 scan-target coverage CC7.1 zero / CC7.2 partial; 6 R1
-reviewer folds incl. R1-CRITICAL-1 soc2.json titlePattern misalignment closure
-preventing mapping-layer false-CLEAN).
+for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v2 —
+NEW in EE 0.6.1, extended in EE 0.6.2; first AWS-managed-threat-detection substrate
+audit; bundles two services per the plugin 1150 precedent; v2 grows scope across
+multi-region enumeration via ec2:DescribeRegions / per-region dispatch / per-region
+finding tags + GuardDuty FindingPublishingFrequency check (CC7.1 detection-latency;
+operator-tunable baseline; ordering-based comparison via `_GD_FREQUENCY_RANK`) +
+Inspector2 baseline expansion (+lambdaCode +codeRepository per Inspector2 GA 2024+);
+operator opts `regions[]` / `skipMultiRegion` / `regionListCap` (1..256 clamp) /
+`gdFrequencyPassFrequency`; closes FedRAMP / StateRAMP / IL5+ false-PASS class via
+R-HIGH-1 4-part region regex fold admitting `us-gov-*` + `us-iso*-*` IDs;
+soft-degrade on DescribeRegions AccessDenied → fall back to client's configured
+region + distinct LOW finding; 4 dims active dim 5 org-scope deferred to 0.6.3
+R-MEDIUM-2; 6 R1 reviewer folds in 0.6.1 incl. R1-CRITICAL-1 soc2.json titlePattern
+misalignment closure + 4 R1 folds in 0.6.2 — 0 R-CRITICAL clean review pass).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.6.1):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.6.2):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without
