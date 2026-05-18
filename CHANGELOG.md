@@ -4,6 +4,42 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.25 — Catalog refresh: plugin 1200 v4 reviewer-cleanup cycle — paired with EE 0.6.4 trio-publish (patch-level cycle: EventBridge target verification + multi-failedAccount surface + trigger uniformity; 5 R1 reviewer folds incl. R-HIGH-1 cap-skew classifier closure; plugin count UNCHANGED at 22; fifteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.4 + CE 0.1.58 — **fifteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.4).
+
+### What changed
+
+- **`references/plugins.md`** — plugin 1200 row updated with v4 dim list. **R-HIGH-2 EventBridge target verification (item)**: new `_listEventBridgeRuleTargets` helper with defensive pagination; `events:ListTargetsByRule` per matched rule (cap default 10 via `opts.targetVerificationRuleCap`; opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict `*-alerting-destination-targetless` for sink-less rules. **R-MEDIUM-2 multi-failedAccount surface**: Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccounts: array}` (renamed plural; capped at AWS-documented 100); caller emits one LOW per failed account with per-region emission cap 10 + rollup LOW per region. **R-LOW-2 trigger uniformity**: GuardDuty alerting-destination trigger gates on `detector.Status === ENABLED` (symmetric with Inspector2). **5 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass): R-HIGH-1 cap-skew classifier branch (LOW UNVERIFIABLE not MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) + R-HIGH consolidated pagination + JSDoc clarity + R-MEDIUM-1 multi-failedAccount per-region emission cap (10 + rollup) + R-MEDIUM-4 boundary tests + R-HIGH-2 dead-target documented-limitation note.
+- **`SKILL.md`** — "post-EE 0.6.3" → "post-EE 0.6.4"; plugin count enumeration stays at 22.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Why the catalog refresh matters
+
+AI coding agents using this skill now know that plugin 1200:
+
+- **Verifies EventBridge target presence per matched rule** — a rule with zero `Targets` (or just `ENABLED` state but no targets configured) routes to MEDIUM TARGETLESS instead of PASS. Closes the substrate-without-sink false-PASS class at the rule level.
+- **Emits one LOW per failed Inspector2 account** for delegated-admin scans — was first-failedAccount-only pre-fold; rest were silently dropped. Per-region emission cap of 10 + rollup LOW per region bounds finding pollution.
+- Exposes new operator opts: `skipEventBridgeTargetVerification: true` (cost-sensitive opt-out OR no IAM grant) + `targetVerificationRuleCap: 1..100` (per-rule verification cap; default 10).
+- **Distinguishes cap-skew unverifiable from sink-less rules** — when target-less rules exist AND others are beyond the verification cap (could be the real sink), emits LOW UNVERIFIABLE with `capExceeded: true` per `[[conservative_classifier_principle]]` rather than overclaiming MEDIUM TARGETLESS.
+
+### Documented limitation queued for 0.6.5
+
+The target COUNT is verified but per-target LIVENESS is not (Target.Arn could point to deleted Lambda / detached SNS topic). The soc2.json PASS rationale now calls this out explicitly; a companion-LOW finding for dead-target ARNs is queued for the 0.6.5 cycle (would require ~6 new IAM grants on Lambda / SNS / SQS / etc.).
+
+### Compatibility
+
+No agent-skill API surface changes; pure documentation refresh. AI agents using earlier agent-skill versions against EE 0.6.4 still work, they just lack the v4 dim awareness.
+
+**Customer install (paired):**
+
+```bash
+npm install -g nsauditor-ai@0.1.58 @nsasoft/nsauditor-ai-ee@0.6.4
+npm install nsauditor-ai-agent-skill@0.1.25
+```
+
+---
+
 ## 0.1.24 — Catalog refresh: plugin 1200 v3 alerting-destination dim — paired with EE 0.6.3 trio-publish (patch-level extension: substrate-without-sink false-PASS closure via EventBridge rule + SecurityHub product subscription detection; R-CRITICAL Inspector Classic ARN-collision fold; SH-only MEDIUM tier; plugin count UNCHANGED at 22; fourteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.3 + CE 0.1.57 — **fourteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.3).

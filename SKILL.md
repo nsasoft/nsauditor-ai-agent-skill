@@ -221,33 +221,45 @@ on DMARC sp subdomain-policy override per R-HIGH-1 fold + new MEDIUM
 ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2 fold + silent-loss-class
 closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
 per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to depend on node:dns/promises
-for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v3 —
-NEW in EE 0.6.1, extended in EE 0.6.2 (multi-region + GovCloud/ISO + FindingPublishingFrequency
-+ Inspector2 baseline expansion), extended in EE 0.6.3 (alerting-destination dim);
-first AWS-managed-threat-detection substrate audit; bundles two services per the
-plugin 1150 precedent; **v3 alerting-destination dim** (item c) closes substrate-without-sink
-false-PASS class by verifying EventBridge rule on source `aws.guardduty`/`aws.inspector2`
-(case-insensitive; `{prefix}` + `{wildcard}` content-filter grammar supported) OR
-SecurityHub product subscription per service per region — verdict tiers PASS / MEDIUM
-SH-only (R-HIGH-1 fold; SH aggregates but no paging guarantee) / HIGH missing /
-LOW unverifiable; new SDK deps `@aws-sdk/client-eventbridge` + `@aws-sdk/client-securityhub`;
-**v3 R-MEDIUM-2 fold** `_getInspector2AccountStatus` returns `{accountStatus, accessDenied,
-failedAccount}` distinguishing true AccessDenied from empty-body / SDK-unavailable;
-**v3 item (d) fold** surfaces AWS-published `failedAccounts[].errorCode + errorMessage`
-via new `_CAT_INS_FAILED_ACCOUNT` LOW; **v3 R-CRITICAL-1 fold** Inspector Classic vs
-Inspector2 SH product ARN substring-collision closure via boundary-anchored
-`_shArnMatchesProduct` helper + strict `/aws/inspector2` constant; v2 multi-region
-via ec2:DescribeRegions + GuardDuty FindingPublishingFrequency check (operator-tunable
-baseline; ordering-based via `_GD_FREQUENCY_RANK`) + Inspector2 baseline +lambdaCode
-+codeRepository preserved; operator opts `regions[]` / `skipMultiRegion` / `regionListCap`
-/ `gdFrequencyPassFrequency` / `skipAlertingDestination`; soft-degrade on DescribeRegions
-or EB/SH SDK load failure → fall back + distinct LOW finding; 4 dims active in v1
-+ alerting-destination dim in v3; dim 5 org-scope deferred to 0.6.4; 6 R1 folds in
-v1 + 4 R1 folds in v2 + 4 R1 folds in v3 (1 R-CRITICAL + 2 R-HIGH + 1 R-LOW)).
+for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v4 —
+NEW in EE 0.6.1, extended through EE 0.6.4; first AWS-managed-threat-detection
+substrate audit; bundles two services per the plugin 1150 precedent.
+**v4 EE 0.6.4 reviewer-cleanup cycle** (closes 3 of 4 R2-deferred items from
+EE-RT.20.2): **R-HIGH-2 EventBridge target verification** — new `_listEventBridgeRuleTargets`
+helper with defensive NextToken pagination; per-rule target verification via
+`events:ListTargetsByRule` (cap default 10 via `opts.targetVerificationRuleCap`;
+opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict
+`*-alerting-destination-targetless` for sink-less rules (zero Targets — substrate-
+without-sink at the rule level). **R-MEDIUM-2 multi-failedAccount surface** —
+helper return-shape `{accountStatus, accessDenied, failedAccounts: array}`
+(renamed plural; capped at AWS-documented 100); caller emits one LOW per failed
+account with per-region emission cap 10 + rollup LOW. **R-LOW-2 trigger
+uniformity** — GuardDuty alerting-destination trigger gates on `detector.Status
+=== ENABLED` (matches Inspector2 enabled-only semantic). **5 v4 R1 folds**
+(0 R-CRITICAL): R-HIGH-1 cap-skew classifier branch (LOW UNVERIFIABLE not
+MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) +
+R-HIGH consolidated `_listEventBridgeRuleTargets` pagination + JSDoc clarity +
+R-MEDIUM-1 multi-failedAccount per-region emission cap (10 + rollup) +
+R-MEDIUM-4 boundary tests + R-HIGH-2 dead-target documented-limitation note.
+**v3 EE 0.6.3 alerting-destination dim preserved**: EventBridge rule on source
+`aws.guardduty`/`aws.inspector2` OR SecurityHub product subscription (boundary-
+anchored `_shArnMatchesProduct` helper + strict `/aws/inspector2` constant per
+v3 R-CRITICAL-1); verdict tiers PASS / MEDIUM SH-only / MEDIUM TARGETLESS (v4
+added) / HIGH missing / LOW UNVERIFIABLE; new SDK deps `@aws-sdk/client-eventbridge`
++ `@aws-sdk/client-securityhub`. **v2 EE 0.6.2 preserved**: multi-region via
+ec2:DescribeRegions + GuardDuty FindingPublishingFrequency check + Inspector2
+baseline expansion (+lambdaCode +codeRepository). Operator opts: `regions[]` /
+`skipMultiRegion` / `regionListCap` / `gdFrequencyPassFrequency` /
+`skipAlertingDestination` / `skipEventBridgeTargetVerification` /
+`targetVerificationRuleCap`. **Documented limitation queued for 0.6.5**: target
+COUNT verified but per-target LIVENESS not (companion-LOW finding for deleted
+Lambda / detached SNS topic targets needs ~6 new IAM grants). Dim 5 org-scope
+deferred to a future cycle. Total folds across all cycles: 6 v1 + 4 v2 + 4 v3
+(1 R-CRITICAL) + 5 v4 = 19 R1 folds applied same-session).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.6.3):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.6.4):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without
