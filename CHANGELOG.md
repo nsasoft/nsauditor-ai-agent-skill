@@ -4,6 +4,44 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.24 — Catalog refresh: plugin 1200 v3 alerting-destination dim — paired with EE 0.6.3 trio-publish (patch-level extension: substrate-without-sink false-PASS closure via EventBridge rule + SecurityHub product subscription detection; R-CRITICAL Inspector Classic ARN-collision fold; SH-only MEDIUM tier; plugin count UNCHANGED at 22; fourteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.3 + CE 0.1.57 — **fourteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.3).
+
+### What changed
+
+- **`references/plugins.md`** — plugin 1200 row updated with v3 dim list. NEW alerting-destination dim (item c) verifies EventBridge rule + SecurityHub product subscription per service per region. New SDK deps `@aws-sdk/client-eventbridge` + `@aws-sdk/client-securityhub` (optionalDependencies). 4 same-session R1 reviewer folds applied: R-CRITICAL-1 SH product ARN substring collision closure (Inspector Classic vs Inspector2; boundary-anchored helper) + R-HIGH-1 SH-only PASS narrative split (SH-only is MEDIUM aggregation-only; auditor walkthrough required for SH → downstream paging) + R-HIGH-3 EventBridge content-filter grammar (`{prefix}` / `{wildcard}` matchers; regex-meta escape for operator IaC defense) + R-LOW-1 source case normalization. Also surfaces R-MEDIUM-2 (Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccount}`) + item (d) BatchGetAccountStatus contract verification with `failedAccounts[]` per-account error channel surfaced via new `_CAT_INS_FAILED_ACCOUNT` LOW.
+- **`SKILL.md`** — "post-EE 0.6.2" → "post-EE 0.6.3"; plugin count enumeration stays at 22 (existing plugin grew in scope).
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Why the catalog refresh matters
+
+AI coding agents using this skill now know that plugin 1200:
+
+- Audits **alerting-destination presence** per service per region (closing the substrate-without-sink false-PASS class) — operators wiring GuardDuty / Inspector2 without an EventBridge rule or SecurityHub integration get a HIGH finding rather than a misleading PASS.
+- Distinguishes **PASS** (EventBridge rule present), **MEDIUM SH-only** (SecurityHub aggregates but no proactive paging), **HIGH missing** (no path), and **LOW unverifiable** (AccessDenied / SDK unavailable).
+- Supports **EventBridge content-filter grammar** — `{prefix: "aws."}` catch-all rules and `{wildcard: "aws.guard*"}` glob rules both match correctly.
+- Exposes new operator opt: `skipAlertingDestination: true` for cost-sensitive runs.
+- Distinguishes a **true AccessDenied** from an **empty-body response** (R-MEDIUM-2 close-out) — `_getInspector2AccountStatus` no longer conflates the two cases.
+- Surfaces the **AWS-published `failedAccounts[]` per-account error channel** with `errorCode + errorMessage` via new `_CAT_INS_FAILED_ACCOUNT` LOW (item d close-out).
+
+### R-CRITICAL-1 closure (worth a callout)
+
+The pre-fold substring check `:product/aws/inspector` would have matched BOTH Inspector Classic (deprecated 2024) and Inspector2 ARNs — a substrate-without-sink false-PASS where a stale Classic subscription emitting zero findings would have satisfied the Inspector2 dim. The R-CRITICAL fold uses boundary-anchored substring matching + the strict `/aws/inspector2` constant, and pins the regression with a dedicated test that asserts the Classic ARN does NOT match the Inspector2 dim.
+
+### Compatibility
+
+No agent-skill API surface changes; pure documentation refresh. AI agents using earlier agent-skill versions against EE 0.6.3 still work, they just lack the v3 dim awareness.
+
+**Customer install (paired):**
+
+```bash
+npm install -g nsauditor-ai@0.1.57 @nsasoft/nsauditor-ai-ee@0.6.3
+npm install nsauditor-ai-agent-skill@0.1.24
+```
+
+---
+
 ## 0.1.23 — Catalog refresh: plugin 1200 v2 evidence-acquisition extension — paired with EE 0.6.2 trio-publish (patch-level extension: multi-region GuardDuty + Inspector2 enumeration + GovCloud / ISO region support + `FindingPublishingFrequency` check + Inspector2 baseline expansion; plugin count UNCHANGED at 22; thirteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.2 + CE 0.1.56 — **thirteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.2).
