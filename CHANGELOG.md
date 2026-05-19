@@ -4,6 +4,17 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.31 — Catalog refresh: NEW EE-RT.22 v1 plugin 1025 GCP IAM Project-Level Auditor — paired with EE 0.7.0 trio-publish (MINOR-VERSION MILESTONE opening the v0.7.x cross-cloud-parity line; first plugin in the GCP-IAM-deep-audit cohort; 3 audit dimensions across CC6.1 + CC6.6; 12 R1 reviewer folds (0 R-CRITICAL + 2 R-HIGH + 5 R-MEDIUM + 5 R-LOW); plugin count 23 → 24; 11 new soc2.json mappings; new SDK dep `@google-cloud/resource-manager`; twenty-first consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.7.0 + CE 0.1.64 — **twenty-first consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.0).
+
+### Changes
+
+- **`references/plugins.md`** — added plugin 1025 row in sort order; demoted plugin 1024 (NEW EE 0.6.8) to non-NEW.
+- **`SKILL.md`** — "post-EE 0.6.9" → "post-EE 0.7.0".
+
+---
+
 ## 0.1.30 — Catalog refresh: EE-RT.21 v2 R2 cleanup for plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.9 trio-publish (patch-level R2 reviewer-deferred-items cleanup: Appendix A multi-cloud renderer extension + evidence-gap soc2.json mappings; 5 R1 reviewer folds (0 R-CRITICAL + 1 R-HIGH + 1 R-MEDIUM + 3 R-LOW); plugin count UNCHANGED at 23; 3 new soc2.json mappings; NEW pre-publish doc-consistency gate; twentieth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.9 + CE 0.1.63 — **twentieth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.9).
