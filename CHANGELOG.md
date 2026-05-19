@@ -4,6 +4,33 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.30 — Catalog refresh: EE-RT.21 v2 R2 cleanup for plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.9 trio-publish (patch-level R2 reviewer-deferred-items cleanup: Appendix A multi-cloud renderer extension + evidence-gap soc2.json mappings; 5 R1 reviewer folds (0 R-CRITICAL + 1 R-HIGH + 1 R-MEDIUM + 3 R-LOW); plugin count UNCHANGED at 23; 3 new soc2.json mappings; NEW pre-publish doc-consistency gate; twentieth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.9 + CE 0.1.63 — **twentieth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.9).
+
+### What changed
+
+- **`references/plugins.md`** — no plugin catalog changes this cycle (plugin count unchanged at 23). Plugin 1024 row from 0.1.29 preserved.
+- **`SKILL.md`** — "post-EE 0.6.8" → "post-EE 0.6.9".
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Reviewer-fold highlights (all closed same-session)
+
+- **R1-HIGH-1 (mappings)** — Missing C1.1 dual-mapping for `_CAT_METADATA_UNREADABLE` (rationale prose vs JSON-structure drift). Added the parallel C1.1 entry; cross-cloud parity with plugin 1020 S3 precedent restored.
+- **R1-MEDIUM-1 (renderer)** — Strengthened Azure-exclusion comment to cite the engine-projection constraint in addition to plugin-1022 commingling.
+- **R1-LOW-1 (renderer + mappings)** — Cross-control uniqueBuckets dedup test + combined metadata+IAM-failure regression test.
+- **R1-LOW-2 (renderer)** — Narrative phrasing tweak ("AWS S3 / GCS" → "AWS S3 or GCS" for disambiguation).
+
+### NEW institutional discipline introduced this cycle
+
+**Pre-publish doc-consistency gate** codified in EE's `tasks/CLAUDE.md` after the 0.6.8 → user-caught doc drift (6 stale "22 plugin" claims hid across 4 docs in 2 repos). 22 doc-surface audit checklist + auto-grep + SOC 2 matrix invariant check. Saved as `[[pre_publish_doc_consistency_gate]]` auto-memory for cross-session persistence.
+
+### Tests + regression
+
+- **EE full regression: 5423/5423 across 851 suites** (was 5415/5415 at 0.6.8 publish; +8 tests, suite count unchanged). **61-session 100% green streak preserved.**
+
+---
+
 ## 0.1.29 — Catalog refresh: NEW plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.8 trio-publish (first multi-cloud parity plugin in 6 months; mirrors plugin 1020 AWS S3 Auditor with 6 GCS-specific dimensions; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 3 R-MEDIUM + 1 R-LOW — clean review pass); plugin count 22 → 23; 20 new soc2.json mappings; nineteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.8 + CE 0.1.62 — **nineteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.8).
