@@ -4,6 +4,33 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.28 — Catalog refresh: plugin 1170 v3.1 SG-reference-graph edge dedup + plugin 1200 v6.1 CloudWatch Logs probe retry-on-empty parity — paired with EE 0.6.7 trio-publish (patch-level R2 reviewer-deferred-items cleanup cycle: closes both R2 items from 0.6.6 reviewer pass; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 1 R-MEDIUM + 3 R-LOW — clean review pass) + 1 unanticipated `_retryOnNotFound` two-phase restructure (caught by test interaction); plugin count UNCHANGED at 22; soc2.json UNCHANGED; eighteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.7 + CE 0.1.61 — **eighteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.7).
+
+### What changed
+
+- **`references/plugins.md`** — two plugin rows updated:
+  - **Plugin 1170 v3.1** — extended row with edge-dedup discipline in `_buildSgReferenceGraph`: edges deduped by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per `[[conservative_classifier_principle]]`). Classifier `_classifyTransitiveReachability` port-render accepts both v3.1 array shape and v3 single-object shape (back-compat preserved).
+  - **Plugin 1200 v6.1** — extended row with CloudWatch Logs probe retry-on-empty parity. Pre-fold the CWL Logs probe was asymmetric: `DescribeLogGroups` returns `logGroups: []` (NOT a thrown exception) on missing groups, so the shared `_retryOnNotFound` helper's thrown-NotFound retry path never fired. A freshly-created CWL log group probed within seconds of creation could false-DEAD. Post-fold `_retryOnNotFound` accepts an optional retry-on-result predicate; the CWL call site passes a predicate that fires retry when the response carries no exact-name match (covers both empty and prefix-only-sibling responses). Eventual-consistency parity now uniform across IAM / Lambda / SNS / SQS / EventBridge API destination / CloudWatch Logs.
+  - **Two-phase restructure of `_retryOnNotFound`** — initially the result-based retry was added inside the existing try block, but a compound-path test interaction (transient empty → second-call throws `ResourceNotFoundException`) caused 3 total network calls. Restructured to two mutually-exclusive phases — Phase 1 = initial call + thrown-NotFound retry; Phase 2 = result-based retry — capping total calls at 2 on all compound paths. The per-call-site outer catch routes a second-call thrown error (NotFound → DEAD; AccessDenied → UNVERIFIABLE).
+  - **4 R1 reviewer folds applied** (0 R-CRITICAL + 0 R-HIGH + 1 R-MEDIUM + 3 R-LOW — clean review pass): R-MEDIUM-1 arrival-order-independent AND-aggregation (locked with 2 regression fixtures + JSDoc tightening) + R-LOW-1 partial-render contract on malformed port specs (locked with 2 regression fixtures) + R-LOW-2 `_portKeys` scratch-lifetime documented at function-signature comment + R-LOW-1 compound-path coverage (transient empty → second-call AccessDenied → UNVERIFIABLE / transient empty → second-call thrown RNF → DEAD; drives the two-phase restructure decision).
+- **`SKILL.md`** — "post-EE 0.6.6" → "post-EE 0.6.7"; plugin 1170 v3.1 + plugin 1200 v6.1 highlights surfaced in plugin narratives; plugin count enumeration stays at 22.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### R2 reviewer-deferred (queued for 0.6.8+)
+
+- **R-NIT (plugin 1200 v6.1)** — `retryOnResultPredicate` could be renamed to `shouldRetryOnResult` for question-form consistency with other EE predicates. Pure naming preference.
+- **R-NIT (plugin 1200 v6.1)** — symmetry of comments between Phase 1 retry and Phase 2 retry blocks. Pure readability.
+- **R-NIT (plugin 1170 — pre-existing)** — `// out-of-scope for v3 v1` typo at the cross-VPC BFS branch (pre-existing from 0.6.6).
+- **Cross-plugin extraction candidate** — the `(source, target)` dedup pattern with aggregated-attribute array transfers to IAM trust-policy graphs, VPC peering graphs, KMS principal-reference graphs. Lift to `_lib/graph_edge_dedup.mjs` when the next plugin adopts it.
+
+### Tests + regression
+
+- **EE full regression: 5314/5314 across 834 suites** (was 5304/5304 at 0.6.6 publish; +10 tests, suite count unchanged). **59-session 100% green streak preserved.**
+
+---
+
 ## 0.1.27 — Catalog refresh: plugin 1170 v3 SG→SG transitive reachability + plugin 1200 v6 dead-target probe warm-up — paired with EE 0.6.6 trio-publish (minor cycle: EE-RT.16 v3 transitive chain reachability + EE-RT.20.5 v6 IAM/API-destination/CW-Logs target probes; 5 R1 reviewer folds (1 R-HIGH + 2 R-MEDIUM + 2 R-LOW; 0 R-CRITICAL — clean review pass); plugin count UNCHANGED at 22; seventeenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.6 + CE 0.1.60 — **seventeenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.6).

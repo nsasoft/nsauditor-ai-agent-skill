@@ -276,9 +276,18 @@ per-region). **v6 R-MEDIUM-1 fold**: IAM `NoSuchEntityException` /
 disjunction collapsed; eventual-consistency retry restored for IAM (the canonical
 worst case — 9th cumulative recurrence of `[[emit_literal_set_drift]]` class).
 **v6 R-LOW-2 fold**: API destination ARN regex future-proofed against alias-only
-ARN shapes. Dim 5 org-scope deferred to a future cycle. Logs probe retry-on-empty
-parity deferred to 0.6.7. Total folds across all cycles: 6 v1 + 4 v2 + 4 v3 (1
-R-CRITICAL) + 5 v4 + 5 v5 + 4 v6 (0 R-CRITICAL) = 28 R1 folds applied same-session.
+ARN shapes. **v6.1 EE 0.6.7 closes the Logs probe retry-on-empty parity**:
+`_retryOnNotFound` accepts an optional retry-on-result predicate; CWL Logs probe
+fires retry when the response carries no exact-name match (covers both empty
+and prefix-only-sibling responses). **Restructured to two-phase to cap total
+network calls at 2 on compound paths** — Phase 1 = initial call + thrown-
+NotFound retry; Phase 2 = result-based retry; phases are mutually exclusive
+(per-call-site outer catch routes a second-call thrown error). Existing call
+sites (Lambda / SNS / SQS / IAM / EventBridge API destination) pass only two
+args; default `retryOnResultPredicate = null` cleanly skips Phase 2. Dim 5
+org-scope still deferred to a future cycle. Total folds across all cycles:
+6 v1 + 4 v2 + 4 v3 (1 R-CRITICAL) + 5 v4 + 5 v5 + 4 v6 (0 R-CRITICAL) + 1 v6.1
+(0 R-CRITICAL / 0 R-HIGH) = 29 R1 folds applied same-session.
 
 **v5 also brings a cross-plugin contract change**: all 18 EE AWS plugins
 (1020-1200) now thread `sessionToken` through their AWS-SDK credentials block,
@@ -286,9 +295,9 @@ unblocking AssumeRole-style auditor credentials uniformly across the catalog).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 R-HIGH-1 fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 R-LOW-2 fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation).
+**Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 R-HIGH-1 fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 R-LOW-2 fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation). **v3.1 EE 0.6.7 closes the edge-dedup R2-deferred item**: `_buildSgReferenceGraph` now dedupes edges by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per `[[conservative_classifier_principle]]`: walk possibly-same-VPC chains rather than silently skip). Classifier port-render accepts both v3.1 array shape and v3 single-object shape (back-compat). **v3.1 R-MEDIUM-1 fold**: arrival-order independence locked with 2 regression fixtures + JSDoc tightening. **v3.1 R-LOW-1 fold**: partial-render contract on malformed port specs locked with 2 fixtures. **v3.1 R-LOW-2 fold**: `_portKeys` scratch-lifetime documented (MUST NOT escape).
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.6.6):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.6.7):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
 (CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
 is institutionally honest: substrate-evidence depth grows release-over-release without
