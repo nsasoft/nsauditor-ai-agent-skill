@@ -4,6 +4,31 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.27 — Catalog refresh: plugin 1170 v3 SG→SG transitive reachability + plugin 1200 v6 dead-target probe warm-up — paired with EE 0.6.6 trio-publish (minor cycle: EE-RT.16 v3 transitive chain reachability + EE-RT.20.5 v6 IAM/API-destination/CW-Logs target probes; 5 R1 reviewer folds (1 R-HIGH + 2 R-MEDIUM + 2 R-LOW; 0 R-CRITICAL — clean review pass); plugin count UNCHANGED at 22; seventeenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.6 + CE 0.1.60 — **seventeenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.6).
+
+### What changed
+
+- **`references/plugins.md`** — two plugin rows updated:
+  - **Plugin 1170 v3** — extended row with SG→SG transitive chain reachability dimension: BFS from public-CIDR roots through `UserIdGroupPairs` SG-references; 2-hop emits HIGH, 3+ hop emits CRITICAL (operator-blindness principle); cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100); cross-VPC edges skipped as INFO trailer; per-hop port-flow tracked but NOT intersected (v3 v1 simplification — walkthroughRequired=true). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. 3 new soc2.json mappings under CC6.6 (transitive-public HIGH + CRITICAL + INFO truncation).
+  - **Plugin 1200 v6** — extended row with three new dead-target probe branches: IAM role (`iam:GetRole` on path-stripped role NAME) + EventBridge API destination (`events:DescribeApiDestination` reuses `_EventBridgeSdk`) + CloudWatch Logs (`logs:DescribeLogGroups` with `logGroupNamePrefix` filter + exact-name disambiguation guard). New SDK deps `@aws-sdk/client-iam` + `@aws-sdk/client-cloudwatch-logs` (both in optionalDependencies). Companion-LOW emission contract unchanged (existing CC7.1 titlePattern target-type-agnostic). **Operator note**: `iam:GetRole` is a global API resolving per-partition — orchestrators wiring `opts._iamClient` must construct a single global IAM client per-partition.
+  - **5 v6 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass; 1 R-HIGH + 2 R-MEDIUM + 2 R-LOW): R-HIGH-1 (plugin 1170 v3) BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS marked the target truncated but kept cloning `path` and `visited` Sets and walking past the cap) + R-MEDIUM-1 (plugin 1200 v6) IAM `NoSuchEntityException` / `NoSuchEntity` lifted into `_DEAD_TARGET_NOTFOUND_ERROR_NAMES` Set (bare disjunction collapsed; eventual-consistency retry restored for IAM — the canonical worst case for AWS eventual consistency, with IAM lag 10-30s documented; **9th cumulative recurrence** of the `[[emit_literal_set_drift]]` class across the EE codebase) + R-MEDIUM-2 (plugin 1200 v6) IAM partition-routing contract documented at `_loadIamSdk` (orchestrator must construct global IAM client per-partition; doc-only fold) + R-LOW-2 (plugin 1170 v3) depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class — pre-fold a graph deeper than `transitiveChainDepthCap` silently truncated without operator-visible signal) + R-LOW-2 (plugin 1200 v6) API destination ARN regex future-proofed against alias-only ARN shapes.
+- **`SKILL.md`** — "post-EE 0.6.5" → "post-EE 0.6.6"; plugin 1170 v3 + plugin 1200 v6 highlights surfaced in plugin-1200 narrative; plugin count enumeration stays at 22.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### R2 reviewer-deferred (queued for 0.6.7)
+
+- **R-LOW-1 (plugin 1200 v6)**: CloudWatch Logs probe doesn't retry on empty result (logs:DescribeLogGroups returns `logGroups: []` not an exception, so `_retryOnNotFound` doesn't apply). Lower priority than IAM since CWL eventual-consistency is much narrower.
+- **R-MEDIUM-1 (plugin 1170 v3)**: Edge dedup absent in `_buildSgReferenceGraph` — multi-rule references to the same SG (e.g., one perm per port) inflate chain counts 2-5×. Defer until operator feedback on chain-count noise.
+- **R-NIT** documentation folds.
+
+### Tests + regression
+
+- **EE full regression: 5304/5304 across 834 suites** (was 5261/5261 across 825 at 0.6.5 publish; +43 tests, +9 suites — most are pre-fold v3/v6 base fixtures; 5 are fold-regression pins: hub-and-spoke per-target-cap + depthCapHit-true + depthCapHit-false + IAM transient-retry-succeeds + IAM lowercase-name-retry-then-DEAD). **58-session 100% green streak preserved.**
+
+---
+
 ## 0.1.26 — Catalog refresh: plugin 1200 v5 v4-reviewer-cleanup cycle — paired with EE 0.6.5 trio-publish (patch-level cycle: R-NIT named-constants + sentinel observability + sessionToken cross-plugin sweep + dead-target companion-LOW; 5 R1 reviewer folds; plugin count UNCHANGED at 22; sixteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.5 + CE 0.1.59 — **sixteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.5).
