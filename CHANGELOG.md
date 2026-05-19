@@ -4,6 +4,30 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.29 — Catalog refresh: NEW plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.8 trio-publish (first multi-cloud parity plugin in 6 months; mirrors plugin 1020 AWS S3 Auditor with 6 GCS-specific dimensions; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 3 R-MEDIUM + 1 R-LOW — clean review pass); plugin count 22 → 23; 20 new soc2.json mappings; nineteenth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.6.8 + CE 0.1.62 — **nineteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.8).
+
+### What changed
+
+- **`references/plugins.md`** — new plugin 1024 row added (alphanumerically sorted between 1023 zero-trust-checker and 1030 IAM Deep Auditor):
+  - **Plugin 1024 — GCP Cloud Storage Auditor** (NEW EE 0.6.8): multi-cloud parity sister of plugin 1020 AWS S3 Auditor. 6 dimensions: bucket-level IAM public bindings (CC6.6 — allUsers = CRITICAL, allAuthenticatedUsers = HIGH), Uniform Bucket-Level Access enforcement (CC6.6 + C1.1 dual-mapped — closes legacy bucket-ACL false-PASS class), Object Versioning (C1.1 + A1.2 dual-mapped), Bucket Lock retention policy (C1.1 + C1.2 dual-mapped; SEC 17a-4 / FINRA 4511 WORM-alignment), Customer-Managed Encryption Keys via Cloud KMS (CC6.1 four-tier custody ladder mirroring plugin 1140 v2 RDS), bucket-level access logging (CC7.1). NEW SDK dep `@google-cloud/storage` in optionalDependencies.
+- **`SKILL.md`** — "post-EE 0.6.7" → "post-EE 0.6.8"; plugin 1024 highlights surfaced; plugin count enumeration 22 → 23.
+- **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
+
+### Reviewer-fold highlights (all closed same-session)
+
+- **R-MEDIUM-1** — Severity-ladder co-existence: when both `allUsers` and `allAuthenticatedUsers` are present in different bindings, CRITICAL finding surfaces the HIGH evidence in details + narrative.
+- **R-MEDIUM-2** — Per-bucket runtime exception severity: run()-level catch INFO → LOW for consistency with `_auditBucket` metadata-error pattern.
+- **R-MEDIUM-1 (mappings)** — Cross-cloud parity dual-mappings: 5 soc2.json entries dual-mapped to C1.2 + A1.2 matching AWS S3 precedents.
+- **R-LOW-1** — CMEK regex tightened from substring to full-format 6-segment match.
+
+### Tests + regression
+
+- **EE full regression: 5415/5415 across 851 suites** (was 5314/5314 at 0.6.7 publish; +101 tests / +17 suites — all attributable to the new plugin file). **60-session 100% green streak preserved.**
+
+---
+
 ## 0.1.28 — Catalog refresh: plugin 1170 v3.1 SG-reference-graph edge dedup + plugin 1200 v6.1 CloudWatch Logs probe retry-on-empty parity — paired with EE 0.6.7 trio-publish (patch-level R2 reviewer-deferred-items cleanup cycle: closes both R2 items from 0.6.6 reviewer pass; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 1 R-MEDIUM + 3 R-LOW — clean review pass) + 1 unanticipated `_retryOnNotFound` two-phase restructure (caught by test interaction); plugin count UNCHANGED at 22; soc2.json UNCHANGED; eighteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.7 + CE 0.1.61 — **eighteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.7).
