@@ -4,6 +4,28 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.32 — Catalog refresh: plugin 1025 GCP IAM Project-Level Auditor EXTENDED to v2 (3 dims → 7 dims) — paired with EE 0.7.1 trio-publish (EE-RT.22 v2 R2 expansion closing all 4 v1-deferred dims; +4 new dims: custom-role permission audit + SA key custody + SA impersonation graph BFS + Organization Policy constraint enumeration; NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT`; **17 same-session reviewer folds = NEW HIGH-WATER MARK** vs 0.7.0's 12 (1 R-CRITICAL EE-RT.20 class recurrence catch + 7 R-HIGH + 8 R-MEDIUM + 1 R-LOW(+1 grouped)); plugin count UNCHANGED at 24; +22 new soc2.json mappings; new SDK deps `googleapis` + `@google-cloud/org-policy` in optionalDependencies; twenty-second consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.7.1 + CE 0.1.65 — **twenty-second consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.1).
+
+### Headline — EE-RT.22 v2 plugin 1025 R2 expansion
+
+Plugin 1025 GCP IAM Project-Level Auditor extended from 3 audit dimensions to **7** via in-place R2 expansion (closes all 4 v1-deferred dims from the EE 0.7.0 cycle). Plugin count UNCHANGED at 24 (v2 = in-place expansion, not new plugin). Coverage matrix UNCHANGED at 10/4/33 — pure substrate-evidence depth uplift on already-covered CC6.1 / CC6.6 / C1.1 controls.
+
+The 4 new dimensions: **Dim 4 custom-role permission audit** (CC6.1; admin-equivalent permission allowlist), **Dim 5 SA key custody** (CC6.1 + C1.1; user-managed long-lived keys = HIGH), **Dim 6 SA impersonation graph BFS** (CC6.1 flagship dim; mirrors plugin 1030 shadow-admin BFS adapted to GCP), **Dim 7 Organization Policy constraint enumeration** (CC6.6 + C1.1; 4 sensitive constraints).
+
+NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` env var — closes the gap where GCP client libraries do NOT honor gcloud CLI's `auth/impersonate_service_account` config.
+
+### Reviewer fold high-water mark — 17 same-session folds
+
+NEW HIGH-WATER MARK vs 0.7.0's 12 folds. Distribution: 1 R-CRITICAL + 7 R-HIGH + 8 R-MEDIUM + 1 R-LOW(+1 grouped). The R-CRITICAL fold (R2-CRITICAL-1) was an EE-RT.20 R1-CRITICAL-1 class recurrence — soc2.json PASS-tier SA-key patterns silently failed to match when plugin emitted `(display: 'X')` between email and `has` clause. Production false-clean impact would have been ~100% on real GCP fixtures. Patterns rewritten to `'[^']+'.*has`.
+
+### Cross-repo privacy scrub (parallel non-functional work)
+
+Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST NOT contain operator-private references. Substitutions applied across all 3 repos for personal emails / internal repo paths / real account IDs. New memory `[[npm_package_privacy]]` pinned. Force-push history rewrite applied to CE + agent-skill public repos to scrub identifiers from all historical commits.
+
+---
+
 ## 0.1.31 — Catalog refresh: NEW EE-RT.22 v1 plugin 1025 GCP IAM Project-Level Auditor — paired with EE 0.7.0 trio-publish (MINOR-VERSION MILESTONE opening the v0.7.x cross-cloud-parity line; first plugin in the GCP-IAM-deep-audit cohort; 3 audit dimensions across CC6.1 + CC6.6; 12 R1 reviewer folds (0 R-CRITICAL + 2 R-HIGH + 5 R-MEDIUM + 5 R-LOW); plugin count 23 → 24; 11 new soc2.json mappings; new SDK dep `@google-cloud/resource-manager`; twenty-first consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.0 + CE 0.1.64 — **twenty-first consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.0).
