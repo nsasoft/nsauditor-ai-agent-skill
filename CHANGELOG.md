@@ -4,6 +4,35 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.34 — Catalog refresh: EE 0.7.3 R-CRITICAL hotfix closing 2 production bugs surfaced by EE 0.7.2 dogfood scan against operator's GCP test infra (cross-version google-auth-library fragmentation broke SA impersonation chains [R-CRITICAL — 100% false-clean impact on free-trial/gmail GCP customers + business GCP customers with no-long-lived-SA-keys policy]; GOOGLE_CLOUD_PROJECT_ID env-var alias silently skipped [R-MEDIUM]; +14 new tests across 2 new suites incl. regression pin replicating gax 5.x grpc adapter idiom; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5782/5782 across 900 suites; 67-session 100% green streak preserved; twenty-fourth consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.7.3 + CE 0.1.67 — **twenty-fourth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.3).
+
+### Headline — R-CRITICAL hotfix surfaced by EE 0.7.2 dogfood scan within 30 minutes of the 0.7.2 trio publish
+
+EE 0.7.3 closes 2 production bugs that shipped silently in EE 0.7.0–0.7.2. Both bugs surfaced when running `nsauditor-ai scan --plugins 1025 --compliance soc2` against operator's GCP test infra immediately after the 0.7.2 trio publish.
+
+**Gap #2 (R-CRITICAL)**: cross-version `google-auth-library` fragmentation. EE's `utils/gcp_auth.mjs` resolved `9.15.1` at the top level (hoisted via `googleapis@^144`); `@google-cloud/resource-manager@^6` bundles nested `10.6.2` + `google-gax@5.x` whose grpc adapter calls `headers.forEach((value, key) => ...)` expecting WHATWG Headers instance. 9.x returns plain object → `.forEach` undefined → TypeError → `2 UNKNOWN: Getting metadata from plugin failed with error: headers.forEach is not a function`. Plugin 1025's conservative classifier emitted `gcp-iam-project-unreadable` LOW + walkthroughRequired, masking the fact that ALL 7 dims silently skipped. Production false-clean impact: ~100% on any impersonation-using deployment in EE v0.7.0–0.7.2.
+
+**Fix**: NEW `_wrapAuthClientHeadersShim` in `utils/gcp_auth.mjs` monkey-patches the Impersonated instance's `getRequestHeaders` to coerce 9.x's plain-object return into a Headers instance via `new Headers(plainObject)`. 10.x returns pass through unchanged. Version-agnostic, future-proof. +8 new tests including a regression pin that exactly replicates the gax 5.x grpc adapter idiom — catches any future shim regression at unit-test time.
+
+**Customer-segment impact:**
+- **GCP free-trial / gmail customers** — impersonation is the ONLY working credential model when `iam.disableServiceAccountKeyCreation` is enforced (Google's "Secure by default"). Pre-0.7.3 100% false-clean. **Post-0.7.3 audit works end-to-end.**
+- **Business GCP customers with no-long-lived-SA-keys security policy** — many enterprise security teams mandate impersonation as their auth model. Same impact. **Post-0.7.3 audit works.**
+- **Business GCP customers using JSON keyfiles or pure ADC** — unaffected (R-CRITICAL specific to impersonation injection; pure-ADC + keyfile paths use the nested 10.x auth chain entirely).
+
+**Gap #1 (R-MEDIUM)**: operators following the `gcloud auth application-default login` setup convention (which writes `GOOGLE_CLOUD_PROJECT_ID` with `_ID` suffix) saw silent skip with `[plugin 1025] No GCP_PROJECT_ID configured`. Extended `loadConfig` + `preflight` from 2-way OR to 3-way OR: `opts.projectId > GCP_PROJECT_ID > GOOGLE_CLOUD_PROJECT > GOOGLE_CLOUD_PROJECT_ID`. +6 new tests covering all precedence paths + preflight failure-reason enumeration + end-to-end run() with env-only resolution.
+
+### Dogfood validation post-fix
+
+Re-ran the scan with both fixes applied. **8 findings emitted** (was 1 false-clean LOW pre-fix): 5 PASS + 2 MEDIUM + 1 LOW. All 7 dims exercise via the impersonated `nsauditor-readonly` audit SA. `accessDeniedByApi.listPolicies: 1` confirms the 0.7.2 R2-MED-13 counter wiring works end-to-end against real GCP.
+
+### Regression preserved
+
+EE full regression: **5782/5782 across 900 suites** (was 5768/5768 across 898 suites at 0.7.2; +14 tests / +2 suites). **67-session 100% green streak preserved.** Plugin count UNCHANGED at 24. Coverage matrix UNCHANGED at 10/4/33.
+
+---
+
 ## 0.1.33 — Catalog refresh: EE 0.7.2 Move B pure-test functional patch closing 5 deferred 0.7.1 reviewer-pass coverage gaps (+50 new tests across 6 new suites; no production code changes; no plugin emissions changed; no soc2.json changes; no new SDK deps; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5768/5768 across 898 suites; 66-session 100% green streak preserved; twenty-third consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.2 + CE 0.1.66 — **twenty-third consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.2).
