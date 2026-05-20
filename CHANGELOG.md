@@ -4,6 +4,28 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.33 — Catalog refresh: EE 0.7.2 Move B pure-test functional patch closing 5 deferred 0.7.1 reviewer-pass coverage gaps (+50 new tests across 6 new suites; no production code changes; no plugin emissions changed; no soc2.json changes; no new SDK deps; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5768/5768 across 898 suites; 66-session 100% green streak preserved; twenty-third consecutive trio-publish)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.7.2 + CE 0.1.66 — **twenty-third consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.2).
+
+### Headline — pure-test functional patch (no plugin/soc2.json/SDK changes)
+
+EE 0.7.2 is a pure-test functional patch closing the 5 test-coverage gaps deferred at 0.7.1's reviewer pass — bundled with the staged `peerDependencies.nsauditor-ai` bump (`^0.1.40` → `^0.1.65`) queued at 0.7.1 post-publish per `[[npm_tarball_replacement_trap]]` discipline. Plugin 1025 GCP IAM Project-Level Auditor's 7-dim coverage shipped in EE 0.7.1; this cycle backfills the test surface around it without altering production behavior.
+
+### Test additions — 50 new tests across 6 new suites
+
+- **R2-MED-7 BFS edge cases (+17)** — `_detectGcpImpersonationPaths` exercised against multiple disjoint cycles (Island A doesn't bleed into Island B), disconnected subgraphs, terminate-at-first-admin (multi-admin chain), parallel branches to distinct admins, depthCap exact-match + one-short + =1 boundaries, per-PATH visited Set semantics, malformed edges (null / missing-to / non-string-to), nonexistent edge targets, cycle through admin, self-loop on start, edge label fallback chain (label → displayName → key), fractional depthCap, parallel edges to same admin with different `via`.
+- **R2-MED-13 counter wiring (+15 parameterized)** — 5 v2 apiName strings × 3 counter classes: `projects.roles.list` + `projects.serviceAccounts.list` + `projects.serviceAccounts.keys.list` + `projects.serviceAccounts.getIamPolicy` + `listPolicies` × throttle-retry + access-denied + wall-budget-exhausted. Closes the institutional contract "every API surface increments the right counter key" — prior cycle tested v1's `getIamPolicy` directly but only indirect coverage of v2 apiNames via run() integration.
+- **R2-LOW-16/17 helper edges (+10)** — `_saEmailFromName`: trailing slash → `""`, leading slash → segment-after, only-slash → `""`, multiple slashes (lastIndexOf semantics), control-char strip BEFORE slash detection. `_parseIso8601ToMs`: positive `+HH:MM` offset (yields earlier UTC ms), negative `-HH:MM` offset (yields later UTC ms), date-only string (UTC midnight), fractional-seconds + Z, finite-return for well-formed-with-offset.
+- **R2-HIGH-4 SDK loader graceful-degradation contract (+8)** — direct unit tests for `_loadGoogleApisIamAdminSdk` + `_loadOrgPolicySdk` missing-dep error branches. Both SDKs are in optionalDependencies and NOT installed in the EE working tree by default. The institutional contract: loader throws with dep-name + `Cannot find package` cause; run()'s catch handler converts to single-warning skip of the affected dim cohort.
+- **R2-MED-12 buildGcpAuthOptions real-SDK fallback (+3)** — exercises the `deps._googleAuthLibrarySdk || await _loadGoogleAuthLibrarySdk()` fallback path that all other buildGcpAuthOptions tests bypass via dep injection. Uses `crypto.generateKeyPairSync` to write a valid PKCS#8 SA JSON keyfile to tmpdir, then verifies the real google-auth-library returns a real `Impersonated` instance with documented `targetPrincipal` + `lifetime` shape.
+
+### Regression preserved
+
+EE full regression: **5768/5768 across 898 suites** (was 5715/5715 across 892 suites at 0.7.1; +53 tests / +6 suites). **66-session 100% green streak preserved.** Plugin count UNCHANGED at 24. Coverage matrix UNCHANGED at 10/4/33.
+
+---
+
 ## 0.1.32 — Catalog refresh: plugin 1025 GCP IAM Project-Level Auditor EXTENDED to v2 (3 dims → 7 dims) — paired with EE 0.7.1 trio-publish (EE-RT.22 v2 R2 expansion closing all 4 v1-deferred dims; +4 new dims: custom-role permission audit + SA key custody + SA impersonation graph BFS + Organization Policy constraint enumeration; NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT`; **17 same-session reviewer folds = NEW HIGH-WATER MARK** vs 0.7.0's 12 (1 R-CRITICAL EE-RT.20 class recurrence catch + 7 R-HIGH + 8 R-MEDIUM + 1 R-LOW(+1 grouped)); plugin count UNCHANGED at 24; +22 new soc2.json mappings; new SDK deps `googleapis` + `@google-cloud/org-policy` in optionalDependencies; twenty-second consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.1 + CE 0.1.65 — **twenty-second consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.1).
