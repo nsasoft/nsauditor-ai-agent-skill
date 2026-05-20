@@ -4,6 +4,56 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.35 — Catalog refresh: EE 0.8.0 MINOR VERSION MILESTONE (EE-RT.23 Move B plugin 1022 per-dim source-attribution refactor + Engine `details.category` projection contract + Key Vault soc2.json gap closure +13 mappings; 7 same-session reviewer folds; +23 new tests / +6 new suites; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5805/5805 across 907 suites; 68-session 100% green streak preserved; twenty-fifth consecutive trio-publish; ⚠️ customer migration: `match.source: 'azure-cloud-scanner'` suppressions silently no-op post-0.8.0)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.8.0 + CE 0.1.68 — **twenty-fifth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.8.0).
+
+### Headline — MINOR VERSION MILESTONE: EE-RT.23 Move B plugin 1022 Azure scanner per-dim source-attribution refactor
+
+EE 0.8.0 closes the long-standing blocker (originally flagged in EE 0.6.9 R1-MEDIUM-1) for routing Azure storage findings into Appendix A "Cloud Bucket Exposure Attestation" without commingling NSG / RBAC / Key Vault. Plugin 1022 refactored so each of the 4 helpers (`auditNsgRules` / `auditRbac` / `auditStorageAccounts` / `auditKeyVaults`) attaches its own per-dim `source` field on every emission:
+
+- `azure-nsg-auditor`
+- `azure-rbac-auditor`
+- `azure-storage-auditor`
+- `azure-keyvault-auditor`
+
+PLUGIN_ID stays `"1022"`; `--plugins 1022` continues to work. The umbrella `azure-cloud-scanner` source stays in `CLOUD_PLUGIN_SOURCE_MAP` as defense-in-depth fallback only (no soc2.json mappings).
+
+### Engine `details.category` projection contract — minor-bump justification
+
+EE 0.8.0's `normalizeFindings` + `analyseAgainstFramework` violation surface now carry `category` (additive, backward-compat via raw escape hatch). This is the institutional rationale for the **0.7.x → 0.8.0 MINOR bump** — touches the engine-side projection that every framework consumer reads. Future plugins (plugin 1024 GCS, plugin 1025 GCP IAM, and beyond) gain `v.category` as a first-class violation field for dim-discriminator use cases without the untyped `v.raw.details` escape hatch.
+
+### Key Vault soc2.json gap closure — 13 new mappings
+
+Pre-0.8.0 the Key Vault dim emitted 10 distinct `details.category` values but had ZERO soc2.json mapping coverage — latent silent false-clean class on CC6.1 / CC6.3 / C1.1 / A1.2 substrate evidence. Post-0.8.0:
+
+- **CC6.1**: 3 entries (network-acl-allow, network-acl-absent, PASS attestation)
+- **CC6.3**: 3 entries (legacy-access-policies, rbac-authorization-unknown, PASS attestation)
+- **C1.1**: 3 entries (purge-protection-disabled, purge-protection-unknown, PASS attestation)
+- **A1.2**: 4 entries (soft-delete-below-floor, soft-delete-below-institutional, soft-delete-unknown, PASS attestation)
+
+All 10 KV anchor regexes use `^Key Vault '[^']+' <distinguishing-clause>` shape (literal-space anchors per `[[soc2_titlepattern_anchor_drift]]` discipline).
+
+### 7 same-session reviewer folds applied (2 R-HIGH + 3 R-MEDIUM + 2 R-LOW; 0 R-CRITICAL)
+
+- **F1 R-HIGH**: anchor-drift defense test now loads patterns from shipped soc2.json directly (single source of truth — closes test/production-regex drift structurally; pre-fold the test regex array was MORE permissive than the production regex — EE-RT.20-class-recurrence INSIDE the defense test).
+- **F2 R-HIGH**: `computeBucketStats` dedup key provider-qualified `${source}::${resource}` (closes cross-cloud bucket-name collision for multi-cloud customers using shared naming conventions).
+- **F3 R-MEDIUM**: empty-string `details.category` projects null (consistency with harvester source-preservation `length > 0` guard).
+- **F4 R-MEDIUM**: SDK-error path coverage tests (KV throw + Storage throw — verifies soft-degrade doesn't accidentally emit findings with wrong source).
+- **F5 R-MEDIUM**: partial-failure backward-compat test (RBAC helper throws; NSG/Storage/KV findings still surface with correct per-dim sources).
+- **F6 R-LOW**: JSDoc documents `category` field on `analyseAgainstFramework` return shape.
+- **F7 R-LOW**: NSG soc2.json regex tightened from `~/^NSG rule .* allows inbound/` to `~/^NSG rule "[^"]+" allows inbound/` (rule-name closure anchor; preemptive cross-mapping defense).
+
+### ⚠️ Customer migration required
+
+Any suppression file with `match.source: 'azure-cloud-scanner'` will silently no-op post-0.8.0. Split into per-dim entries — see CHANGELOG.md migration snippet.
+
+### Regression preserved
+
+EE full regression: **5805/5805 across 907 suites** (was 5782/900 at 0.7.3; +23 tests / +7 suites). **68-session 100% green streak preserved.** Plugin count UNCHANGED at 24. Coverage matrix UNCHANGED at 10/4/33 (pure substrate-evidence depth uplift on already-covered controls — but KV gap closure was a silent false-clean class).
+
+---
+
 ## 0.1.34 — Catalog refresh: EE 0.7.3 R-CRITICAL hotfix closing 2 production bugs surfaced by EE 0.7.2 dogfood scan against operator's GCP test infra (cross-version google-auth-library fragmentation broke SA impersonation chains [R-CRITICAL — 100% false-clean impact on free-trial/gmail GCP customers + business GCP customers with no-long-lived-SA-keys policy]; GOOGLE_CLOUD_PROJECT_ID env-var alias silently skipped [R-MEDIUM]; +14 new tests across 2 new suites incl. regression pin replicating gax 5.x grpc adapter idiom; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5782/5782 across 900 suites; 67-session 100% green streak preserved; twenty-fourth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.3 + CE 0.1.67 — **twenty-fourth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.3).
