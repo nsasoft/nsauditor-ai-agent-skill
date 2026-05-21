@@ -17,7 +17,7 @@ nsauditor-ai-agent-skill/
 ├── references/
 │   ├── workflows.md                  # Multi-step workflow recipes (full audit, CI/CD, CTEM)
 │   ├── schemas.md                    # Complete data structures (scan results, CVEs, findings)
-│   └── plugins.md                    # Full plugin catalog (44+ scanners with ports & protocols)
+│   └── plugins.md                    # Full plugin catalog (50 scanners with ports & protocols — 17 core + 6 discovery + 3 pro + 24 enterprise)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
 ├── package.json
@@ -74,7 +74,8 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 44+ scanner plugins (23 CE + 3 Pro + 18 Enterprise) with protocols, ports, capabilities, and SOC 2 substrate-evidence dimensions |
+| **Plugin awareness** | 50 scanner plugins (23 CE + 3 Pro + 24 Enterprise) with protocols, ports, capabilities, and SOC 2 + HIPAA §164.312 substrate-evidence dimensions |
+| **Compliance frameworks** | SOC 2 (AICPA TSC 2017 — 10 covered + 4 partial controls) AND **HIPAA Security Rule §164.312 Technical Safeguards (NEW EE 0.9.0 — 7 covered + 3 partial + 45 OOS; HHS Required/Addressable discipline per control)**. Multi-framework dual-publish via `--compliance soc2,hipaa`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |

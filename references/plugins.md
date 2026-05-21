@@ -159,9 +159,9 @@ listings, and default pages.
 
 ---
 
-## Enterprise Plugins (18)
+## Enterprise Plugins (24)
 
-> **EE plugin ID range.** As of EE 0.3.9 (2026-05-12), all EE plugins use the disjoint **1000+ ID range** to avoid CE collision. The earlier 020/021/022/023/030/040/050/060 IDs were renumbered to 1020/1021/1022/1023/1030/1040/1050/1060. CE reserves 001-099. EE plugins audit AWS / GCP / Azure cloud substrate end-to-end against the AICPA Trust Services Criteria 2017 (SOC 2) framework; every plugin is enterprise-gated by the `cloudScanners` capability and runs against customer-supplied cloud credentials.
+> **EE plugin ID range.** As of EE 0.3.9 (2026-05-12), all EE plugins use the disjoint **1000+ ID range** to avoid CE collision. The earlier 020/021/022/023/030/040/050/060 IDs were renumbered to 1020/1021/1022/1023/1030/1040/1050/1060. CE reserves 001-099. EE plugins audit AWS / GCP / Azure cloud substrate end-to-end against **two compliance frameworks** (post-EE 0.9.0): the AICPA Trust Services Criteria 2017 (SOC 2) and the HIPAA Security Rule §164.312 Technical Safeguards (2013 Final Rule). Each plugin's findings route to BOTH frameworks via the framework-agnostic engine + per-framework SOC2-control-citation map. Every plugin is enterprise-gated by the `cloudScanners` capability and runs against customer-supplied cloud credentials. Multi-framework workflow: `--compliance soc2,hipaa` (CSV) produces separate per-framework artifact sets in one scan. **Zero BAA required** for HIPAA — Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure.
 
 | ID | Name | Tier | Purpose | SOC 2 Controls |
 |----|------|------|---------|----------------|

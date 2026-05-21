@@ -4,6 +4,71 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.36 — Catalog refresh: EE 0.9.0 HIPAA FRAMEWORK CYCLE (first 0.9.x release; HIPAA Security Rule §164.312 Technical Safeguards ships as second supported compliance framework alongside SOC 2; HIPAA coverage matrix 7 covered + 3 partial + 45 OOS; HHS Required/Addressable discipline per control; §164.312(c)(1) ransomware-defense substrate via Logically Air-Gapped Backup Vault cross-verification; per-framework SLA-citation map closes cross-framework citation leak class; 6 same-session reviewer folds; +85 new tests across 3 new suites; plugin count UNCHANGED at 24; SOC 2 coverage matrix UNCHANGED at 10/4/33; EE regression 5890/5890 across 928 suites; 69-session 100% green streak preserved; twenty-sixth consecutive trio-publish; no breaking changes — additive only; agent-skill catalog refresh: SKILL.md HIPAA framework coverage block added, README "Plugin awareness" + "Compliance frameworks" capability rows updated, references/plugins.md Enterprise Plugins header corrected 18 → 24 with HIPAA framework mention)
+
+**Trio-publish institutionalization continued.** Paired with EE 0.9.0 + CE 0.1.69 — **twenty-sixth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.9.0).
+
+### Headline — EE 0.9.0 HIPAA framework cycle (first 0.9.x release)
+
+HIPAA Security Rule §164.312 Technical Safeguards ships as the second supported compliance framework alongside SOC 2. Closes the long-standing "planned" gap in EE's `docs/architecture.md` for the highest-demand next framework after SOC 2.
+
+**New deliverables in EE 0.9.0:**
+
+- `data/compliance/hipaa.json` — 175 mappings across 10 §164.312 controls (7 covered + 3 partial) + 45 explicit OOS specs. Patterns inherited from soc2.json's grep-verified pattern set with HIPAA-grounded rationales. Schema-additive HHS-discipline fields: `requiredOrAddressable: 'R'|'A'` + `standardOrSpec: 'standard'|'implementation-specification'` + `ruleText: <HHS rule text>` per control.
+- `docs/hipaa-coverage.md` (~440 lines) — mirror of `docs/soc2-coverage.md` shape; auditor-grade per-sub-criterion coverage doc with explicit §164.308 + §164.310 OOS framing.
+- Per-framework SLA-citation map in `utils/soc2_renderer.mjs` — new `frameworkControlCitation(framework, slot)` helper threaded through markdown + HTML renderers. HIPAA reports cite `§164.312(b) audit-controls cadence` (SLA), `§164.308 administrative-safeguards governance — OOS for §164.312 Technical-Safeguards report` (governance sentinel), `§164.312(d) Person or Entity Authentication` (identity). SOC 2 reports remain byte-identical.
+
+### HIPAA coverage matrix (7 covered + 3 partial + 45 OOS)
+
+Within §164.312 Technical Safeguards:
+- **Covered (7)**: §164.312(a)(1) Access Control, (a)(2)(i) Unique User ID, (a)(2)(iv) Encryption-at-rest, (b) Audit Controls, (d) Person/Entity Auth, (e)(1) Transmission Security, (e)(2)(ii) Transmission Encryption
+- **Partial (3)**: §164.312(c)(1) Integrity (ransomware-defense substrate), (c)(2) ePHI integrity verification, (e)(2)(i) Transmission Integrity Controls
+- **OOS within §164.312 (2)**: §164.312(a)(2)(ii) Emergency Access Procedure (procedural break-glass), (a)(2)(iii) Automatic Logoff (application-tier)
+
+Plus:
+- **§164.308 Administrative Safeguards entire (31 specs)** — workforce training, sanction policies, BAAs, contingency planning, incident procedures. Pair with HIPAA-focused GRC platforms (Drata HIPAA, Vanta HIPAA, Compliancy Group, Tugboat Logic).
+- **§164.310 Physical Safeguards entire (12 specs)** — facility access, workstation security, device/media disposal. Pair with facilities-management + endpoint-management + asset-disposal vendors.
+
+### §164.312(c)(1) Integrity ransomware-defense substrate (HHS-OCR 2024 enforcement-relevant)
+
+EE's `aws-backup-auditor` Logically Air-Gapped Backup Vault cross-verification (KMS policy + Grants + replicas + VPC-endpoint composite attestation) produces the strongest substrate evidence available on the AWS layer. A composite-attestation PASS evidences that ePHI backups would survive a full source-account compromise — exactly the §164.312(c)(1) integrity-preservation posture HHS-OCR has highlighted in 2024 enforcement actions.
+
+### Zero engine / CLI changes required
+
+EE's `loadFrameworkMap` was already framework-agnostic (reads `data/compliance/{framework}.json` by parameter); CE's `--compliance` flag already accepts CSV (wired since EE 0.3.0). Multi-framework workflow shipping today: `nsauditor-ai scan --host aws --plugins all --compliance soc2,hipaa --out evidence/` produces separate `scan_compliance_soc2.{md,html,json}` AND `scan_compliance_hipaa.{md,html,json}` artifact sets in one scan.
+
+### Zero BAA required (HIPAA §160.103)
+
+Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure. Nsasoft does not see, store, or process customer ePHI under any condition — no Business Associate Agreement needed. This is a self-hosted scanner, not a SaaS service.
+
+### 6 same-session reviewer folds applied (2 R-HIGH + 2 R-MEDIUM + 1 R-LOW + 1 docstring; 0 R-CRITICAL)
+
+Two parallel reviewers (HIPAA Security Officer perspective + senior code reviewer perspective). Confirmed: §164.312 sub-criteria routing clean (no CloudTrail in (a)(1), no MFA in (a)(1), no TLS in (a)(2)(iv)); HHS R/A classification correct per control; §164.308 + §164.310 OOS enumerations complete against 45 CFR; rationale spot-check zero cross-framework citation leak.
+
+### +85 new tests across 3 new test suites
+
+- `tests/hipaa_mapping_anchor_drift.test.mjs` (32) — load-bearing anchor-drift defense via INHERITANCE CONTRACT (every hipaa.json (source, titlePattern) pair MUST exist in soc2.json, which has its own plugin-side anchor-drift defenses).
+- `tests/hipaa_mapping.test.mjs` (36) — engine-end-to-end fixture tests across all 7 covered + 3 partial §164.312 controls + sub-criteria discrimination tests + OOS-routing assertions.
+- `tests/hipaa_renderer.test.mjs` (17) — per-framework citation correctness + SOC 2 regression-protection + helper API ergonomics (case-insensitivity, defensive type guard, sentinel-on-unknown-slot).
+
+### AWS-dogfood verified — 2026-05-21 smoke scan
+
+Against operator's test AWS account: 207 findings analyzed, all routed to correct §164.312 sub-criteria; per-framework citation map confirmed firing in production reports; ransomware-defense substrate §164.312(c)(1) surfaces correctly with 12 violations (S3 versioning disabled, Object Lock not configured, RDS BackupRetentionPeriod below baseline, single-AZ). Zero regression on SOC 2 path (same 207 findings → 9 FAIL + 4 PASS + 1 partial + 33 OOS matching 10/4/33 exactly).
+
+### Agent-skill catalog refresh (this release — 0.1.36)
+
+- `SKILL.md` — "EE SOC 2 substrate-evidence coverage" block updated to "post-EE 0.9.0" + SOC 2 matrix UNCHANGED note + NEW "EE HIPAA §164.312 Technical Safeguards substrate-evidence coverage" block enumerating 7+3+45 + R/A discipline + ransomware-substrate angle + Zero-BAA framing. `compliance_check` tool description updated to surface both SOC 2 AND HIPAA as actively shipped frameworks (previously listed alongside planned-only NIST/HIPAA/GDPR/PCI-DSS).
+- `README.md` — "Plugin awareness" capability row updated 44+ → 50 (17 core + 6 discovery + 3 pro + 24 enterprise; corrects pre-existing stale 18-enterprise claim from when EE had 18 plugins); NEW "Compliance frameworks" capability row enumerating SOC 2 + HIPAA + multi-framework dual-publish + Zero-BAA. `references/plugins.md` reference description updated 44+ → 50.
+- `references/plugins.md` — "Enterprise Plugins (18)" header corrected to "Enterprise Plugins (24)" (pre-existing stale count; EE has had 24 plugins since EE 0.7.0). Plugin-catalog intro extended to mention dual-framework SOC 2 + HIPAA support + multi-framework `--compliance soc2,hipaa` CSV workflow + Zero-BAA architecture for HIPAA.
+
+### No breaking changes — additive only
+
+The 0.8.0 customer migration carryover (suppressions targeting `match.source: 'azure-cloud-scanner'` silently no-op post-0.8.0) remains as-is. HIPAA framework cycle is opt-in via `--compliance hipaa` or `--compliance soc2,hipaa`.
+
+**Plugin count UNCHANGED at 24**. **SOC 2 coverage matrix UNCHANGED at 10/4/33** (additive-only cycle; no SOC 2 mappings changed). **HIPAA coverage matrix introduced at 7/3/45**.
+
+---
+
 ## 0.1.35 — Catalog refresh: EE 0.8.0 MINOR VERSION MILESTONE (EE-RT.23 Move B plugin 1022 per-dim source-attribution refactor + Engine `details.category` projection contract + Key Vault soc2.json gap closure +13 mappings; 7 same-session reviewer folds; +23 new tests / +6 new suites; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5805/5805 across 907 suites; 68-session 100% green streak preserved; twenty-fifth consecutive trio-publish; ⚠️ customer migration: `match.source: 'azure-cloud-scanner'` suppressions silently no-op post-0.8.0)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.8.0 + CE 0.1.68 — **twenty-fifth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.8.0).

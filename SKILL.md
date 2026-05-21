@@ -144,7 +144,7 @@ These tools return a license upgrade prompt on CE installations:
 | `save_finding` | Pro | Persist a validated finding to the finding queue |
 | `start_assessment` | Enterprise | Multi-host orchestrated security assessment |
 | `prioritize_risks` | Enterprise | Cross-host risk prioritization and ranking |
-| `compliance_check` | Enterprise | NIST/HIPAA/GDPR/PCI-DSS gap analysis |
+| `compliance_check` | Enterprise | SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) gap analysis — both shipped EE 0.9.0; NIST CSF / PCI-DSS / ISO 27001 / CIS planned. Multi-framework via `--compliance soc2,hipaa`. |
 | `export_report` | Enterprise | Formatted compliance/risk report (PDF, HTML) |
 
 ---
@@ -297,12 +297,35 @@ CE collision. CE reserves 001-099.
 
 **Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 R-HIGH-1 fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 R-LOW-2 fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation). **v3.1 EE 0.6.7 closes the edge-dedup R2-deferred item**: `_buildSgReferenceGraph` now dedupes edges by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per `[[conservative_classifier_principle]]`: walk possibly-same-VPC chains rather than silently skip). Classifier port-render accepts both v3.1 array shape and v3 single-object shape (back-compat). **v3.1 R-MEDIUM-1 fold**: arrival-order independence locked with 2 regression fixtures + JSDoc tightening. **v3.1 R-LOW-1 fold**: partial-render contract on malformed port specs locked with 2 fixtures. **v3.1 R-LOW-2 fold**: `_portKeys` scratch-lifetime documented (MUST NOT escape).
 
-**EE SOC 2 substrate-evidence coverage (post-EE 0.8.0):** 10 covered controls (CC6.1 /
+**EE SOC 2 substrate-evidence coverage (post-EE 0.9.0):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
-(CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. Coverage matrix
-is institutionally honest: substrate-evidence depth grows release-over-release without
-the matrix being shifted (the matrix-shift requires net-new control coverage, not just
+(CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. **SOC 2 matrix
+UNCHANGED post-EE 0.9.0 — the HIPAA cycle is additive-only; no SOC 2 mappings changed.**
+Coverage matrix is institutionally honest: substrate-evidence depth grows release-over-release
+without the matrix being shifted (the matrix-shift requires net-new control coverage, not just
 more evidence on already-covered controls).
+
+**EE HIPAA §164.312 Technical Safeguards substrate-evidence coverage (NEW EE 0.9.0):**
+7 covered sub-criteria (§164.312(a)(1) Access Control, (a)(2)(i) Unique User ID,
+(a)(2)(iv) Encryption-at-rest, (b) Audit Controls, (d) Person/Entity Auth, (e)(1)
+Transmission Security, (e)(2)(ii) Transmission Encryption) + 3 partial (§164.312(c)(1)
+Integrity — ransomware-defense substrate via Logically Air-Gapped Backup Vault
+cross-verification, (c)(2) Mechanism to Authenticate ePHI, (e)(2)(i) Transmission
+Integrity Controls) + 45 OOS (2 within-§164.312 + entire §164.308 Administrative
+Safeguards [31 specs: workforce training, BAAs, contingency planning, etc.] + entire
+§164.310 Physical Safeguards [12 specs: facility access, workstation security, device
+disposal]). The §164.308 + §164.310 OOS sets are *architecturally* OOS for any
+infrastructure scanner — pair with HIPAA-focused GRC platforms (Drata HIPAA, Vanta HIPAA,
+Compliancy Group, Tugboat Logic) for those families. HHS Required vs Addressable
+discipline surfaced per control. **Zero BAA required** — Zero Data Exfiltration
+architecture means ePHI never leaves customer infrastructure. Use `--compliance hipaa`
+or `--compliance soc2,hipaa` (CSV; wired since EE 0.3.0) for HIPAA-only or dual-framework
+evidence packs from a single scan. 175 mappings inherited from soc2.json's grep-verified
+pattern set with HIPAA-grounded rationales. New `data/compliance/hipaa.json`. New
+`docs/hipaa-coverage.md`. **EE regression: 5890/5890 across 928 suites; 69-session
+100% green streak preserved.** AWS-dogfood verified against operator's test account
+(207 findings, per-framework citation map confirmed firing, ransomware-substrate
+surfaces correctly).
 
 Execution order: Discovery (100–150) → Service probes (200–400) → OS Detector (99000) →
 Result Concluder (100000). Plugins with unmet requirements auto-skip.
