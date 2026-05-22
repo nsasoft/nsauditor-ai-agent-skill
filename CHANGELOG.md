@@ -4,6 +4,26 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.37 (STAGED 2026-05-22 — pending trio-publish) — Paired-release pin for EE 0.9.1 + CE 0.1.70 — External-audit-findings ship-blocker patch (no catalog change; institutional pair-version)
+
+**Cycle hook**: External adversarial-audit-skill cycle (2026-05-22) identified 10 ship-blockers in pre-existing EE 0.9.0 + CE 0.1.69 code; closed in <24h. All audit findings are against EE-side correctness paths (NVD offline feed importer + plugin 1110 KMS layer + plugin 1030 PRIVESC_ACTIONS) and CE-side license verifier (replay defense + signed revocation blocklist + monotonic-clock anchor). **No agent-skill catalog change is needed** — plugin catalog stays at 24 plugins; MCP tools unchanged; schemas unchanged; workflows unchanged. **Twenty-seventh consecutive trio-publish** institutionalized 0.4.5–0.9.1.
+
+**Why an agent-skill 0.1.37 release**: institutional pair-versioning. Every EE release gets a paired agent-skill version bump so operators using `npm view nsauditor-ai-agent-skill version` against an EE version can confirm the catalog targets the same trio. SKILL.md "post-EE 0.X.Y" version pointer updated to 0.9.1.
+
+**EE 0.9.1 + CE 0.1.70 paired-release highlights** (full detail in respective CHANGELOGs):
+- **A-CRIT-1**: `feeds/nvd_feed_processor.mjs` real NVD JSON 2.0 importer (replaces 20-line stub; closes the air-gap claim). NDJSON persistence + atomic write + gzip-bomb cap. +37 new tests.
+- **B-CRIT-1/2 + B-LABEL**: plugin 1110 KMS-grant + key-policy cross-reference. HIGH→INFO downgrade when no key trusts the principal; new `kms-grant-decrypt-no-identity-grant` MEDIUM emission (Pacu P-16 closure). Finding text preserves load-bearing prefix for soc2.json + hipaa.json titlePattern integrity. +22 new tests.
+- **C-CRIT-1..4**: plugin 1030 PRIVESC_ACTIONS additions (9 canonical Pacu paths). +21 new tests.
+- **D-HIGH-1/2/3**: CE-side license verifier hardening (replay + revocation + clock anchor). +33 new CE tests.
+
+**Reviewer pass**: 2 general-purpose agents in parallel; 10 same-session folds.
+
+**Regression**: EE 5970/5970 across 951 suites (+80 vs 0.9.0); CE 968 tests (+33 vs 0.1.69). 70-session 100% green streak preserved. **Plugin count UNCHANGED at 24**; **SOC 2 + HIPAA coverage matrices UNCHANGED**.
+
+No breaking changes — additive only.
+
+---
+
 ## 0.1.36 — Catalog refresh: EE 0.9.0 HIPAA FRAMEWORK CYCLE (first 0.9.x release; HIPAA Security Rule §164.312 Technical Safeguards ships as second supported compliance framework alongside SOC 2; HIPAA coverage matrix 7 covered + 3 partial + 45 OOS; HHS Required/Addressable discipline per control; §164.312(c)(1) ransomware-defense substrate via Logically Air-Gapped Backup Vault cross-verification; per-framework SLA-citation map closes cross-framework citation leak class; 6 same-session reviewer folds; +85 new tests across 3 new suites; plugin count UNCHANGED at 24; SOC 2 coverage matrix UNCHANGED at 10/4/33; EE regression 5890/5890 across 928 suites; 69-session 100% green streak preserved; twenty-sixth consecutive trio-publish; no breaking changes — additive only; agent-skill catalog refresh: SKILL.md HIPAA framework coverage block added, README "Plugin awareness" + "Compliance frameworks" capability rows updated, references/plugins.md Enterprise Plugins header corrected 18 → 24 with HIPAA framework mention)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.9.0 + CE 0.1.69 — **twenty-sixth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.9.0).
