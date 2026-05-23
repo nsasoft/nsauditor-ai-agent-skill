@@ -4,7 +4,35 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.37 (STAGED 2026-05-22 — pending trio-publish) — Paired-release pin for EE 0.9.1 + CE 0.1.70 — External-audit-findings ship-blocker patch (no catalog change; institutional pair-version)
+## 0.1.38 (STAGED 2026-05-22 — pending trio-publish) — Paired-release pin for EE 0.10.0 + CE 0.1.71 — NIST CSF 2.0 Track 3 third-framework cycle
+
+**Cycle hook**: EE 0.10.0 introduces NIST Cybersecurity Framework 2.0 (NIST CSWP 29, February 2024) as the third compliance framework alongside SOC 2 (AICPA TSC 2017) and HIPAA Security Rule §164.312. The agent-skill catalog updates accordingly:
+
+- `compliance_check` MCP tool description widened from "SOC 2 + HIPAA" to "SOC 2 + HIPAA + NIST CSF 2.0" with the matching `--compliance soc2,hipaa,nist-csf` CSV invocation hint.
+- `SKILL.md` framework-coverage table extended with NIST CSF 2.0 Subcategory-level matrix (13 covered / 10 partial / 83 OOS across 106 of CSF 2.0's 107 Subcategories).
+- `references/plugins.md` framework-bullet extended from "two compliance frameworks" to "three compliance frameworks" with NIST CSF 2.0 control-ID examples (PR.AA-01, DE.CM-01, RC.RP-03) + Implementation Tiers OOS disclaimer explanation + Tugboat Logic / Drata / Vanta / AuditBoard pairing-platform names.
+
+**Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **Twenty-eighth consecutive trio-publish** institutionalized 0.4.5–0.10.0.
+
+**Why an agent-skill 0.1.38 release**: institutional pair-versioning. Every EE release gets a paired agent-skill version bump so operators using `npm view nsauditor-ai-agent-skill version` against an EE version can confirm the catalog targets the same trio. SKILL.md "post-EE 0.X.Y" version pointer updated to 0.10.0.
+
+**EE 0.10.0 + CE 0.1.71 paired-release highlights** (full detail in respective CHANGELOGs):
+- NEW `data/compliance/nist-csf.json` — auditor-canonical Subcategory-level mapping. 23 declared Subcategories + 6 OOS groups + schema-additive `function` / `categoryCode` / `subcategory` / `outcomeText` / `informativeReferences` fields. Inheritance contract: every titlePattern inherits from soc2.json's grep-verified pattern set, defended by 27-test anchor-drift suite.
+- EXTENDED EE `utils/soc2_renderer.mjs` — `'nist-csf'` slot table in `frameworkControlCitation` with 8 slots incl. NEW `implementation-tiers` disclaimer. `isNistCsfReport` flag detection. Implementation Tiers OOS disclaimer section in BOTH markdown AND HTML render paths (R-HIGH-2 reviewer fold from 2nd reviewer pass — markdown-only was the pre-fold state).
+- Schema-additive fields propagation to controlEntries — closes ghost-schema gap for `function`/`categoryCode`/`subcategory`/`outcomeText`/`informativeReferences` (NIST CSF) AND `requiredOrAddressable`/`standardOrSpec`/`ruleText` (HIPAA, EE 0.9.0 inherited gap) AND `manualProcedure` (SOC 2 + HIPAA, EE 0.9.3 + 0.9.4 inherited gap). R-HIGH-1 reviewer fold from 2nd reviewer pass.
+- 91 net new tests across 3 new test files (27 anchor-drift + 39 mapping + 25 renderer) + 1 fold-driven SOC 2→NIST cross-framework leak test (R-MEDIUM-1 from 2nd reviewer pass)
+- 560-line `docs/nist-csf-coverage.md`
+- 2 reviewer passes (single-agent A combined NIST/code lens + parallel-reviewer B security/air-gap/citation-leak lens); 5 same-session folds total
+
+**Reviewer pass discipline**: 2-reviewer parallel pass per the EE 0.9.0 institutional template. Reviewer A verdict "ship with 4 small folds — cycle is structurally clean"; Reviewer B verdict "ship with 2 small folds beyond Reviewer A's findings — 2 R-HIGH genuinely new + 3 polish". 5 of 10 findings applied same-session (3 from Reviewer B + 2 from Reviewer A); 5 deferred as defer-acceptable polish.
+
+**Regression**: EE 6104/6104 across 983 suites (+92 vs 0.9.4 baseline — 91 cycle-new tests + 1 fold-driven cross-framework leak test). 75-session 100% green streak preserved. **Plugin count UNCHANGED at 24**; **SOC 2 + HIPAA coverage matrices UNCHANGED at 10/4/33 + 7/3/45**; **NIST CSF 2.0 coverage matrix introduced at 13/10/83**.
+
+No breaking changes — additive only.
+
+---
+
+## 0.1.37 (PUBLISHED 2026-05-22 to npm as `latest`, superseded by 0.1.38 on trio-publish) — Paired-release pin for EE 0.9.1 + CE 0.1.70 — External-audit-findings ship-blocker patch (no catalog change; institutional pair-version)
 
 **Cycle hook**: External adversarial-audit-skill cycle (2026-05-22) identified 10 ship-blockers in pre-existing EE 0.9.0 + CE 0.1.69 code; closed in <24h. All audit findings are against EE-side correctness paths (NVD offline feed importer + plugin 1110 KMS layer + plugin 1030 PRIVESC_ACTIONS) and CE-side license verifier (replay defense + signed revocation blocklist + monotonic-clock anchor). **No agent-skill catalog change is needed** — plugin catalog stays at 24 plugins; MCP tools unchanged; schemas unchanged; workflows unchanged. **Twenty-seventh consecutive trio-publish** institutionalized 0.4.5–0.9.1.
 
