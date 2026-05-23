@@ -144,7 +144,7 @@ These tools return a license upgrade prompt on CE installations:
 | `save_finding` | Pro | Persist a validated finding to the finding queue |
 | `start_assessment` | Enterprise | Multi-host orchestrated security assessment |
 | `prioritize_risks` | Enterprise | Cross-host risk prioritization and ranking |
-| `compliance_check` | Enterprise | SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) + NIST CSF 2.0 Core gap analysis — all three shipped (SOC 2 EE 0.3.x; HIPAA EE 0.9.0; NIST CSF 2.0 EE 0.10.0). PCI-DSS / ISO 27001 / CIS planned. Multi-framework via `--compliance soc2,hipaa,nist-csf` (any CSV subset). |
+| `compliance_check` | Enterprise | SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) + NIST CSF 2.0 Core + **PCI DSS v4.0.1** (sub-requirement-level for QSA RoC; PCI SSC June 2024 errata) gap analysis — all four shipped (SOC 2 EE 0.3.x; HIPAA EE 0.9.0; NIST CSF 2.0 EE 0.10.0; **PCI DSS v4.0.1 EE 0.11.0**). ISO 27001:2022 / CIS Controls v8 planned. Multi-framework via `--compliance soc2,hipaa,nist-csf,pci-dss` (any CSV subset; quad-framework one-scan produces four complete auditor-ready evidence packs). PCI DSS sub-requirement examples: `Req 1.2.1` NSC config standards, `Req 8.4.1` MFA on non-console admin, `Req 10.2.1` audit logs enabled, `Req 11.3.1` quarterly internal vuln scans. Defined-vs-Customized Approach discipline per Appendix E (15 Defined-only sub-requirements enforced at schema layer; CHD Scope operator-attested via CDE DFD per Req 1.2.4; card-brand AOC enforcement view — Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC). |
 | `export_report` | Enterprise | Formatted compliance/risk report (PDF, HTML) |
 
 ---

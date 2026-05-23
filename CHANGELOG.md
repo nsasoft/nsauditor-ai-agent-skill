@@ -4,7 +4,19 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.38 (STAGED 2026-05-22 — pending trio-publish) — Paired-release pin for EE 0.10.0 + CE 0.1.71 — NIST CSF 2.0 Track 3 third-framework cycle
+## 0.1.39 (STAGED 2026-05-23 — pending trio-publish) — Paired-release pin for EE 0.11.0 + CE 0.1.72 — PCI DSS v4.0.1 Track 3 fourth-framework cycle
+
+**Cycle hook**: EE 0.11.0 introduces PCI DSS v4.0.1 (PCI SSC, June 2024 errata; supersedes v4.0 March 2022; v3.2.1 retired March 31, 2024) as the fourth compliance framework alongside SOC 2 (AICPA TSC 2017), HIPAA Security Rule §164.312, and NIST Cybersecurity Framework 2.0. The agent-skill catalog updates accordingly:
+
+- `compliance_check` MCP tool description widened from "SOC 2 + HIPAA + NIST CSF 2.0" to "SOC 2 + HIPAA + NIST CSF 2.0 + PCI DSS v4.0.1" with the matching `--compliance soc2,hipaa,nist-csf,pci-dss` CSV invocation hint. PCI DSS sub-requirement examples baked into tool description: `Req 1.2.1` NSC config standards, `Req 8.4.1` MFA on non-console admin, `Req 10.2.1` audit logs enabled, `Req 11.3.1` quarterly internal vuln scans. Defined-vs-Customized Approach discipline per PCI DSS v4.0.1 Appendix E (15 Defined-only sub-requirements enforced at schema layer) + CHD Scope operator-attested via CDE Data Flow Diagram per Req 1.2.4 + card-brand AOC enforcement view (Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC).
+- `SKILL.md` framework-coverage table extended with PCI DSS v4.0.1 sub-requirement-level matrix (**20 covered / 8 partial / 39 OOS across 67 of ~250 sub-requirements at MVP-67 density**).
+- `references/plugins.md` framework-bullet extended from "three compliance frameworks" to "four compliance frameworks" with PCI DSS v4.0.1 sub-requirement examples + Req 12 OOS-by-design entirely framing + Req 5 + Req 9 OOS-entirely framing + Drata PCI / Vanta PCI / AuditBoard PCI / OneTrust GRC pairing-platform names.
+
+**Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **Twenty-ninth consecutive trio-publish** institutionalized 0.4.5–0.11.0.
+
+---
+
+## 0.1.38 (PUBLISHED 2026-05-22) — Paired-release pin for EE 0.10.0 + CE 0.1.71 — NIST CSF 2.0 Track 3 third-framework cycle
 
 **Cycle hook**: EE 0.10.0 introduces NIST Cybersecurity Framework 2.0 (NIST CSWP 29, February 2024) as the third compliance framework alongside SOC 2 (AICPA TSC 2017) and HIPAA Security Rule §164.312. The agent-skill catalog updates accordingly:
 
