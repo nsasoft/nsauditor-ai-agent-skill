@@ -4,7 +4,17 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.39 (STAGED 2026-05-23 — pending trio-publish) — Paired-release pin for EE 0.11.0 + CE 0.1.72 — PCI DSS v4.0.1 Track 3 fourth-framework cycle
+## 0.1.40 (STAGED 2026-05-23 — pending trio-publish) — Paired-release pin for EE 0.11.1 + CE 0.1.73 — PCI DSS v4.0.1 patch cycle (CAO authorship + 4 R-MEDIUM folds + `license --reset` subcommand)
+
+**Cycle hook**: EE 0.11.1 ships the PCI DSS v4.0.1 patch cycle — the 4 R-MEDIUM authoring folds deferred from the EE 0.11.0 reviewer pass (CDE-scope badge + Req 12.8.5 TPSP matrix renderer + QSA enforcement-priority ranked view + CAO authorship for all 26 customized-eligible sub-requirements per Appendix D) PLUS the operator-discovered `nsauditor-ai license --reset` subcommand on the CE side. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
+
+**Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **Coverage matrices ALL UNCHANGED** (SOC 2 10/4/33 + HIPAA 7/3/45 + NIST CSF 2.0 13/10/83 + PCI DSS 20/8/39 MVP-67 — pure patch cycle, no framework expansion).
+
+**THIRTIETH consecutive trio-publish** institutionalized 0.4.5–0.11.1.
+
+---
+
+## 0.1.39 (PUBLISHED 2026-05-23) — Paired-release pin for EE 0.11.0 + CE 0.1.72 — PCI DSS v4.0.1 Track 3 fourth-framework cycle
 
 **Cycle hook**: EE 0.11.0 introduces PCI DSS v4.0.1 (PCI SSC, June 2024 errata; supersedes v4.0 March 2022; v3.2.1 retired March 31, 2024) as the fourth compliance framework alongside SOC 2 (AICPA TSC 2017), HIPAA Security Rule §164.312, and NIST Cybersecurity Framework 2.0. The agent-skill catalog updates accordingly:
 
