@@ -4,7 +4,17 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.40 (STAGED 2026-05-23 — pending trio-publish) — Paired-release pin for EE 0.11.1 + CE 0.1.73 — PCI DSS v4.0.1 patch cycle (CAO authorship + 4 R-MEDIUM folds + `license --reset` subcommand)
+## 0.1.41 (STAGED 2026-05-24 — pending trio-publish) — Paired-release pin for EE 0.12.0 + CE 0.1.74 — ISO/IEC 27001:2022 fifth-framework introduction
+
+**Cycle hook**: EE 0.12.0 ships ISO/IEC 27001:2022 as the fifth Track 3 framework — 17 covered + 14 partial + 62 OOS across 93 Annex A controls (the complete Annex A universe across 4 themes). Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing + 11 NEW 2022 controls + 5-attribute taxonomy + 2013-to-2022 transition discipline. Skill #18 `audit-iso-27001-2022-statement-of-applicability` authored 2026-05-24 via /skill-creator (705 lines / 5 files) per the institutional Per-Framework Adversarial-Audit Skill Pairing pattern. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
+
+**Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **SOC 2 + HIPAA + NIST CSF + PCI DSS matrices ALL UNCHANGED**; **ISO/IEC 27001:2022 matrix NEW at 17/14/62 across 93 Annex A controls**.
+
+**THIRTY-FIRST consecutive trio-publish** institutionalized 0.4.5–0.12.0.
+
+---
+
+## 0.1.40 (PUBLISHED 2026-05-23 to npm as `latest`) — Paired-release pin for EE 0.11.1 + CE 0.1.73 — PCI DSS v4.0.1 patch cycle (CAO authorship + 4 R-MEDIUM folds + `license --reset` subcommand)
 
 **Cycle hook**: EE 0.11.1 ships the PCI DSS v4.0.1 patch cycle — the 4 R-MEDIUM authoring folds deferred from the EE 0.11.0 reviewer pass (CDE-scope badge + Req 12.8.5 TPSP matrix renderer + QSA enforcement-priority ranked view + CAO authorship for all 26 customized-eligible sub-requirements per Appendix D) PLUS the operator-discovered `nsauditor-ai license --reset` subcommand on the CE side. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
 
