@@ -4,7 +4,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.43 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.13.1 + CE 0.1.76 — CIS-Hardened-Image LIVE detection + plugin 1210
+## 0.1.44 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.13.2 + CE 0.1.77 — NEW plugin 1220 (Azure Storage Account Data-Protection Auditor)
+
+Paired-release pin for the EE 0.13.2 cycle (Move C-2): NEW **plugin 1220 `azure-storage-hardening-auditor`** — the first dedicated Azure auditor beyond the multi-purpose 1022 scanner — takes the EE plugin count **25 → 26** (cloud-substrate 23 → 24). It audits the Azure Storage Account encryption-at-rest / in-transit / authorization-mode surface (HTTPS-only + minimum TLS + Shared Key authorization + infrastructure double encryption + customer-managed-key reachability + rotation), non-overlapping with the 1022 scanner's network-exposure dims. Findings route across all six frameworks — all coverage matrices UNCHANGED. SKILL.md + README + `references/plugins.md` updated to the full 26-plugin catalog (1020-1220; 24 cloud-substrate auditors). No standalone agent-skill code changes.
+
+## 0.1.43 (PUBLISHED 2026-05-25) — Paired-release pin for EE 0.13.1 + CE 0.1.76 — CIS-Hardened-Image LIVE detection + plugin 1210
 
 Paired-release pin for the EE 0.13.1 cycle: CIS-Hardened-Image detection goes LIVE, NEW **plugin 1210 `aws-ec2-instance-auditor`** (AWS EC2 instance-level audit + Hardened-Image producer) takes the EE plugin count **24 → 25**, Azure (1022) + GCP (1021) gain `cisImageInventory` capture (multi-cloud detection end-to-end), the CIS Controls v8 matrix grows 17/21/115 → **17/22/114** (Safeguard 9.5 DMARC OOS→partial), and all four ISO 0.12.1 deferrals close. SKILL.md + README + `references/plugins.md` updated to the full 25-plugin catalog (1020-1210). No standalone agent-skill code changes.
 
