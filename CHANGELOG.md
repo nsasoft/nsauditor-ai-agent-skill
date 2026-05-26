@@ -4,7 +4,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.44 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.13.2 + CE 0.1.77 — NEW plugin 1220 (Azure Storage Account Data-Protection Auditor)
+## 0.1.45 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.13.3 + CE 0.1.78 — plugin 1220 deepening (blob-recoverability + per-container public-access dims)
+
+Paired-release pin for the EE 0.13.3 cycle (Move C-2.1): plugin 1220 gains two new secondary-resource-path data-protection dims — blob recoverability (soft-delete + versioning via `blobServices.getServiceProperties`) + per-container anonymous public access (account-toggle-aware via `blobContainers.list`). Plugin count UNCHANGED at 26 (deepening, not a new plugin); all six coverage matrices UNCHANGED. `references/plugins.md` 1220 row updated to the 7-dim surface. No standalone agent-skill code changes.
+
+## 0.1.44 (PUBLISHED 2026-05-26) — Paired-release pin for EE 0.13.2 + CE 0.1.77 — NEW plugin 1220 (Azure Storage Account Data-Protection Auditor)
 
 Paired-release pin for the EE 0.13.2 cycle (Move C-2): NEW **plugin 1220 `azure-storage-hardening-auditor`** — the first dedicated Azure auditor beyond the multi-purpose 1022 scanner — takes the EE plugin count **25 → 26** (cloud-substrate 23 → 24). It audits the Azure Storage Account encryption-at-rest / in-transit / authorization-mode surface (HTTPS-only + minimum TLS + Shared Key authorization + infrastructure double encryption + customer-managed-key reachability + rotation), non-overlapping with the 1022 scanner's network-exposure dims. Findings route across all six frameworks — all coverage matrices UNCHANGED. SKILL.md + README + `references/plugins.md` updated to the full 26-plugin catalog (1020-1220; 24 cloud-substrate auditors). No standalone agent-skill code changes.
 
