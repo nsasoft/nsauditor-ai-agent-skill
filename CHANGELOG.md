@@ -4,7 +4,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.1.45 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.13.3 + CE 0.1.78 — plugin 1220 deepening (blob-recoverability + per-container public-access dims)
+## 0.1.46 (STAGED — paired trio publish pending) — Paired-release pin for EE 0.14.0 + CE 0.1.79 — NEW plugin 1221 (Azure NSG Perimeter Auditor)
+
+Paired-release pin for the EE 0.14.0 cycle (Move C-2.2): NEW **plugin 1221 `azure-nsg-perimeter-auditor`** — the Azure analog of AWS plugin 1170 — takes the EE plugin count **26 → 27** (cloud-substrate 24 → 25). A CC6.6 network-segmentation perimeter auditor for Azure Network Security Groups that evaluates each NSG's inbound rules in Azure priority order (first match wins; DenyAllInbound default) across all-protocol public Allow + public-source (`*`/`0.0.0.0/0`/`Internet`) to a restricted management/data-tier port + `::/0` IPv6-wildcard (the dimension the multi-purpose 1022 scanner's flat per-rule NSG lint misses) + public→non-restricted INFO + PASS substrate, with attachment-aware severity (attached → CRITICAL effective; orphaned → MEDIUM latent), effective priority/deny-override resolution, and `0.0.0.0/1` split-range coverage. Non-overlapping-by-depth with 1022's coarse NSG dim. Findings route across all six frameworks (SOC 2 CC6.6 / HIPAA / NIST CSF / PCI DSS / ISO 27001 / CIS v8) — all coverage matrices UNCHANGED. SKILL.md + README + `references/plugins.md` updated to the full 27-plugin catalog (1020-1221; 25 cloud-substrate auditors). No standalone agent-skill code changes.
+
+## 0.1.45 (PUBLISHED 2026-05-26) — Paired-release pin for EE 0.13.3 + CE 0.1.78 — plugin 1220 deepening (blob-recoverability + per-container public-access dims)
 
 Paired-release pin for the EE 0.13.3 cycle (Move C-2.1): plugin 1220 gains two new secondary-resource-path data-protection dims — blob recoverability (soft-delete + versioning via `blobServices.getServiceProperties`) + per-container anonymous public access (account-toggle-aware via `blobContainers.list`). Plugin count UNCHANGED at 26 (deepening, not a new plugin); all six coverage matrices UNCHANGED. `references/plugins.md` 1220 row updated to the 7-dim surface. No standalone agent-skill code changes.
 
