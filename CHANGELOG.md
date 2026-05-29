@@ -4,6 +4,8 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.56 (2026-05-29) — Paired-release pin for EE 0.15.8 + CE 0.1.89 — cloud-plugin scoping fixes (AWS CLOUD_PROVIDER gate + GCP evidence-gap). SKILL.md/references unchanged.
+
 ## 0.1.55 (2026-05-29) — Paired-release pin for EE 0.15.7 + CE 0.1.88 — GCP SDK refresh
 
 Paired no-op bump (no standalone agent-skill content change; SKILL.md + `references/plugins.md` UNCHANGED). EE 0.15.7 re-applies the GCP SDK major bump (`@google-cloud/compute` ^6 / `@google-cloud/iam` ^2 / `googleapis` ^173) on the pure-ADC credential path — validated live against a test-infra GCP project (first live GCP audit: 3 CRITICAL firewall findings on compute@6) — documents the compute-client SA-impersonation gap (unsupported on compute@6; gated to plan-later), and folds the plugin-1021 project-resolution fix. No plugin count / matrix / behavior change (plugin count 28; all six matrices UNCHANGED).
