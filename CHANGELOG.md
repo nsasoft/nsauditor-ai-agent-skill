@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.55 (2026-05-29) — Paired-release pin for EE 0.15.7 + CE 0.1.88 — GCP SDK refresh
+
+Paired no-op bump (no standalone agent-skill content change; SKILL.md + `references/plugins.md` UNCHANGED). EE 0.15.7 re-applies the GCP SDK major bump (`@google-cloud/compute` ^6 / `@google-cloud/iam` ^2 / `googleapis` ^173) on the pure-ADC credential path — validated live against a test-infra GCP project (first live GCP audit: 3 CRITICAL firewall findings on compute@6) — documents the compute-client SA-impersonation gap (unsupported on compute@6; gated to plan-later), and folds the plugin-1021 project-resolution fix. No plugin count / matrix / behavior change (plugin count 28; all six matrices UNCHANGED).
+
 ## 0.1.54 (2026-05-28) — Paired-release pin for EE 0.15.6 + CE 0.1.87 — compliance-mapping correctness
 
 Paired no-op bump (no standalone agent-skill content change; SKILL.md + `references/plugins.md` UNCHANGED). EE 0.15.6 closes two cross-framework defects in the S3 public-exposure compliance routing: a publicly-accessible bucket (public policy / bucket ACL / object ACL / non-current version) now correctly maps to NIST CSF PR.AA-05 + PR.DS-01 and PCI DSS 7.2.1 — it previously showed CLEAN on those two frameworks — and the missing-Public-Access-Block MEDIUM (a defense-in-depth guardrail gap, not a confirmed exposure) no longer false-FAILs the confidentiality-exposure controls (the `"publicly accessible"` anchor was tightened to confirmed-public-only across all six frameworks). No plugin count / matrix / behavior change (plugin count 28; all six matrices UNCHANGED).
