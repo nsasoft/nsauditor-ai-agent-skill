@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.54 (2026-05-28) — Paired-release pin for EE 0.15.6 + CE 0.1.87 — compliance-mapping correctness
+
+Paired no-op bump (no standalone agent-skill content change; SKILL.md + `references/plugins.md` UNCHANGED). EE 0.15.6 closes two cross-framework defects in the S3 public-exposure compliance routing: a publicly-accessible bucket (public policy / bucket ACL / object ACL / non-current version) now correctly maps to NIST CSF PR.AA-05 + PR.DS-01 and PCI DSS 7.2.1 — it previously showed CLEAN on those two frameworks — and the missing-Public-Access-Block MEDIUM (a defense-in-depth guardrail gap, not a confirmed exposure) no longer false-FAILs the confidentiality-exposure controls (the `"publicly accessible"` anchor was tightened to confirmed-public-only across all six frameworks). No plugin count / matrix / behavior change (plugin count 28; all six matrices UNCHANGED).
+
 ## 0.1.53 (2026-05-28) — Paired-release pin for EE 0.15.5 + CE 0.1.86 — dependency-hygiene / institutional-trust patch
 
 Paired no-op bump (no standalone agent-skill content change; SKILL.md + `references/plugins.md` UNCHANGED). EE 0.15.5 + CE 0.1.86 remove npm deprecation warnings + advisories institutional clients see on install: dropped unused `puppeteer`/`better-sqlite3`/`pg` (EE); replaced the abandoned `simple-wappalyzer`/`wappalyzer-core` with an in-house zero-dep tech fingerprinter (CE); bumped `@anthropic-ai/sdk` past its advisory range + `uuid`→`crypto.randomUUID()` (CE); NEW `SECURITY.md` in both. No plugin count / matrix / behavior change.
