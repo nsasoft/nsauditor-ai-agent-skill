@@ -4,6 +4,8 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.58 (2026-05-29) — Paired-release pin for EE 0.16.0 + CE 0.1.91 — CLI per-account scanning: `--env` / `--aws-profile` flags + sentinel-host plugin scoping (`--host aws|gcp|azure` + `--plugins all` runs only that cloud's plugins); EE adds a declarative `cloudProvider` field to all 27 cloud plugins. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
+
 ## 0.1.57 (2026-05-29) — Paired-release pin for EE 0.15.9 + CE 0.1.90 — hotfix: cross-cloud bleed gate moved to run(). SKILL.md/references unchanged.
 
 ## 0.1.56 (2026-05-29) — Paired-release pin for EE 0.15.8 + CE 0.1.89 — cloud-plugin scoping fixes (AWS CLOUD_PROVIDER gate + GCP evidence-gap). SKILL.md/references unchanged.
