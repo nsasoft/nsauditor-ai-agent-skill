@@ -4,6 +4,8 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.57 (2026-05-29) — Paired-release pin for EE 0.15.9 + CE 0.1.90 — hotfix: cross-cloud bleed gate moved to run(). SKILL.md/references unchanged.
+
 ## 0.1.56 (2026-05-29) — Paired-release pin for EE 0.15.8 + CE 0.1.89 — cloud-plugin scoping fixes (AWS CLOUD_PROVIDER gate + GCP evidence-gap). SKILL.md/references unchanged.
 
 ## 0.1.55 (2026-05-29) — Paired-release pin for EE 0.15.7 + CE 0.1.88 — GCP SDK refresh
