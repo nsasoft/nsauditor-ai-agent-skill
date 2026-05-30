@@ -4,6 +4,8 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.62 (2026-05-30) — Paired-release pin for EE 0.16.3 + CE 0.1.94 — MCP `scan_cloud` now runs its cloud plugins concurrently with a per-plugin timeout (`CLOUD_SCAN_CONCURRENCY` / `CLOUD_PLUGIN_TIMEOUT_MS`), so a full AWS/GCP/Azure account audit finishes within Claude Desktop's ~60s tool-call limit. Internal CE engine change; no tool surface or behavior change for the agent. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
+
 ## 0.1.61 (2026-05-30) — **HOTFIX: SKILL.md `description` trimmed to fit the 1024-char skill-upload limit.** The frontmatter `description` had grown to 1241 chars, so Claude Desktop rejected the skill upload (`field 'description' in SKILL.md must be at most 1024 characters`). Rewrote it to 967 chars while keeping the high-value trigger keywords and adding the new cloud-audit triggers (`scan_cloud`, "audit my AWS/GCP/Azure account", "cloud compliance"). No body/content change vs 0.1.60 (still teaches `scan_cloud`); pairs the same EE 0.16.2 + CE 0.1.93.
 
 ## 0.1.60 (2026-05-30) — Paired-release for EE 0.16.2 + CE 0.1.93 — **SKILL.md updated**: teaches the NEW MCP `scan_cloud` tool (audit AWS/GCP/Azure accounts directly, no network host) — added to the Pro/Enterprise Tools table (Enterprise tier) + the "which tool to use" decision tree, plus a result-interpretation rule ("a cloud was effectively audited only if it's in `auditedProviders`; `audited:false` / `notes` / `pluginsRan:0` means NOT audited — never report a clean pass"). Feature lives in CE 0.1.93; plugin count UNCHANGED (28); all six matrices UNCHANGED.
