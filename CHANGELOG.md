@@ -4,6 +4,8 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.60 (2026-05-30) — Paired-release for EE 0.16.2 + CE 0.1.93 — **SKILL.md updated**: teaches the NEW MCP `scan_cloud` tool (audit AWS/GCP/Azure accounts directly, no network host) — added to the Pro/Enterprise Tools table (Enterprise tier) + the "which tool to use" decision tree, plus a result-interpretation rule ("a cloud was effectively audited only if it's in `auditedProviders`; `audited:false` / `notes` / `pluginsRan:0` means NOT audited — never report a clean pass"). Feature lives in CE 0.1.93; plugin count UNCHANGED (28); all six matrices UNCHANGED.
+
 ## 0.1.59 (2026-05-30) — Paired-release pin for EE 0.16.1 + CE 0.1.92 — MCP `NSA_ENV_FILE`: the MCP server now loads a per-environment dotenv file named by `NSA_ENV_FILE` at startup (the MCP analog of the 0.16.0 CLI `--env`), so an operator points the server at a specific account/cloud by changing one path in the Claude Desktop / Claude Code config. Loaded after auth + license (scan-target vars only); fail-fast + authoritative-file ambient-cred clearing close a false-clean caught by the `audit-cloud-plugin-false-negatives` review. Feature lives in CE; plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
 
 ## 0.1.58 (2026-05-29) — Paired-release pin for EE 0.16.0 + CE 0.1.91 — CLI per-account scanning: `--env` / `--aws-profile` flags + sentinel-host plugin scoping (`--host aws|gcp|azure` + `--plugins all` runs only that cloud's plugins); EE adds a declarative `cloudProvider` field to all 27 cloud plugins. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
