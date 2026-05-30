@@ -1,20 +1,16 @@
 ---
 name: nsauditor-ai
 description: >
-  Use this skill whenever the user wants to perform network security scanning, auditing,
-  vulnerability assessment, or host reconnaissance using NSAuditor AI. Triggers include:
-  any mention of 'scan', 'audit', 'vulnerability', 'CVE', 'network security', 'port scan',
-  'service detection', 'OS fingerprinting', 'security assessment', 'penetration test',
-  'probe', 'MITRE ATT&CK', 'CPE', 'NVD', 'TLS audit', 'cipher check', 'banner grab',
-  'SNMP', 'NetBIOS', 'SMB', 'DNS security', 'DKIM', 'SPF', 'DMARC', 'DNSSEC',
-  'certificate audit', 'SARIF', 'CTEM', 'continuous monitoring', 'host discovery',
-  'mDNS', 'UPnP', 'SSDP', 'ARP scan', 'subnet scan', or references to NSAuditor,
-  nsauditor-ai, or the nsauditor MCP server. Also triggers when the user asks to check
-  if a host is up, enumerate services, detect TLS versions, find open ports, look up
-  CVEs for a software version, audit DNS records, check certificate expiry, or perform
-  continuous security monitoring. Use this skill even if the user doesn't explicitly say
-  "NSAuditor" — if they want network security scanning and the nsauditor-ai MCP tools
-  are available, this is the skill to use. Do NOT use for general coding tasks, web
+  Use this skill whenever the user wants network security scanning, auditing, vulnerability
+  assessment, host reconnaissance, or cloud-account security/compliance auditing with NSAuditor
+  AI (via the nsauditor-ai MCP server: scan_host, scan_cloud, probe_service, get_vulnerabilities,
+  list_plugins). Triggers include 'scan', 'audit', 'vulnerability', 'CVE', 'network security',
+  'port scan', 'service detection', 'OS fingerprinting', 'penetration test', 'TLS/cipher audit',
+  'certificate check', 'DNS security', 'SPF/DKIM/DMARC/DNSSEC', 'SNMP/SMB/NetBIOS', 'CTEM',
+  'continuous monitoring', or 'audit my AWS/GCP/Azure account' / 'cloud compliance'. Also use it
+  when the user asks to check if a host is up, enumerate services, find open ports, look up CVEs
+  for a version, audit DNS records, or audit a cloud account — even if they don't say NSAuditor,
+  as long as the nsauditor-ai MCP tools are available. Do NOT use for general coding, web
   development, or non-security topics.
 ---
 
