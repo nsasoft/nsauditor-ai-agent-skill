@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.1.64 (2026-05-31) — Paired-release pin for EE 0.16.5 + CE 0.1.96 — EE compliance-mapping false-clean fixes (perimeter exposures route cross-framework to PCI/ISO/NIST; CloudTrail fails-closed on abort; GCP Cloud Storage emits an evidence-gap on enumeration failure; internal review-process markers + repo paths scrubbed from the shipped framework JSONs). Internal EE engine/JSON change; no tool surface or agent-behavior change. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
+
+## 0.1.63 (2026-05-30) — Paired-release pin for EE 0.16.4 + CE 0.1.95 — MCP `scan_cloud` now surfaces cloud findings reliably (CE-led false-clean fix: builds `findingsSummary` directly from the scan results instead of the network-host concluder, which silently dropped cloud findings). Internal CE engine change; no tool surface or behavior change for the agent. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
+
 ## 0.1.62 (2026-05-30) — Paired-release pin for EE 0.16.3 + CE 0.1.94 — MCP `scan_cloud` now runs its cloud plugins concurrently with a per-plugin timeout (`CLOUD_SCAN_CONCURRENCY` / `CLOUD_PLUGIN_TIMEOUT_MS`), so a full AWS/GCP/Azure account audit finishes within Claude Desktop's ~60s tool-call limit. Internal CE engine change; no tool surface or behavior change for the agent. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
 
 ## 0.1.61 (2026-05-30) — **HOTFIX: SKILL.md `description` trimmed to fit the 1024-char skill-upload limit.** The frontmatter `description` had grown to 1241 chars, so Claude Desktop rejected the skill upload (`field 'description' in SKILL.md must be at most 1024 characters`). Rewrote it to 967 chars while keeping the high-value trigger keywords and adding the new cloud-audit triggers (`scan_cloud`, "audit my AWS/GCP/Azure account", "cloud compliance"). No body/content change vs 0.1.60 (still teaches `scan_cloud`); pairs the same EE 0.16.2 + CE 0.1.93.
