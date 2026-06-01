@@ -79,6 +79,7 @@ When an AI agent loads this skill, it gains:
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |
+| **Cloud-region scoping** | The MCP `scan_cloud` `regions` argument — pass `["all"]` (or a region-code list like `["us-east-1","eu-west-1"]`) to audit every / specific AWS regions; **omit it to scan the server-configured `AWS_REGION`** (omitting does NOT fan out — pass `["all"]` explicitly for full coverage, mindful of the Desktop tool-call timeout). Mirrors the CE CLI `--aws-region <one\|csv\|all>` flag. |
 
 ## Prerequisites
 
