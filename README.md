@@ -17,7 +17,7 @@ nsauditor-ai-agent-skill/
 ├── references/
 │   ├── workflows.md                  # Multi-step workflow recipes (full audit, CI/CD, CTEM)
 │   ├── schemas.md                    # Complete data structures (scan results, CVEs, findings)
-│   └── plugins.md                    # Full plugin catalog (50 scanners with ports & protocols — 17 core + 6 discovery + 3 pro + 24 enterprise)
+│   └── plugins.md                    # Full plugin catalog (55 scanners with ports & protocols — 27 Community incl. 3 Pro + 28 Enterprise)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
 ├── package.json
@@ -74,8 +74,8 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 50 scanner plugins (23 CE + 3 Pro + 24 Enterprise) with protocols, ports, capabilities, and SOC 2 + HIPAA §164.312 substrate-evidence dimensions |
-| **Compliance frameworks** | SOC 2 (AICPA TSC 2017 — 10 covered + 4 partial controls) AND **HIPAA Security Rule §164.312 Technical Safeguards (NEW EE 0.9.0 — 7 covered + 3 partial + 45 OOS; HHS Required/Addressable discipline per control)**. Multi-framework dual-publish via `--compliance soc2,hipaa`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
+| **Plugin awareness** | 55 scanner plugins (27 Community incl. 3 Pro + 28 Enterprise) with protocols, ports, capabilities, and six-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8) substrate-evidence dimensions |
+| **Compliance frameworks** | **Six frameworks, one scan** — SOC 2 (AICPA TSC 2017) · HIPAA Security Rule §164.312 Technical Safeguards (HHS Required/Addressable discipline per control) · NIST CSF 2.0 (Subcategory-level) · PCI DSS v4.0.1 (QSA RoC sub-requirement-level) · ISO/IEC 27001:2022 (per-Annex-A-code, SoA discipline) · CIS Controls v8 (per-Safeguard; Implementation Group IG1/IG2/IG3 cumulative discipline). Any CSV subset via `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |
@@ -110,7 +110,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 |---------|-------|-----------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 26 cloud-substrate auditor plugins (1020-1222 range; AWS / GCP / Azure SOC 2 evidence-pack), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
+| **Enterprise** | $2k+/yr | + 28 cloud-substrate auditor plugins (1020-1222 range; AWS / Azure / GCP six-framework evidence-pack — SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8), Zero Trust, RFC 3161 timestamps, chain-of-custody attestations, air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
 
