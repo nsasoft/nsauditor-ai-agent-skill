@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.4 (2026-06-05) — Paired-release pin for EE 0.18.3 + CE 0.2.4 — GCP IAM + Azure Key Vault false-negative hardening III
+
+Paired no-op bump (SKILL.md version banner only; SKILL.md body + `references/plugins.md` UNCHANGED). EE 0.18.3 closes three cloud false-negatives: Azure Key Vault narrow-verb custom roles — a role granting only a data-plane crypto/extraction verb (`decrypt`/`wrap`/`unwrap`/`release`/`backup`/…) is now flagged (plugin 1222); the GCP IAM impersonation-BFS depth-cap truncation now fail-closes to a completeness evidence-gap instead of "zero reachability paths" (plugin 1025 H3); and the googleapis-SDK-absent path now fail-closes the GCP IAM dims to compliance-routed evidence-gaps (plugin 1025 M2). Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED at the count level.
+
 ## 0.2.3 (2026-06-05) — Paired-release pin for EE 0.18.2 + CE 0.2.3 — scan_cloud evidence-gap visibility (end-to-end)
 
 Paired no-op bump (no agent-skill content change beyond the SKILL.md version banner; SKILL.md body + `references/plugins.md` UNCHANGED). EE 0.18.2 + CE 0.2.3 make the no-false-clean evidence-gaps the cloud plugins emit **visible through the MCP `scan_cloud` transport, end-to-end**: the CE collector renders a dedicated "Evidence gaps (unverified)" section, and a new EE CI producer-contract guarantees every cloud plugin (AWS / Azure / GCP) marks its scan-coverage gaps so they reach it (retrofitted AWS S3 1020 + Azure 1220/1221/1222 + AWS IAM 1030). EE 0.18.2 also hardens the hand-rolled source scanners against a regex-literal desync (including the ZDE read-only security meta-test, where it could have masked a mutating cloud call) and adds the proprietary `LICENSE` / EULA (now shipped in the package) + per-file copyright headers. Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED.
