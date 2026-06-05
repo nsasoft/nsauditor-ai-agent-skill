@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.3 (2026-06-05) — Paired-release pin for EE 0.18.2 + CE 0.2.3 — scan_cloud evidence-gap visibility (end-to-end)
+
+Paired no-op bump (no agent-skill content change beyond the SKILL.md version banner; SKILL.md body + `references/plugins.md` UNCHANGED). EE 0.18.2 + CE 0.2.3 make the no-false-clean evidence-gaps the cloud plugins emit **visible through the MCP `scan_cloud` transport, end-to-end**: the CE collector renders a dedicated "Evidence gaps (unverified)" section, and a new EE CI producer-contract guarantees every cloud plugin (AWS / Azure / GCP) marks its scan-coverage gaps so they reach it (retrofitted AWS S3 1020 + Azure 1220/1221/1222 + AWS IAM 1030). EE 0.18.2 also hardens the hand-rolled source scanners against a regex-literal desync (including the ZDE read-only security meta-test, where it could have masked a mutating cloud call) and adds the proprietary `LICENSE` / EULA (now shipped in the package) + per-file copyright headers. Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED.
+
+---
+
 ## 0.2.2 (2026-06-05) — Paired-release pin for EE 0.18.1 + CE 0.2.2 — GCP false-negative hardening II + read-only enforcement
 
 Paired no-op bump (no agent-skill content change beyond the SKILL.md version banner; SKILL.md body + `references/plugins.md` UNCHANGED). EE 0.18.1 closes three more GCP false-negative defects at substrate depth on already-covered controls — **(1) plugin 1021** split-range firewall rules that cover the whole IPv4 internet without literally writing `0.0.0.0/0` now flag as the `0.0.0.0/0` CRITICAL (conservative full-coverage helper); **(2) plugin 1025** the SA-impersonation BFS fail-closes with a LOW evidence-gap instead of a falsely-clean `GRAPH_CLEAN` when any graph input is degraded (per-SA policy denied / custom-roles unavailable / list pagination-truncated); **(3) plugin 1024** a bucket whose DEFAULT object ACL is public (every future object born public) is now detected — and adds a structural read-only guarantee (a CI meta-test that fails the build on any mutating cloud call across all 28 plugins) plus the matching customer-facing read-only-credential requirement (EULA §5.5). No skill-logic change. **Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED** (SOC 2 + HIPAA + NIST CSF 2.0 + PCI DSS v4.0.1 + ISO 27001:2022 + CIS Controls v8).
