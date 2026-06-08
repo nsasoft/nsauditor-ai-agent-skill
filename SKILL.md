@@ -16,7 +16,7 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.4 (post-EE 0.18.3 — GCP IAM + Azure Key Vault false-negative hardening III) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
+> **Version:** 0.2.5 (post-EE 0.19.0 — No silent false-clean: per-region evidence-gap + class-O routing + swallow retrofits + air-gapped CVE/KMS criticals + AI-egress redaction) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
 
 NSAuditor AI is a modular, AI-assisted network security audit platform with 27+ scanner
 plugins, CVE matching, MITRE ATT&CK mapping, and Zero Data Exfiltration by design. This
