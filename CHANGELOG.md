@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.7 (2026-06-08) — Paired-release pin for EE 0.19.2 + CE 0.2.7 — Confirmed false-negative tail
+
+Paired no-op bump (knowledge-package version sync). EE 0.19.2 closes six more gauntlet-confirmed Tier-B false-negatives across the Pro/Enterprise cloud auditors (1222 Azure KV legacy access-policy per-verb breadth + 2 anchor-drifts + drift-detector closure · 1021 GCP broad-but-not-full public firewall ranges · 1070 AWS KMS PendingDeletion key-policy audit · 1100 CodePipeline sticky approval-latch · 1024 GCP Storage bucket-enumeration truncation evidence-gap · 1040 CloudTrail data-events read-coverage caveat), each TDD'd + independently adversarially reviewed. Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED. No change to the MCP tool/plugin schemas this skill documents.
+
 ## 0.2.6 (2026-06-08) — Paired-release pin for EE 0.19.1 + CE 0.2.6 — Confirmed false-negative batch
 
 Paired no-op bump (knowledge-package version sync). EE 0.19.1 closes seven gauntlet-confirmed Tier-B false-negatives across the Pro/Enterprise cloud auditors (1030 AWS IAM prefix-glob privesc + access-key hygiene · 1150 SQS wildcard-Principal queue-policy audit · 1130 air-gapped KMS CreateGrant/GenerateDataKey · 1120 S3 versioned-bucket noncurrent-version disposal · 1080 Lambda deprecated/unknown-runtime currency · 1025 GCP OIDC-impersonation + WIF-provider admin-equivalence · 1160 VPC-endpoint sensitive-action service-namespace matching), each TDD'd + independently adversarially reviewed. Plugin count UNCHANGED at 28; all six coverage matrices UNCHANGED. No change to the MCP tool/plugin schemas this skill documents.

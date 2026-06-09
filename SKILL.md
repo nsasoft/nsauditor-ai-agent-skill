@@ -16,7 +16,7 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.6 (post-EE 0.19.1 — Confirmed false-negative batch: 7 cloud plugins hardened against silent misses [1030 IAM prefix-glob privesc · 1150 SQS wildcard-Principal · 1130 air-gap KMS CreateGrant/GenerateDataKey · 1120 S3 noncurrent-version disposal · 1080 Lambda deprecated-runtime · 1025 GCP OIDC/WIF impersonation · 1160 VPC-endpoint service-namespace]) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
+> **Version:** 0.2.7 (post-EE 0.19.2 — Confirmed false-negative tail: 6 more cloud-auditor silent misses closed [1222 Azure KV per-verb breadth + anchor-drifts · 1021 GCP broad-public firewall · 1070 AWS KMS PendingDeletion · 1100 CodePipeline approval-latch · 1024 GCP Storage truncation gap · 1040 CloudTrail data-events read-coverage]) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
 
 NSAuditor AI is a modular, AI-assisted network security audit platform with 27+ scanner
 plugins, CVE matching, MITRE ATT&CK mapping, and Zero Data Exfiltration by design. This
