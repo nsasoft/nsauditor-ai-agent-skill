@@ -16,7 +16,7 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.8 (post-EE 0.19.3 — MCP affordance + class-O truncation sweep: the `scan_cloud` tool description now enumerates per-service coverage so agents route service-named audit asks to it; evidence-gap list lines lead with the GAP clause + carry an `· actionable:` companion; truncation/AccessDenied evidence-gaps across 8 AWS auditors fail-close their native controls; new Azure NSG AzureCloud service-tag exposure dimension [1221]; Lambda inline-credential env-var names + exclusion-prefix bypass [1080]) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
+> **Version:** 0.2.9 (post-EE 0.19.4 — Routing-Integrity Hardening: a build-time routing guard fails the build on any marked evidence-gap that maps to zero compliance controls + GuardDuty [1200] dedupe/class-O routing; a deferred-scope unmark across 8 plugins shrinks the MCP "unverified" list; the 1160 AWS-default VPC-endpoint policy down-rated CRITICAL→MEDIUM with cross-framework routing [PCI 1.4.1 / ISO A.8.22 / CIS 12.2]; 1150 SQS/SNS alarm-independence — alarm posture survives a `Get*Attributes` deny, all four `alarm-coverage-unverifiable` causes fail-close; PCI DSS 7.2.2 covered→partial, matrix 20/8/39→19/9/39) · **Source:** [github.com/nsasoft/nsauditor-ai](https://github.com/nsasoft/nsauditor-ai) · **npm:** `nsauditor-ai` · **License:** MIT (CE)
 
 NSAuditor AI is a modular, AI-assisted network security audit platform with 27+ scanner
 plugins, CVE matching, MITRE ATT&CK mapping, and Zero Data Exfiltration by design. This
