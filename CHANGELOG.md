@@ -4,9 +4,13 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.12 (2026-06-18) — Paired content bump for EE 0.30.0 (AWS + Azure false-negative depth-pass + cross-source compliance-mapping parity)
+
+Paired content bump — no new framework. EE 0.30.0 is a detection-depth + mapping-correctness release: it closes a wave of cloud-misconfiguration false-negatives across AWS (S3 access-points · resource-policy effective-exposure · EC2-SG public-CIDR/split-range · KMS effective-decrypt/cross-account · IAM ListUsers truncation) and Azure (storage/NSG/Key-Vault/cloud-scanner class-O fail-opens), and routes architecturally-identical confidentiality / least-privilege exposures consistently across all seven frameworks (e.g. a public application entry-point now appears on a NIST CSF **PR.AA-05** least-privilege report; KMS / queue read-exposure reaches GDPR **Art.32(1)(b)**). The skill's version blurb + the `compliance_check` capability row are refreshed to seven frameworks (corrected a stale "six/hexa-framework" reference); plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED. Paired with EE 0.30.0 + CE 0.2.12.
+
 ## 0.2.11 (2026-06-12) — GDPR Article 32 framework taught (paired with CE 0.2.11 + EE 0.20.0)
 
-> **DRAFT — pending operator legal review. Not yet published.**
+> **Published 2026-06-12 — live on npm.**
 
 **A real content change (not a pin).** The skill now teaches the **seventh compliance framework** EE 0.20.0 adds: GDPR **Article 32 (security of processing) infrastructure substrate**. The new teaching covers the **scope doctrine** (this is GDPR Article 32 infrastructure substrate ONLY, **NOT GDPR compliance** — Art. 32 is the only article an infrastructure scanner can substrate-evidence; the rest of GDPR is OOS-by-design, so an agent must never report "GDPR coverage" / "GDPR certified" off an Art. 32 result), the **four-factor proportionality** discipline (state of the art / cost of implementation / nature-scope-context-purposes / risk — the engine produces substrate FOR the operator's "appropriate to the risk" determination, nothing is absolute pass/fail), the **sub-measure discipline** (cite at the Art. 32(1)(a)–(d) / 32(2) / 32(4) unit, never the paragraph; 4 covered / 5 partial / 2 OOS), the **personal-data-scope attestation** (the scanner cannot know which resources hold personal data), and the **Art. 83(4) LOWER fine tier** (Art. 32 violations sit in the €10M / 2% tier, NOT the €20M / 4% headline tier — overstating fine exposure is itself an overclaim). Plugin count UNCHANGED at 28; the six existing coverage matrices UNCHANGED. Paired with **CE 0.2.11** (the `scan_cloud` description lists the framework) + **EE 0.20.0** (the framework).
 
