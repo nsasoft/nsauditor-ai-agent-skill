@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.17 (2026-06-26) — Paired content bump for EE 0.31.5 (RDS Multi-AZ DB cluster REAL snapshot detection + at-rest snapshot routing fleet sweep)
+
+Paired content bump — no CE engine behavior change (detection + routing live in the Enterprise engine). The Enterprise engine promotes a non-Aurora **RDS Multi-AZ DB cluster** snapshot to real detection (public `restore=all` CRITICAL, cross-account / unencrypted HIGH — was a fail-closed residual gap) and closes a cross-framework **single-framework snapshot false-clean**: an unencrypted snapshot now routes to the at-rest control in **all seven** frameworks (was SOC 2 + HIPAA only — NIST PR.DS-01 · PCI 3.5.1 · ISO A.8.24 · CIS 3.11 + 11.3 · GDPR Art.32(1)(a)); a public/cross-account share also routes to access-control (SOC 2 CC6.1 + the Required HIPAA §164.312(a)(1)). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired with EE 0.31.5 + CE 0.2.19. **EE 0.31.5 requires CE 0.2.8+.**
+
 ## 0.2.16 (2026-06-25) — Paired content bump for EE 0.31.4 (cloud-scan presentation false-clean fix + `--compliance all` / fail-fast validation)
 
 Paired content bump — no new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED. EE 0.31.4 is a report-surface + CLI-UX hardening patch: a cloud scan (`--host aws|azure|gcp`) with real findings no longer surfaces the CE network concluder's *"Host is UP — No open services detected"* headline (the conclusion is rewritten to a cloud-appropriate N-by-severity summary with top risks), and a plugin that **times out or errors** routes to **coverage UNVERIFIED** rather than an affirmative clean verdict — the cardinal presentation-layer false-clean, closed (detection unchanged, oracle-validated). `--compliance all` expands to all seven frameworks; an unknown token **fails fast** (no "Framework load failed" stub). The skill's `compliance_check` tool reference + HIPAA usage example now document `--compliance all`; the version blurb is refreshed. Paired with EE 0.31.4 + CE 0.2.16. **EE 0.31.4 requires CE 0.2.8+.**
