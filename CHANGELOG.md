@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.18 (2026-06-27) — Paired content bump for EE 0.31.6 (RDS enumeration-truncation no-false-clean class CLOSED + audit-log retention routing-depth sweep; CIS matrix 17/22/114 → 17/23/113)
+
+Paired content bump for the EE 0.31.6 cycle (SKILL.md version line + the `compliance_check` CIS count). EE 0.31.6 makes every RDS enumerator fail closed on page-cap truncation, registers the RDS auditor in the compliance-engine drift detector, and maps RDS audit-log retention to PCI DSS 10.5.1 / NIST CSF PR.PS-04 / ISO A.8.15 / CIS Safeguard 8.10 — flipping **CIS Controls v8 Safeguard 8.10 OOS → partial** (CIS matrix **17/22/114 → 17/23/113**; IG1 cyber-insurance baseline UNCHANGED at 23/56, IG2-cum 38, IG3-cum 40). The other six matrices are UNCHANGED; plugin count UNCHANGED at 28. Paired **EE 0.31.6** + CE 0.2.20.
+
+---
+
 ## 0.2.17 (2026-06-26) — Paired content bump for EE 0.31.5 (RDS Multi-AZ DB cluster REAL snapshot detection + at-rest snapshot routing fleet sweep)
 
 Paired content bump — no CE engine behavior change (detection + routing live in the Enterprise engine). The Enterprise engine promotes a non-Aurora **RDS Multi-AZ DB cluster** snapshot to real detection (public `restore=all` CRITICAL, cross-account / unencrypted HIGH — was a fail-closed residual gap) and closes a cross-framework **single-framework snapshot false-clean**: an unencrypted snapshot now routes to the at-rest control in **all seven** frameworks (was SOC 2 + HIPAA only — NIST PR.DS-01 · PCI 3.5.1 · ISO A.8.24 · CIS 3.11 + 11.3 · GDPR Art.32(1)(a)); a public/cross-account share also routes to access-control (SOC 2 CC6.1 + the Required HIPAA §164.312(a)(1)). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired with EE 0.31.5 + CE 0.2.19. **EE 0.31.5 requires CE 0.2.8+.**
