@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.19 (2026-06-29) — Paired content bump for EE 0.31.7 (RDS audit-log no-false-clean (generation + retention) + opt-in positive-substrate RoC surfacing)
+
+Paired content bump for the EE 0.31.7 cycle (SKILL.md version line + this changelog). EE 0.31.7 makes a database producing no audit logs — CloudWatch exports off, or PostgreSQL pgAudit disabled/misconfigured — fail closed against every framework's audit-log-**generation** control (SOC 2 CC7.2 · HIPAA §164.312(b) · PCI 10.2.1 · CIS 8.2 + 8.5 · NIST PR.PS-04 · ISO A.8.15, + NIST DE.CM-09 for pgAudit), adds a conservative PCI DSS 10.5.1 ≥12-month retention substrate, and surfaces opt-in positive-substrate evidence per-control in the RoC. **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **EE 0.31.7** + CE 0.2.21.
+
+---
+
 ## 0.2.18 (2026-06-27) — Paired content bump for EE 0.31.6 (RDS enumeration-truncation no-false-clean class CLOSED + audit-log retention routing-depth sweep; CIS matrix 17/22/114 → 17/23/113)
 
 Paired content bump for the EE 0.31.6 cycle (SKILL.md version line + the `compliance_check` CIS count). EE 0.31.6 makes every RDS enumerator fail closed on page-cap truncation, registers the RDS auditor in the compliance-engine drift detector, and maps RDS audit-log retention to PCI DSS 10.5.1 / NIST CSF PR.PS-04 / ISO A.8.15 / CIS Safeguard 8.10 — flipping **CIS Controls v8 Safeguard 8.10 OOS → partial** (CIS matrix **17/22/114 → 17/23/113**; IG1 cyber-insurance baseline UNCHANGED at 23/56, IG2-cum 38, IG3-cum 40). The other six matrices are UNCHANGED; plugin count UNCHANGED at 28. Paired **EE 0.31.6** + CE 0.2.20.
