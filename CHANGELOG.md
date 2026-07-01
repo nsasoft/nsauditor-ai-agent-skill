@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.20 (2026-07-01) — Paired content bump for EE 0.31.8 (GAP-1 positive-substrate polish: framework-aware PCI Req 10.5.1 caveat restoration + SOC 2 GRC-push hygiene)
+
+Paired content bump for the EE 0.31.8 cycle (SKILL.md version line + this changelog). EE 0.31.8 restores per-framework precision to the 0.31.7 positive-substrate caveat — the RDS audit-log-retention substrate finding now carries a per-framework caveat override so the PCI report restores the `Req 10.5.1` citation while SOC 2 keeps the neutral base (no PCI leak) — and hardens the mechanism (framework-neutral category so no `pci` machine substring rides the SOC 2 renderJSON → GRC push, empty-string-safe caveat selection, genuine renderJSON GRC-channel tests). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **EE 0.31.8** + CE 0.2.22.
+
+---
+
 ## 0.2.19 (2026-06-29) — Paired content bump for EE 0.31.7 (RDS audit-log no-false-clean (generation + retention) + opt-in positive-substrate RoC surfacing)
 
 Paired content bump for the EE 0.31.7 cycle (SKILL.md version line + this changelog). EE 0.31.7 makes a database producing no audit logs — CloudWatch exports off, or PostgreSQL pgAudit disabled/misconfigured — fail closed against every framework's audit-log-**generation** control (SOC 2 CC7.2 · HIPAA §164.312(b) · PCI 10.2.1 · CIS 8.2 + 8.5 · NIST PR.PS-04 · ISO A.8.15, + NIST DE.CM-09 for pgAudit), adds a conservative PCI DSS 10.5.1 ≥12-month retention substrate, and surfaces opt-in positive-substrate evidence per-control in the RoC. **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **EE 0.31.7** + CE 0.2.21.
