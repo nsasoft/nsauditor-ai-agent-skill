@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.21 (2026-07-03) — Paired content bump for the CE 0.2.23 operator bug-fix cycle + EE 0.31.9 GAP-1 #3
+
+Paired content bump (SKILL.md version line + this changelog). **CE 0.2.23** hardens cloud-scan scope integrity (a cloud auditor runs only on its own sentinel host — a network `--host` never triggers cloud plugins, including via the MCP `probe_service` tool; `--host` is the sole cloud-intent signal, credentials are not), AI-conclusion robustness (payload-scaled timeout + a fail-visible `scan_response_ai.txt` stub), and the AI bail message. **EE 0.31.9** closes the GAP-1 #3 RoC positive-substrate render-site parity (false-positive controls now render their substrate in HTML too) + FP-correct auditor wording. No new MCP tools or schemas; the `probe_service` tool now enforces the cloud-intent contract (a cloud auditor requires its sentinel host; a network plugin is rejected on a sentinel host). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **CE 0.2.23** + **EE 0.31.9**.
+
+---
+
 ## 0.2.20 (2026-07-01) — Paired content bump for EE 0.31.8 (GAP-1 positive-substrate polish: framework-aware PCI Req 10.5.1 caveat restoration + SOC 2 GRC-push hygiene)
 
 Paired content bump for the EE 0.31.8 cycle (SKILL.md version line + this changelog). EE 0.31.8 restores per-framework precision to the 0.31.7 positive-substrate caveat — the RDS audit-log-retention substrate finding now carries a per-framework caveat override so the PCI report restores the `Req 10.5.1` citation while SOC 2 keeps the neutral base (no PCI leak) — and hardens the mechanism (framework-neutral category so no `pci` machine substring rides the SOC 2 renderJSON → GRC push, empty-string-safe caveat selection, genuine renderJSON GRC-channel tests). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **EE 0.31.8** + CE 0.2.22.
