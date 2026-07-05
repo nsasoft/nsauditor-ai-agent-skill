@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.22 (2026-07-05) — Paired content bump for the CE 0.2.24 multi-cloud scope-integrity fix + EE 0.31.10 (GCP gate + T4 positive-substrate)
+
+Paired content bump (SKILL.md version line + this changelog). **CE 0.2.24** closes a multi-cloud false-clean: `--host aws,gcp,azure` (and a `--host-file` of cloud sentinels) under a stale / tool-implied `CLOUD_PROVIDER` used to silently skip the un-covered cloud legs and report them **"audited-clean" over zero API calls**; the CLI now reconciles `CLOUD_PROVIDER` against the requested cloud legs (fail-fast on a mismatch, else imply the union) and classifies a gate-skipped provider as `'skipped'` (not audited). **EE 0.31.10** adds the EE half — a `CLOUD_PROVIDER` scope-integrity gate on the GCP plugins 1024/1025 (they run only when the effective provider includes `gcp`) — plus the **T4 GCP positive-substrate curation** (17 GCP PASS-tier findings opt into the per-control RoC positive-substrate view; display-only, non-flipping, count-neutral). No new MCP tools or schemas. **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **CE 0.2.24** + **EE 0.31.10**.
+
+---
+
 ## 0.2.21 (2026-07-03) — Paired content bump for the CE 0.2.23 operator bug-fix cycle + EE 0.31.9 GAP-1 #3
 
 Paired content bump (SKILL.md version line + this changelog). **CE 0.2.23** hardens cloud-scan scope integrity (a cloud auditor runs only on its own sentinel host — a network `--host` never triggers cloud plugins, including via the MCP `probe_service` tool; `--host` is the sole cloud-intent signal, credentials are not), AI-conclusion robustness (payload-scaled timeout + a fail-visible `scan_response_ai.txt` stub), and the AI bail message. **EE 0.31.9** closes the GAP-1 #3 RoC positive-substrate render-site parity (false-positive controls now render their substrate in HTML too) + FP-correct auditor wording. No new MCP tools or schemas; the `probe_service` tool now enforces the cloud-intent contract (a cloud auditor requires its sentinel host; a network plugin is rejected on a sentinel host). **No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **CE 0.2.23** + **EE 0.31.9**.
