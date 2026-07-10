@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.24 (2026-07-09) — Paired content bump for EE 0.32.1 (compliance report-quality hygiene + deeper positive-substrate curation + GRC-connector DRY refactor)
+
+Paired version bump for the EE 0.32.1 trio — matrix-neutral patch. EE 0.32.1 cleans internal engineering markers (`[[wiki-links]]`, `EE-RT` work-codes, reviewer-codes, `Rn-SEVERITY` review-round IDs) out of the "Why this violates" rationales rendered into every Report on Compliance across all seven frameworks (~900 rationales, subsequence-invariant-proven), fixes a KMS-parse-failure rationale that leaked a reviewer-code + a foreign-framework token into all seven reports, opts more Azure + deeper-AWS PASS-tier findings into the display-only positive-substrate RoC view, and collapses the Vanta + Drata push loops into a shared `_runPushBatch`. No new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.1** + **CE 0.2.26**.
+
+---
+
 ## 0.2.23 (2026-07-07) — Paired content bump for EE 0.32.0 (Enterprise GRC push activation — Vanta + Drata)
 
 Paired content bump (SKILL.md version line + the `compliance_check` capability's GRC-connector mention + the `COMPLIANCE_GRC_PROVIDER` Environment-Variables entry + this changelog). **EE 0.32.0** wires the dormant Vanta connector for **scan-time GRC push activation** (`COMPLIANCE_GRC_PROVIDER=vanta` + `COMPLIANCE_GRC_TOKEN` → the compliance phase maps findings to Vanta test results and pushes them, opt-in + ZDE-redacted, token never serialized) and ships a new **Drata** connector (Custom Connections; your Drata Test Builder rules evaluate the pushed records); Secureframe is on the roadmap. Also ships the **T1/T2 AWS positive-substrate curation** (60 PASS-tier findings opt into the per-control RoC positive-substrate view; display-only, non-flipping, count-neutral). Honest status: connectors shipped + opt-in + extensively tested; live validation against production tenants is in progress — early-access, single-workspace, not a multi-tenant sync. **No new MCP tools or schemas. No new framework, no new plugins (still 28), all seven coverage matrices UNCHANGED.** Paired **EE 0.32.0** + **CE 0.2.25**.
