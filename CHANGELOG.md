@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.25 (2026-07-10) — Paired content bump for EE 0.32.2 (GRC connector trio complete — Secureframe + cross-framework report-quality leak closure)
+
+Paired content bump for the EE 0.32.2 trio. SKILL.md now teaches the completed **Vanta · Drata · Secureframe** GRC connector trio (enable Secureframe with `COMPLIANCE_GRC_PROVIDER=secureframe` — records model, your Secureframe rules evaluate the pushed control records; outbound, single-workspace, opt-in early-access; API shape published-assumed, live-tenant validation deferred) and reflects the closed **cross-framework foreign-token leak** in the "Why this violates" rationales (no internal `Inherits from soc2.json` note, bare foreign control-ids, cross-framework routing-maps, or `real-engine verified ==` QA-note leaks a foreign framework's name into a customer's Report on Compliance). Matrix-neutral: no new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.2** + **CE 0.2.27**.
+
+---
+
 ## 0.2.24 (2026-07-09) — Paired content bump for EE 0.32.1 (compliance report-quality hygiene + deeper positive-substrate curation + GRC-connector DRY refactor)
 
 Paired version bump for the EE 0.32.1 trio — matrix-neutral patch. EE 0.32.1 cleans internal engineering markers (`[[wiki-links]]`, `EE-RT` work-codes, reviewer-codes, `Rn-SEVERITY` review-round IDs) out of the "Why this violates" rationales rendered into every Report on Compliance across all seven frameworks (~900 rationales, subsequence-invariant-proven), fixes a KMS-parse-failure rationale that leaked a reviewer-code + a foreign-framework token into all seven reports, opts more Azure + deeper-AWS PASS-tier findings into the display-only positive-substrate RoC view, and collapses the Vanta + Drata push loops into a shared `_runPushBatch`. No new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.1** + **CE 0.2.26**.
