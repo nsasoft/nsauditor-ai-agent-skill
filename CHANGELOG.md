@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.27 (2026-07-13) — Paired content bump for EE 0.32.4 (RDS false-negative depth pass, part 2)
+
+Paired content bump for the EE 0.32.4 trio. SKILL.md reflects the RDS auditor's expanded false-negative coverage on plugin 1140: **RDS Proxy client↔proxy TLS** (`DescribeDBProxies.RequireTLS` — a proxy that does not require TLS accepts cleartext client connections, a transit leg distinct from the DB-engine SSL parameter; fail-closed on false-or-absent → routes == the DB-SSL transit axis), a new **retained / cross-region-replicated automated-backup at-rest surface** (`DescribeDB{Instance,Cluster}AutomatedBackups` — an unencrypted automated backup that survives instance/cluster deletion, invisible to the live-resource and snapshot scans), the **Aurora cluster-member double-audit closure** (provisioned Aurora members defer the cluster-scoped SSL / Multi-AZ dims to the cluster, closing self-contradictory instance-level false positives), and a **cross-framework report-quality leak closure** (a renderer backstop strips foreign framework control-ids out of the violation prose). Matrix-neutral: no new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.4** + **CE 0.2.29**.
+
+---
+
 ## 0.2.26 (2026-07-12) — Paired content bump for EE 0.32.3 (RDS cluster-level SSL enforcement + CE GRC-push preflight)
 
 Paired content bump for the EE 0.32.3 trio. SKILL.md reflects the RDS auditor's new **cluster-level SSL enforcement** dimension (plugin 1140 now audits the Aurora **cluster** parameter group via `DescribeDBClusterParameters` — closing a cleartext false-negative on instance-less Aurora Serverless v1 clusters that the instance-level SSL check never saw) and the **staged-parameter (`ParameterApplyStatus`) discipline** (a set-but-not-yet-applied `rds.force_ssl` / `pgaudit` is no longer affirmed as effective). Also notes the CE CLI's new **GRC-push startup preflight** (fail-fast on bad GRC config before the scan; CLI-only, not MCP-reachable). Matrix-neutral: no new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.3** + **CE 0.2.28**.
