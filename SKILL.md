@@ -495,7 +495,7 @@ Add to your MCP configuration with the same command/args pattern.
 |---------|-------|-------------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, CTEM, SARIF, scan history |
 | **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 26 cloud-substrate auditor plugins (1020-1222 range) covering AWS / GCP / Azure against SOC 2 (10 covered + 4 partial controls); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
+| **Enterprise** | $2k+/yr | + 28 cloud-substrate auditor plugins (1020-1222 range) covering AWS / GCP / Azure against seven frameworks (SOC 2 10 covered + 4 partial; HIPAA; NIST CSF 2.0; PCI DSS v4.0.1; ISO/IEC 27001:2022; CIS Controls v8; GDPR Art. 32 infrastructure substrate); Zero Trust; SOC 2 evidence-pack generation; RFC 3161 timestamps; chain-of-custody attestations; air-gapped deployment |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
 
