@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.28 (2026-07-18) — paired content bump for EE 0.32.5 (report quality + routing integrity)
+
+- Version line updated to post-EE-0.32.5. Matrix-neutral cycle: API Gateway mapping repair (routing was never broken — the defect was stale auditor-facing prose), HIPAA §164.312(c)(1) WAF mapping removed on doctrine, six rationale rewrites, `renderJSON` no longer shipping raw routing regexes, a CI/CD AccessDenied false-negative closed fail-closed, and three mutation-proven compliance-guard hardenings. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
+
 ## 0.2.27 (2026-07-13) — Paired content bump for EE 0.32.4 (RDS false-negative depth pass, part 2)
 
 Paired content bump for the EE 0.32.4 trio. SKILL.md reflects the RDS auditor's expanded false-negative coverage on plugin 1140: **RDS Proxy client↔proxy TLS** (`DescribeDBProxies.RequireTLS` — a proxy that does not require TLS accepts cleartext client connections, a transit leg distinct from the DB-engine SSL parameter; fail-closed on false-or-absent → routes == the DB-SSL transit axis), a new **retained / cross-region-replicated automated-backup at-rest surface** (`DescribeDB{Instance,Cluster}AutomatedBackups` — an unencrypted automated backup that survives instance/cluster deletion, invisible to the live-resource and snapshot scans), the **Aurora cluster-member double-audit closure** (provisioned Aurora members defer the cluster-scoped SSL / Multi-AZ dims to the cluster, closing self-contradictory instance-level false positives), and a **cross-framework report-quality leak closure** (a renderer backstop strips foreign framework control-ids out of the violation prose). Matrix-neutral: no new framework, plugin count UNCHANGED at 28, all seven coverage matrices UNCHANGED. Paired **EE 0.32.4** + **CE 0.2.29**.
