@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.29 (2026-07-19) — paired content bump for EE 0.32.6 (network-scan false-negative closures)
+
+- Version line updated to post-EE-0.32.6. Matrix-neutral cycle on the EE analysis-agent (network-scan) path: **cleartext transport** now flagged (a conditional inversion in the crypto agent — a should-be-encrypted service offering no TLS at all used to read clean → **SOC 2 CC6.7**), **SMB-alone** exposure now its own **HIGH** finding (a severity-inverted conjunction in the exposure agent — SMB without RDP is the higher-risk case → **CC6.6**), and **WinRM 5985/5986 · Elasticsearch 9300 · MSRPC 135 · a new aggregate open-port-count rule** as new exposure signals (→ **CC6.6**). Routed SOC 2-first with drift-detector coverage; **SOC 2 routing only this cycle — cross-framework mappings (HIPAA §164.312(e)(1) · CIS 4.x · NIST PR.*) deferred.** Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
+
 ## 0.2.28 (2026-07-18) — paired content bump for EE 0.32.5 (report quality + routing integrity)
 
 - Version line updated to post-EE-0.32.5. Matrix-neutral cycle: API Gateway mapping repair (routing was never broken — the defect was stale auditor-facing prose), HIPAA §164.312(c)(1) WAF mapping removed on doctrine, six rationale rewrites, `renderJSON` no longer shipping raw routing regexes, a CI/CD AccessDenied false-negative closed fail-closed, and three mutation-proven compliance-guard hardenings. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
