@@ -151,6 +151,32 @@ These tools return a license upgrade prompt on CE installations:
 | `compliance_check` | Enterprise | SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) + NIST CSF 2.0 Core + PCI DSS v4.0.1 (sub-requirement-level for QSA RoC; PCI SSC June 2024 errata) + ISO/IEC 27001:2022 (per-Annex-A-code-level for ISO/IEC 17021-1 certification body assessors; ISO + IEC October 2022; 2013 edition retired October 31, 2025) + **CIS Critical Security Controls v8** (per-Safeguard-level; Center for Internet Security May 2021, v8.1 errata June 2024) + **GDPR Article 32 (Security of Processing)** (sub-measure-level; Regulation (EU) 2016/679; **Art. 32 infrastructure substrate only, NOT GDPR compliance**) gap analysis — all seven shipped (SOC 2 EE 0.3.x; HIPAA EE 0.9.0; NIST CSF 2.0 EE 0.10.0; PCI DSS v4.0.1 EE 0.11.0; ISO/IEC 27001:2022 EE 0.12.0; CIS Controls v8 EE 0.13.0; **GDPR Article 32 EE 0.20.0**). Multi-framework via `--compliance all` (shorthand for all seven frameworks; EE 0.31.4) or `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr` (any CSV subset; aliases `nist`/`pci`/`iso`/`cis`); an unknown token **fails fast** (no "Framework load failed" stub). The hepta-framework one-scan produces seven complete auditor-ready evidence packs. **CIS Controls v8**: 17 covered + 23 partial + 113 OOS across 153 Safeguards / 18 Controls. **Implementation Group cumulative discipline** — IG1=56 (cyber-insurance baseline; ~50-70% of mid-market policies require IG1 attestation), IG2 cumulative=130, IG3 cumulative=153; smallest-IG-membership tagging (NEVER report IG2 as 74-of-74 in isolation). **No-certification-body attestation discipline** — engine output is INPUT to CSAT / CIS-CAT Pro self-attestation OR a SOC 2 auditor cross-validating CIS scope, never "CIS certified." Cloud Companion Guide v8 shared-responsibility + CIS-Hardened-Image substrate-evidence credit (Safeguards 4.1/4.2/4.6) + 5 Security Functions (NOT 6 — no Govern) + 6 Asset Types + MS-ISAC/EI-ISAC/H-ISAC sector baselines + v7.1-to-v8 cross-reference. CIS Safeguard examples: `3.3` Data Access Control Lists, `5.4` Restrict Administrator Privileges, `6.3` MFA for Externally-Exposed Applications, `8.2` Collect Audit Logs, `11.4` Isolated Recovery Data Instance. ISO 27001 Annex A code examples: `A.5.15` Access control, `A.5.23` NEW 2022 Cloud services, `A.8.5` Secure authentication, `A.8.9` NEW 2022 Configuration management, `A.8.16` NEW 2022 Monitoring activities, `A.8.24` Use of cryptography. Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing (7 Major Nonconformity classes — absence of internal audit per Clause 9.2 or management review per Clause 9.3 = auto-fail Stage 2) + 5-attribute taxonomy NEW in 2022 (controlType / informationSecurityProperties / cybersecurityConcepts [5 categories, NOT 6 like NIST CSF 2.0] / operationalCapabilities / securityDomains) + 2013-to-2022 transition discipline. Pair with ISO-aware GRC (Drata ISO 27001 / Vanta ISO 27001 / AuditBoard / OneTrust ISMS / Secureframe ISO 27001) for SoA workflow + internal audit + management review. PCI DSS sub-requirement examples: `Req 1.2.1` NSC config standards, `Req 8.4.1` MFA on non-console admin, `Req 10.2.1` audit logs enabled, `Req 11.3.1` quarterly internal vuln scans. Defined-vs-Customized Approach discipline per Appendix E (15 Defined-only sub-requirements enforced at schema layer; CHD Scope operator-attested via CDE DFD per Req 1.2.4; card-brand AOC enforcement view — Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC). **GRC push (Enterprise, opt-in):** set `COMPLIANCE_GRC_PROVIDER=vanta` (or `drata` / `secureframe`) + `COMPLIANCE_GRC_TOKEN` to map the findings to the platform's evidence/test records and push them at scan time (ZDE-redacted egress; token never serialized; the Vanta·Drata·Secureframe connector trio is complete — Secureframe records model, live tenant validation in progress). |
 | `export_report` | Enterprise | Formatted compliance/risk report (PDF, HTML) |
 
+### Cross-framework routing — cite the engine, do NOT freehand-map (post EE 0.32.7)
+
+When a user asks which controls a finding maps to, **read it from the engine's compliance
+pack (`compliance_check` / the `scan_compliance_<framework>.json` artifact) — do not infer
+a mapping from general security knowledge.** The engine deliberately routes some findings
+*narrowly*, and a plausible-looking freehand mapping will overclaim. The non-obvious
+dispositions to know:
+
+- **Missing HSTS header → SOC 2 CC6.7 ONLY.** It is deliberately **not** mapped to HIPAA
+  §164.312(e)(1), ISO A.8.9, CIS 3.10, NIST CSF, PCI DSS, or GDPR. The finding fires only
+  on an endpoint whose transport **is** encrypted (the header governs a *future* client's
+  downgrade, not the observed session), so failing a transmission-security or
+  secure-configuration control in the other six on one absent response header would
+  overclaim — a Required HIPAA standard or an IG1 CIS Safeguard flipped on a single-header
+  inference. (EE 0.32.7 §4B; routes to CC6.7 only, mutation-proven.)
+- **Aggregate open-port count** and the **opportunistic-STARTTLS / port-inferred cleartext**
+  variants also route to **SOC 2 only** — each is a breadth heuristic or a self-declared
+  *unverifiable* observation, not a per-transmission determination.
+- Otherwise, network-scan analysis-agent findings (`crypto_agent` / `exposure_agent`) now
+  route across **all seven** frameworks where the control subject matches (EE 0.32.7): a
+  **confirmed** cleartext channel fails HIPAA §164.312(e)(1), ISO A.8.24, NIST PR.DS-02,
+  CIS 3.10, PCI 4.2.1 and GDPR Art. 32(1)(a) as well as SOC 2 CC6.7.
+
+If unsure, run `compliance_check` and report what the pack says — never assert a control
+mapping the engine did not emit.
+
 ---
 
 ## Five-Phase Pipeline Architecture
