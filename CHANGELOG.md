@@ -4,6 +4,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.30 (2026-07-21) — paired content bump for EE 0.32.7 (cross-framework routing + capability-claim honesty pass)
+
+- Version line updated to post-EE-0.32.7. Enterprise 0.32.7 routes the network-scan analysis agents' findings across **all seven compliance frameworks** (previously SOC 2 only off the same scan) and runs a **capability-claim honesty pass** — several Pro/Enterprise capabilities advertised without a shipping implementation (verification engine, branded reports, usage metering, Docker isolation, and the ZDE "policy engine" / Enterprise-CTEM datastore framings) are withdrawn; the real cores (the code-enforced ZDE read-only guarantee, Pro-tier CTEM retention) ship and are described honestly. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
+- **`references/plugins.md` correction:** plugin 040 (TLS Certificate & Cipher Auditor) was credited with HSTS-header verification it does not perform — the missing-HSTS check is the network-scan `crypto_agent`'s. 040's real cert/cipher/chain audit is unchanged.
+
 ## 0.2.29 (2026-07-19) — paired content bump for EE 0.32.6 (network-scan false-negative closures)
 
 - Version line updated to post-EE-0.32.6. Matrix-neutral cycle on the EE analysis-agent (network-scan) path: **cleartext transport** now flagged (a conditional inversion in the crypto agent — a should-be-encrypted service offering no TLS at all used to read clean → **SOC 2 CC6.7**), **SMB-alone** exposure now its own **HIGH** finding (a severity-inverted conjunction in the exposure agent — SMB without RDP is the higher-risk case → **CC6.6**), and **WinRM 5985/5986 · Elasticsearch 9300 · MSRPC 135 · a new aggregate open-port-count rule** as new exposure signals (→ **CC6.6**). Routed SOC 2-first with drift-detector coverage; **SOC 2 routing only this cycle — cross-framework mappings (HIPAA §164.312(e)(1) · CIS 4.x · NIST PR.*) deferred.** Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.

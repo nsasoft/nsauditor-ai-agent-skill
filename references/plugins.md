@@ -130,17 +130,17 @@ LLMNR poisoning risk).
 
 | ID | Name | Ports | Purpose |
 |----|------|-------|---------|
-| 040 | TLS Certificate & Cipher Auditor | 443, 465, 993, 995, 8443 | Deep TLS audit: cert chain, expiry, weak ciphers, HSTS |
+| 040 | TLS Certificate & Cipher Auditor | 443, 465, 993, 995, 8443 | Deep TLS audit: cert chain, expiry, self-signed, weak ciphers |
 | 050 | TRIBE v2 Probe | 80, 443 | Detect debug info leaks, stack traces, verbose errors, CORS misconfig |
 | 060 | DNS Security Auditor | 53 | SPF/DKIM/DMARC validation, DNSSEC, zone transfer, MX security, CAA |
 
 ### Pro Plugin Details
 
 **040 — TLS Certificate & Cipher Auditor:** Goes beyond the basic TLS Scanner (011)
-with full certificate chain validation, expiration warnings, certificate transparency
-log checks, HSTS header verification, and a comprehensive weak cipher inventory.
-Generates findings for: expired certs, self-signed certs, missing HSTS, weak key
-sizes (<2048-bit RSA), and deprecated cipher suites.
+with full certificate chain validation, expiration warnings, and a comprehensive weak
+cipher inventory. Generates findings for: expired certs, self-signed certs, weak key
+sizes (<2048-bit RSA), and deprecated cipher suites. *(Missing-HSTS detection is the
+network-scan `crypto_agent`'s, not this plugin's.)*
 
 **050 — TRIBE v2 Probe:** Targeted Reconnaissance for Information and Bug Enumeration.
 Sends crafted requests to detect: stack traces in error responses, debug mode
