@@ -4,6 +4,14 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.31 (2026-07-28) — paired content bump for EE 0.32.8 (capability-claim honesty pass, part 2: the air-gapped-delivery class)
+
+- **Two corrections in this package's own tier tables — both were overclaims this skill would otherwise teach an agent to repeat.** `SKILL.md` line 524 listed **"RFC 3161 timestamps"** unhedged among shipping Enterprise capabilities; RFC 3161 timestamping is *implemented but not yet wired to a flag*, so the row now says so explicitly and directs readers not to quote it as shipping. **SHA-256 chain-of-custody is the layer that ships.** Both `SKILL.md` and `README.md` also said **"air-gapped deployment"**, which implied a delivery mechanism that does not exist; both now say **"air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`)"**.
+- Version line updated to post-EE-0.32.8. Enterprise 0.32.8 is a documentation-and-prose release: **22 withdrawn-claim sites** across the three published packages, each verified against the code — an arm64 image (the build forces `--platform linux/amd64`), offline-installable tarballs (an `npm pack` tarball still resolves its dependencies from a registry), monthly NVD feed bundles (nothing produces one), an air-gapped installation script (none exists in the tree), a `feed import` CLI command (`importFeed()` has zero non-test callers), and CE's absolute "every feature works without internet access". **Three of the sites were runtime prose, not documentation** — coverage-gap rationales that render verbatim into the assessor-facing evidence pack and named a command that does not exist.
+- No MCP tool, plugin, schema or workflow change. `references/plugins.md` UNCHANGED. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
+
+---
+
 ## 0.2.30 (2026-07-21) — paired content bump for EE 0.32.7 (cross-framework routing + capability-claim honesty pass)
 
 - Version line updated to post-EE-0.32.7. Enterprise 0.32.7 routes the network-scan analysis agents' findings across **all seven compliance frameworks** (previously SOC 2 only off the same scan) and runs a **capability-claim honesty pass** — several Pro/Enterprise capabilities advertised without a shipping implementation (verification engine, branded reports, usage metering, Docker isolation, and the ZDE "policy engine" / Enterprise-CTEM datastore framings) are withdrawn; the real cores (the code-enforced ZDE read-only guarantee, Pro-tier CTEM retention) ship and are described honestly. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
