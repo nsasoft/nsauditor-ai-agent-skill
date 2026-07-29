@@ -4,6 +4,14 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.32 (2026-07-29) — Paired with EE 0.32.9 · the skill package's own provenance sweep
+
+**This package carried the marker class the EE cycle existed to kill, and npm freezes it at publish.** `references/plugins.md` is loaded into an LLM's context and quoted back to customers. Swept from the shipped `files[]` set: **330 occurrences → 0** — memory-slug wiki links (19), reviewer-fold codes (274), internal roadmap ids (35) and internal audit-review names (5).
+
+**`EE 0.x.y` version stamps are deliberately KEPT** — 382 of them, count asserted unchanged. In a changelog, and in "NEW EE 0.7.0" in the plugin catalogue, the version IS the useful provenance: it tells a reader which release introduced a capability.
+
+Paired EE 0.32.9 highlights: the evidence pack no longer carries internal roadmap ids; a cloud scanner that could not run no longer renders as a clean PASS; and the evidence-gap routing prefix changed value (re-point text-matched suppressions — see the EE CHANGELOG).
+
 ## 0.2.31 (2026-07-28) — paired content bump for EE 0.32.8 (capability-claim honesty pass, part 2: the air-gapped-delivery class)
 
 - **Two corrections in this package's own tier tables — both were overclaims this skill would otherwise teach an agent to repeat.** `SKILL.md` line 524 listed **"RFC 3161 timestamps"** unhedged among shipping Enterprise capabilities; RFC 3161 timestamping is *implemented but not yet wired to a flag*, so the row now says so explicitly and directs readers not to quote it as shipping. **SHA-256 chain-of-custody is the layer that ships.** Both `SKILL.md` and `README.md` also said **"air-gapped deployment"**, which implied a delivery mechanism that does not exist; both now say **"air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`)"**.
