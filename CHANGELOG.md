@@ -176,7 +176,7 @@ SKILL.md now teaches the `scan_cloud` `regions` argument: AWS region codes (e.g.
 
 ## 0.1.60 (2026-05-30) — Paired-release for EE 0.16.2 + CE 0.1.93 — **SKILL.md updated**: teaches the NEW MCP `scan_cloud` tool (audit AWS/GCP/Azure accounts directly, no network host) — added to the Pro/Enterprise Tools table (Enterprise tier) + the "which tool to use" decision tree, plus a result-interpretation rule ("a cloud was effectively audited only if it's in `auditedProviders`; `audited:false` / `notes` / `pluginsRan:0` means NOT audited — never report a clean pass"). Feature lives in CE 0.1.93; plugin count UNCHANGED (28); all six matrices UNCHANGED.
 
-## 0.1.59 (2026-05-30) — Paired-release pin for EE 0.16.1 + CE 0.1.92 — MCP `NSA_ENV_FILE`: the MCP server now loads a per-environment dotenv file named by `NSA_ENV_FILE` at startup (the MCP analog of the 0.16.0 CLI `--env`), so an operator points the server at a specific account/cloud by changing one path in the Claude Desktop / Claude Code config. Loaded after auth + license (scan-target vars only); fail-fast + authoritative-file ambient-cred clearing close a false-clean caught by the `audit-cloud-plugin-false-negatives` review. Feature lives in CE; plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
+## 0.1.59 (2026-05-30) — Paired-release pin for EE 0.16.1 + CE 0.1.92 — MCP `NSA_ENV_FILE`: the MCP server now loads a per-environment dotenv file named by `NSA_ENV_FILE` at startup (the MCP analog of the 0.16.0 CLI `--env`), so an operator points the server at a specific account/cloud by changing one path in the Claude Desktop / Claude Code config. Loaded after auth + license (scan-target vars only); fail-fast + authoritative-file ambient-cred clearing close a false-clean caught by the framework audit review. Feature lives in CE; plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
 
 ## 0.1.58 (2026-05-29) — Paired-release pin for EE 0.16.0 + CE 0.1.91 — CLI per-account scanning: `--env` / `--aws-profile` flags + sentinel-host plugin scoping (`--host aws|gcp|azure` + `--plugins all` runs only that cloud's plugins); EE adds a declarative `cloudProvider` field to all 27 cloud plugins. Plugin count UNCHANGED (28); all six matrices UNCHANGED. SKILL.md/references unchanged.
 
@@ -198,7 +198,7 @@ Paired no-op bump (no standalone agent-skill content change; SKILL.md + `referen
 
 ## 0.1.52 (PUBLISHED 2026-05-28) — Paired-release pin for EE 0.15.4 + CE 0.1.85 — plugin 1020 non-current-version ACL sampling + public WRITE-vs-READ differentiation
 
-Paired-release pin for the EE 0.15.4 patch cycle: closes the two residuals the 0.15.3 spec §8 carried as deferred. **(R-MEDIUM-2)** NEW step 2c-v samples public ACLs on **non-current** object versions — on versioning-Enabled/Suspended buckets plugin 1020 calls `ListObjectVersions` (first-page, bounded by `AWS_S3_AUDIT_OBJECT_SAMPLE_CAP`), filters to `IsLatest !== true`, skips `DeleteMarkers`, reads each via `GetObjectAcl({Key, VersionId})`; closes the Class-B miss where a private current object retains a public-ACL overwritten version still served at `?versionId=`. Public `AllUsers`/`AuthenticatedUsers` grant → CRITICAL via the existing `"publicly accessible"` anchor; skipped on `BucketOwnerEnforced`. **(R-LOW-1)** NEW `extractPublicWriteGroups` helper flags public WRITE/WRITE_ACP/FULL_CONTROL grants (anyone-can-overwrite) distinctly from READ-only as an enrichment line on the already-CRITICAL finding. New evidence-gaps (`ListObjectVersions AccessDenied` naming `s3:ListBucketVersions`; per-version aggregate-failure threshold; version-list truncation; a folded `GetBucketVersioning AccessDenied` gap) reuse the existing `"S3 object-ACL evidence-gap"` anchor — never a silent PASS. **Plugin count UNCHANGED at 28 (cloud-substrate 27); all six coverage matrices UNCHANGED; ZERO framework-JSON edits.** No new dependencies; EE regression 6628/6628 GREEN (+27 tests vs the 6601 baseline). No standalone agent-skill code changes — `SKILL.md` + `references/plugins.md` use generic framing (no plugin row change). _(Staged on `main`; awaiting live AWS smoke + trio publish.)_
+Paired-release pin for the EE 0.15.4 patch cycle: closes the two residuals the 0.15.3 spec §8 carried as deferred. NEW step 2c-v samples public ACLs on **non-current** object versions — on versioning-Enabled/Suspended buckets plugin 1020 calls `ListObjectVersions` (first-page, bounded by `AWS_S3_AUDIT_OBJECT_SAMPLE_CAP`), filters to `IsLatest !== true`, skips `DeleteMarkers`, reads each via `GetObjectAcl({Key, VersionId})`; closes the Class-B miss where a private current object retains a public-ACL overwritten version still served at `?versionId=`. Public `AllUsers`/`AuthenticatedUsers` grant → CRITICAL via the existing `"publicly accessible"` anchor; skipped on `BucketOwnerEnforced`. NEW `extractPublicWriteGroups` helper flags public WRITE/WRITE_ACP/FULL_CONTROL grants (anyone-can-overwrite) distinctly from READ-only as an enrichment line on the already-CRITICAL finding. New evidence-gaps (`ListObjectVersions AccessDenied` naming `s3:ListBucketVersions`; per-version aggregate-failure threshold; version-list truncation; a folded `GetBucketVersioning AccessDenied` gap) reuse the existing `"S3 object-ACL evidence-gap"` anchor — never a silent PASS. **Plugin count UNCHANGED at 28 (cloud-substrate 27); all six coverage matrices UNCHANGED; ZERO framework-JSON edits.** No new dependencies; EE regression 6628/6628 GREEN (+27 tests vs the 6601 baseline). No standalone agent-skill code changes — `SKILL.md` + `references/plugins.md` use generic framing (no plugin row change). _(Staged on `main`; awaiting live AWS smoke + trio publish.)_
 
 ## 0.1.51 (2026-05-28) — Paired-release pin for EE 0.15.3 + CE 0.1.84 — plugin 1020 object-level ACL enumeration + BucketOwnerEnforced short-circuit
 
@@ -218,7 +218,7 @@ Paired-release pin for the EE 0.15.0 cycle (Move C-2.3): NEW **plugin 1222 `azur
 
 ## 0.1.47 (PUBLISHED 2026-05-27) — Paired-release pin for EE 0.14.1 + CE 0.1.80 — plugin 1221 UDP restricted-port lane
 
-Paired-release pin for the EE 0.14.1 cycle: plugin 1221 (the Azure NSG perimeter auditor) gains a **UDP restricted-port lane** (Dim 2u/3u) — tiering UDP management/amplification services (SNMP 161 / CLDAP 389 / NTP 123 / rpcbind 111 / IPMI 623 / IKE 500 / Memcached 11211, etc.) in parallel with the existing TCP lane, attachment-aware (attached → CRITICAL effective; orphaned → MEDIUM latent) with per-transport priority/deny-override resolution — closing the R-MEDIUM-2 false negative where a public UDP service was silently treated as benign non-restricted "web tier" INFO. Dim-4 made protocol-aware. The six framework titlePatterns for 1221 were generalized `permits TCP inbound …` → `permits (?:TCP|UDP) inbound …` so UDP findings route to the same CC6.6/perimeter controls. **Plugin count UNCHANGED at 27 (cloud-substrate 25); all six coverage matrices UNCHANGED.** `references/plugins.md` 1221 row updated to the UDP lane. No standalone agent-skill code changes.
+Paired-release pin for the EE 0.14.1 cycle: plugin 1221 (the Azure NSG perimeter auditor) gains a **UDP restricted-port lane** (Dim 2u/3u) — tiering UDP management/amplification services (SNMP 161 / CLDAP 389 / NTP 123 / rpcbind 111 / IPMI 623 / IKE 500 / Memcached 11211, etc.) in parallel with the existing TCP lane, attachment-aware (attached → CRITICAL effective; orphaned → MEDIUM latent) with per-transport priority/deny-override resolution — closing the false negative where a public UDP service was silently treated as benign non-restricted "web tier" INFO. Dim-4 made protocol-aware. The six framework titlePatterns for 1221 were generalized `permits TCP inbound …` → `permits (?:TCP|UDP) inbound …` so UDP findings route to the same CC6.6/perimeter controls. **Plugin count UNCHANGED at 27 (cloud-substrate 25); all six coverage matrices UNCHANGED.** `references/plugins.md` 1221 row updated to the UDP lane. No standalone agent-skill code changes.
 
 ## 0.1.46 (PUBLISHED 2026-05-26) — Paired-release pin for EE 0.14.0 + CE 0.1.79 — NEW plugin 1221 (Azure NSG Perimeter Auditor)
 
@@ -238,7 +238,7 @@ Paired-release pin for the EE 0.13.1 cycle: CIS-Hardened-Image detection goes LI
 
 ## 0.1.42 (PUBLISHED 2026-05-24) — Paired-release pin for EE 0.13.0 + CE 0.1.75 — CIS Critical Security Controls v8 sixth-framework introduction
 
-**Cycle hook**: EE 0.13.0 ships CIS Critical Security Controls v8 (Center for Internet Security, May 2021; v8.1 errata June 2024) as the sixth Track 3 framework — **17 covered + 21 partial + 115 OOS across 153 Safeguards / 18 Controls / 3 cumulative Implementation Groups** (engine substrate IG1 23-of-56 / IG2-cumulative 36-of-130 / IG3-cumulative 38-of-153). Implementation Group cumulative discipline (IG1=56 cyber-insurance baseline / IG2 cumulative=130 / IG3 cumulative=153; smallest-IG-membership tagging) + no-certification-body attestation discipline (CSAT / CIS-CAT Pro self-attestation, never "CIS certified") + Cloud Companion Guide v8 shared-responsibility + CIS-Hardened-Image substrate-evidence credit (4.1/4.2/4.6) + 5 Security Functions NOT 6 (no Govern) + 6 Asset Types + MS-ISAC/EI-ISAC/H-ISAC sector baselines + v7.1-to-v8 cross-reference. Skill #19 `audit-cis-controls-v8-implementation-group-perspective` authored 2026-05-24 via /skill-creator (833 lines / 5 files) per the institutional Per-Framework Adversarial-Audit Skill Pairing pattern. **`compliance_check` SKILL.md row updated FIVE → SIX shipped frameworks** with CIS Safeguard examples + IG-cumulative + no-cert-body attestation framing. No other agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
+**Cycle hook**: EE 0.13.0 ships CIS Critical Security Controls v8 (Center for Internet Security, May 2021; v8.1 errata June 2024) as the sixth Track 3 framework — **17 covered + 21 partial + 115 OOS across 153 Safeguards / 18 Controls / 3 cumulative Implementation Groups** (engine substrate IG1 23-of-56 / IG2-cumulative 36-of-130 / IG3-cumulative 38-of-153). Implementation Group cumulative discipline (IG1=56 cyber-insurance baseline / IG2 cumulative=130 / IG3 cumulative=153; smallest-IG-membership tagging) + no-certification-body attestation discipline (CSAT / CIS-CAT Pro self-attestation, never "CIS certified") + Cloud Companion Guide v8 shared-responsibility + CIS-Hardened-Image substrate-evidence credit (4.1/4.2/4.6) + 5 Security Functions NOT 6 (no Govern) + 6 Asset Types + MS-ISAC/EI-ISAC/H-ISAC sector baselines + v7.1-to-v8 cross-reference. a dedicated framework audit review authored 2026-05-24 via /skill-creator (833 lines / 5 files) per the institutional Per-Framework Adversarial-Audit Skill Pairing pattern. **`compliance_check` SKILL.md row updated FIVE → SIX shipped frameworks** with CIS Safeguard examples + IG-cumulative + no-cert-body attestation framing. No other agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
 
 **Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **SOC 2 + HIPAA + NIST CSF + PCI DSS + ISO 27001 matrices ALL UNCHANGED**; **CIS Controls v8 matrix NEW at 17/21/115 across 153 Safeguards**.
 
@@ -248,7 +248,7 @@ Paired-release pin for the EE 0.13.1 cycle: CIS-Hardened-Image detection goes LI
 
 ## 0.1.41 (PUBLISHED 2026-05-24) — Paired-release pin for EE 0.12.0 + CE 0.1.74 — ISO/IEC 27001:2022 fifth-framework introduction
 
-**Cycle hook**: EE 0.12.0 ships ISO/IEC 27001:2022 as the fifth Track 3 framework — 17 covered + 14 partial + 62 OOS across 93 Annex A controls (the complete Annex A universe across 4 themes). Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing + 11 NEW 2022 controls + 5-attribute taxonomy + 2013-to-2022 transition discipline. Skill #18 `audit-iso-27001-2022-statement-of-applicability` authored 2026-05-24 via /skill-creator (705 lines / 5 files) per the institutional Per-Framework Adversarial-Audit Skill Pairing pattern. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
+**Cycle hook**: EE 0.12.0 ships ISO/IEC 27001:2022 as the fifth Track 3 framework — 17 covered + 14 partial + 62 OOS across 93 Annex A controls (the complete Annex A universe across 4 themes). Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing + 11 NEW 2022 controls + 5-attribute taxonomy + 2013-to-2022 transition discipline. a dedicated framework audit review authored 2026-05-24 via /skill-creator (705 lines / 5 files) per the institutional Per-Framework Adversarial-Audit Skill Pairing pattern. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
 
 **Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **SOC 2 + HIPAA + NIST CSF + PCI DSS matrices ALL UNCHANGED**; **ISO/IEC 27001:2022 matrix NEW at 17/14/62 across 93 Annex A controls**.
 
@@ -256,9 +256,9 @@ Paired-release pin for the EE 0.13.1 cycle: CIS-Hardened-Image detection goes LI
 
 ---
 
-## 0.1.40 (PUBLISHED 2026-05-23 to npm as `latest`) — Paired-release pin for EE 0.11.1 + CE 0.1.73 — PCI DSS v4.0.1 patch cycle (CAO authorship + 4 R-MEDIUM folds + `license --reset` subcommand)
+## 0.1.40 (PUBLISHED 2026-05-23 to npm as `latest`) — Paired-release pin for EE 0.11.1 + CE 0.1.73 — PCI DSS v4.0.1 patch cycle (CAO authorship + 4 folds + `license --reset` subcommand)
 
-**Cycle hook**: EE 0.11.1 ships the PCI DSS v4.0.1 patch cycle — the 4 R-MEDIUM authoring folds deferred from the EE 0.11.0 reviewer pass (CDE-scope badge + Req 12.8.5 TPSP matrix renderer + QSA enforcement-priority ranked view + CAO authorship for all 26 customized-eligible sub-requirements per Appendix D) PLUS the operator-discovered `nsauditor-ai license --reset` subcommand on the CE side. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
+**Cycle hook**: EE 0.11.1 ships the PCI DSS v4.0.1 patch cycle — the 4 authoring folds deferred from the EE 0.11.0 reviewer pass (CDE-scope badge + Req 12.8.5 TPSP matrix renderer + QSA enforcement-priority ranked view + CAO authorship for all 26 customized-eligible sub-requirements per Appendix D) PLUS the operator-discovered `nsauditor-ai license --reset` subcommand on the CE side. No agent-skill code changes — paired-publish for trio-publish discipline + customer discoverability.
 
 **Plugin catalog**: UNCHANGED at 24 plugins; MCP tool signatures unchanged; schemas unchanged; workflows unchanged. **Coverage matrices ALL UNCHANGED** (SOC 2 10/4/33 + HIPAA 7/3/45 + NIST CSF 2.0 13/10/83 + PCI DSS 20/8/39 MVP-67 — pure patch cycle, no framework expansion).
 
@@ -292,13 +292,13 @@ Paired-release pin for the EE 0.13.1 cycle: CIS-Hardened-Image detection goes LI
 
 **EE 0.10.0 + CE 0.1.71 paired-release highlights** (full detail in respective CHANGELOGs):
 - NEW `data/compliance/nist-csf.json` — auditor-canonical Subcategory-level mapping. 23 declared Subcategories + 6 OOS groups + schema-additive `function` / `categoryCode` / `subcategory` / `outcomeText` / `informativeReferences` fields. Inheritance contract: every titlePattern inherits from soc2.json's grep-verified pattern set, defended by 27-test anchor-drift suite.
-- EXTENDED EE `utils/soc2_renderer.mjs` — `'nist-csf'` slot table in `frameworkControlCitation` with 8 slots incl. NEW `implementation-tiers` disclaimer. `isNistCsfReport` flag detection. Implementation Tiers OOS disclaimer section in BOTH markdown AND HTML render paths (R-HIGH-2 reviewer fold from 2nd reviewer pass — markdown-only was the pre-fold state).
-- Schema-additive fields propagation to controlEntries — closes ghost-schema gap for `function`/`categoryCode`/`subcategory`/`outcomeText`/`informativeReferences` (NIST CSF) AND `requiredOrAddressable`/`standardOrSpec`/`ruleText` (HIPAA, EE 0.9.0 inherited gap) AND `manualProcedure` (SOC 2 + HIPAA, EE 0.9.3 + 0.9.4 inherited gap). R-HIGH-1 reviewer fold from 2nd reviewer pass.
-- 91 net new tests across 3 new test files (27 anchor-drift + 39 mapping + 25 renderer) + 1 fold-driven SOC 2→NIST cross-framework leak test (R-MEDIUM-1 from 2nd reviewer pass)
+- EXTENDED EE `utils/soc2_renderer.mjs` — `'nist-csf'` slot table in `frameworkControlCitation` with 8 slots incl. NEW `implementation-tiers` disclaimer. `isNistCsfReport` flag detection. Implementation Tiers OOS disclaimer section in BOTH markdown AND HTML render paths (reviewer fold from 2nd reviewer pass — markdown-only was the pre-fold state).
+- Schema-additive fields propagation to controlEntries — closes ghost-schema gap for `function`/`categoryCode`/`subcategory`/`outcomeText`/`informativeReferences` (NIST CSF) AND `requiredOrAddressable`/`standardOrSpec`/`ruleText` (HIPAA, EE 0.9.0 inherited gap) AND `manualProcedure` (SOC 2 + HIPAA, EE 0.9.3 + 0.9.4 inherited gap). reviewer fold from 2nd reviewer pass.
+- 91 net new tests across 3 new test files (27 anchor-drift + 39 mapping + 25 renderer) + 1 fold-driven SOC 2→NIST cross-framework leak test (from 2nd reviewer pass)
 - 560-line `docs/nist-csf-coverage.md`
 - 2 reviewer passes (single-agent A combined NIST/code lens + parallel-reviewer B security/air-gap/citation-leak lens); 5 same-session folds total
 
-**Reviewer pass discipline**: 2-reviewer parallel pass per the EE 0.9.0 institutional template. Reviewer A verdict "ship with 4 small folds — cycle is structurally clean"; Reviewer B verdict "ship with 2 small folds beyond Reviewer A's findings — 2 R-HIGH genuinely new + 3 polish". 5 of 10 findings applied same-session (3 from Reviewer B + 2 from Reviewer A); 5 deferred as defer-acceptable polish.
+**Reviewer pass discipline**: 2-reviewer parallel pass per the EE 0.9.0 institutional template. Reviewer A verdict "ship with 4 small folds — cycle is structurally clean"; Reviewer B verdict "ship with 2 small folds beyond Reviewer A's findings — 2 genuinely new + 3 polish". 5 of 10 findings applied same-session (3 from Reviewer B + 2 from Reviewer A); 5 deferred as defer-acceptable polish.
 
 **Regression**: EE 6104/6104 across 983 suites (+92 vs 0.9.4 baseline — 91 cycle-new tests + 1 fold-driven cross-framework leak test). 75-session 100% green streak preserved. **Plugin count UNCHANGED at 24**; **SOC 2 + HIPAA coverage matrices UNCHANGED at 10/4/33 + 7/3/45**; **NIST CSF 2.0 coverage matrix introduced at 13/10/83**.
 
@@ -363,7 +363,7 @@ EE's `loadFrameworkMap` was already framework-agnostic (reads `data/compliance/{
 
 Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure. Nsasoft does not see, store, or process customer ePHI under any condition — no Business Associate Agreement needed. This is a self-hosted scanner, not a SaaS service.
 
-### 6 same-session reviewer folds applied (2 R-HIGH + 2 R-MEDIUM + 1 R-LOW + 1 docstring; 0 R-CRITICAL)
+### 6 same-session reviewer folds applied (2 + 2 + 1 + 1 docstring; 0 )
 
 Two parallel reviewers (HIPAA Security Officer perspective + senior code reviewer perspective). Confirmed: §164.312 sub-criteria routing clean (no CloudTrail in (a)(1), no MFA in (a)(1), no TLS in (a)(2)(iv)); HHS R/A classification correct per control; §164.308 + §164.310 OOS enumerations complete against 45 CFR; rationale spot-check zero cross-framework citation leak.
 
@@ -391,13 +391,13 @@ The 0.8.0 customer migration carryover (suppressions targeting `match.source: 'a
 
 ---
 
-## 0.1.35 — Catalog refresh: EE 0.8.0 MINOR VERSION MILESTONE (EE-RT.23 Move B plugin 1022 per-dim source-attribution refactor + Engine `details.category` projection contract + Key Vault soc2.json gap closure +13 mappings; 7 same-session reviewer folds; +23 new tests / +6 new suites; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5805/5805 across 907 suites; 68-session 100% green streak preserved; twenty-fifth consecutive trio-publish; ⚠️ customer migration: `match.source: 'azure-cloud-scanner'` suppressions silently no-op post-0.8.0)
+## 0.1.35 — Catalog refresh: EE 0.8.0 MINOR VERSION MILESTONE ( Move B plugin 1022 per-dim source-attribution refactor + Engine `details.category` projection contract + Key Vault soc2.json gap closure +13 mappings; 7 same-session reviewer folds; +23 new tests / +6 new suites; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5805/5805 across 907 suites; 68-session 100% green streak preserved; twenty-fifth consecutive trio-publish; ⚠️ customer migration: `match.source: 'azure-cloud-scanner'` suppressions silently no-op post-0.8.0)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.8.0 + CE 0.1.68 — **twenty-fifth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.8.0).
 
-### Headline — MINOR VERSION MILESTONE: EE-RT.23 Move B plugin 1022 Azure scanner per-dim source-attribution refactor
+### Headline — MINOR VERSION MILESTONE: Move B plugin 1022 Azure scanner per-dim source-attribution refactor
 
-EE 0.8.0 closes the long-standing blocker (originally flagged in EE 0.6.9 R1-MEDIUM-1) for routing Azure storage findings into Appendix A "Cloud Bucket Exposure Attestation" without commingling NSG / RBAC / Key Vault. Plugin 1022 refactored so each of the 4 helpers (`auditNsgRules` / `auditRbac` / `auditStorageAccounts` / `auditKeyVaults`) attaches its own per-dim `source` field on every emission:
+EE 0.8.0 closes the long-standing blocker (originally flagged in EE 0.6.9 -1) for routing Azure storage findings into Appendix A "Cloud Bucket Exposure Attestation" without commingling NSG / RBAC / Key Vault. Plugin 1022 refactored so each of the 4 helpers (`auditNsgRules` / `auditRbac` / `auditStorageAccounts` / `auditKeyVaults`) attaches its own per-dim `source` field on every emission:
 
 - `azure-nsg-auditor`
 - `azure-rbac-auditor`
@@ -421,15 +421,15 @@ Pre-0.8.0 the Key Vault dim emitted 10 distinct `details.category` values but ha
 
 All 10 KV anchor regexes use `^Key Vault '[^']+' <distinguishing-clause>` shape (literal-space anchors per `[[soc2_titlepattern_anchor_drift]]` discipline).
 
-### 7 same-session reviewer folds applied (2 R-HIGH + 3 R-MEDIUM + 2 R-LOW; 0 R-CRITICAL)
+### 7 same-session reviewer folds applied (2 + 3 + 2 ; 0 )
 
-- **F1 R-HIGH**: anchor-drift defense test now loads patterns from shipped soc2.json directly (single source of truth — closes test/production-regex drift structurally; pre-fold the test regex array was MORE permissive than the production regex — EE-RT.20-class-recurrence INSIDE the defense test).
-- **F2 R-HIGH**: `computeBucketStats` dedup key provider-qualified `${source}::${resource}` (closes cross-cloud bucket-name collision for multi-cloud customers using shared naming conventions).
-- **F3 R-MEDIUM**: empty-string `details.category` projects null (consistency with harvester source-preservation `length > 0` guard).
-- **F4 R-MEDIUM**: SDK-error path coverage tests (KV throw + Storage throw — verifies soft-degrade doesn't accidentally emit findings with wrong source).
-- **F5 R-MEDIUM**: partial-failure backward-compat test (RBAC helper throws; NSG/Storage/KV findings still surface with correct per-dim sources).
-- **F6 R-LOW**: JSDoc documents `category` field on `analyseAgainstFramework` return shape.
-- **F7 R-LOW**: NSG soc2.json regex tightened from `~/^NSG rule .* allows inbound/` to `~/^NSG rule "[^"]+" allows inbound/` (rule-name closure anchor; preemptive cross-mapping defense).
+- **F1 **: anchor-drift defense test now loads patterns from shipped soc2.json directly (single source of truth — closes test/production-regex drift structurally; pre-fold the test regex array was MORE permissive than the production regex —-class-recurrence INSIDE the defense test).
+- **F2 **: `computeBucketStats` dedup key provider-qualified `${source}::${resource}` (closes cross-cloud bucket-name collision for multi-cloud customers using shared naming conventions).
+- **F3 **: empty-string `details.category` projects null (consistency with harvester source-preservation `length > 0` guard).
+- **F4 **: SDK-error path coverage tests (KV throw + Storage throw — verifies soft-degrade doesn't accidentally emit findings with wrong source).
+- **F5 **: partial-failure backward-compat test (RBAC helper throws; NSG/Storage/KV findings still surface with correct per-dim sources).
+- **F6 **: JSDoc documents `category` field on `analyseAgainstFramework` return shape.
+- **F7 **: NSG soc2.json regex tightened from `~/^NSG rule.* allows inbound/` to `~/^NSG rule "[^"]+" allows inbound/` (rule-name closure anchor; preemptive cross-mapping defense).
 
 ### ⚠️ Customer migration required
 
@@ -441,28 +441,28 @@ EE full regression: **5805/5805 across 907 suites** (was 5782/900 at 0.7.3; +23 
 
 ---
 
-## 0.1.34 — Catalog refresh: EE 0.7.3 R-CRITICAL hotfix closing 2 production bugs surfaced by EE 0.7.2 dogfood scan against operator's GCP test infra (cross-version google-auth-library fragmentation broke SA impersonation chains [R-CRITICAL — 100% false-clean impact on free-trial/gmail GCP customers + business GCP customers with no-long-lived-SA-keys policy]; GOOGLE_CLOUD_PROJECT_ID env-var alias silently skipped [R-MEDIUM]; +14 new tests across 2 new suites incl. regression pin replicating gax 5.x grpc adapter idiom; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5782/5782 across 900 suites; 67-session 100% green streak preserved; twenty-fourth consecutive trio-publish)
+## 0.1.34 — Catalog refresh: EE 0.7.3 hotfix closing 2 production bugs surfaced by EE 0.7.2 dogfood scan against operator's GCP test infra (cross-version google-auth-library fragmentation broke SA impersonation chains [ — 100% false-clean impact on free-trial/gmail GCP customers + business GCP customers with no-long-lived-SA-keys policy]; GOOGLE_CLOUD_PROJECT_ID env-var alias silently skipped []; +14 new tests across 2 new suites incl. regression pin replicating gax 5.x grpc adapter idiom; plugin count UNCHANGED at 24; coverage matrix UNCHANGED at 10/4/33; EE regression 5782/5782 across 900 suites; 67-session 100% green streak preserved; twenty-fourth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.3 + CE 0.1.67 — **twenty-fourth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.3).
 
-### Headline — R-CRITICAL hotfix surfaced by EE 0.7.2 dogfood scan within 30 minutes of the 0.7.2 trio publish
+### Headline — hotfix surfaced by EE 0.7.2 dogfood scan within 30 minutes of the 0.7.2 trio publish
 
 EE 0.7.3 closes 2 production bugs that shipped silently in EE 0.7.0–0.7.2. Both bugs surfaced when running `nsauditor-ai scan --plugins 1025 --compliance soc2` against operator's GCP test infra immediately after the 0.7.2 trio publish.
 
-**Gap #2 (R-CRITICAL)**: cross-version `google-auth-library` fragmentation. EE's `utils/gcp_auth.mjs` resolved `9.15.1` at the top level (hoisted via `googleapis@^144`); `@google-cloud/resource-manager@^6` bundles nested `10.6.2` + `google-gax@5.x` whose grpc adapter calls `headers.forEach((value, key) => ...)` expecting WHATWG Headers instance. 9.x returns plain object → `.forEach` undefined → TypeError → `2 UNKNOWN: Getting metadata from plugin failed with error: headers.forEach is not a function`. Plugin 1025's conservative classifier emitted `gcp-iam-project-unreadable` LOW + walkthroughRequired, masking the fact that ALL 7 dims silently skipped. Production false-clean impact: ~100% on any impersonation-using deployment in EE v0.7.0–0.7.2.
+**Gap #2 **: cross-version `google-auth-library` fragmentation. EE's `utils/gcp_auth.mjs` resolved `9.15.1` at the top level (hoisted via `googleapis@^144`); `@google-cloud/resource-manager@^6` bundles nested `10.6.2` + `google-gax@5.x` whose grpc adapter calls `headers.forEach((value, key) =>...)` expecting WHATWG Headers instance. 9.x returns plain object → `.forEach` undefined → TypeError → `2 UNKNOWN: Getting metadata from plugin failed with error: headers.forEach is not a function`. Plugin 1025's conservative classifier emitted `gcp-iam-project-unreadable` LOW + walkthroughRequired, masking the fact that ALL 7 dims silently skipped. Production false-clean impact: ~100% on any impersonation-using deployment in EE v0.7.0–0.7.2.
 
 **Fix**: NEW `_wrapAuthClientHeadersShim` in `utils/gcp_auth.mjs` monkey-patches the Impersonated instance's `getRequestHeaders` to coerce 9.x's plain-object return into a Headers instance via `new Headers(plainObject)`. 10.x returns pass through unchanged. Version-agnostic, future-proof. +8 new tests including a regression pin that exactly replicates the gax 5.x grpc adapter idiom — catches any future shim regression at unit-test time.
 
 **Customer-segment impact:**
 - **GCP free-trial / gmail customers** — impersonation is the ONLY working credential model when `iam.disableServiceAccountKeyCreation` is enforced (Google's "Secure by default"). Pre-0.7.3 100% false-clean. **Post-0.7.3 audit works end-to-end.**
 - **Business GCP customers with no-long-lived-SA-keys security policy** — many enterprise security teams mandate impersonation as their auth model. Same impact. **Post-0.7.3 audit works.**
-- **Business GCP customers using JSON keyfiles or pure ADC** — unaffected (R-CRITICAL specific to impersonation injection; pure-ADC + keyfile paths use the nested 10.x auth chain entirely).
+- **Business GCP customers using JSON keyfiles or pure ADC** — unaffected ( specific to impersonation injection; pure-ADC + keyfile paths use the nested 10.x auth chain entirely).
 
-**Gap #1 (R-MEDIUM)**: operators following the `gcloud auth application-default login` setup convention (which writes `GOOGLE_CLOUD_PROJECT_ID` with `_ID` suffix) saw silent skip with `[plugin 1025] No GCP_PROJECT_ID configured`. Extended `loadConfig` + `preflight` from 2-way OR to 3-way OR: `opts.projectId > GCP_PROJECT_ID > GOOGLE_CLOUD_PROJECT > GOOGLE_CLOUD_PROJECT_ID`. +6 new tests covering all precedence paths + preflight failure-reason enumeration + end-to-end run() with env-only resolution.
+**Gap #1 **: operators following the `gcloud auth application-default login` setup convention (which writes `GOOGLE_CLOUD_PROJECT_ID` with `_ID` suffix) saw silent skip with `[plugin 1025] No GCP_PROJECT_ID configured`. Extended `loadConfig` + `preflight` from 2-way OR to 3-way OR: `opts.projectId > GCP_PROJECT_ID > GOOGLE_CLOUD_PROJECT > GOOGLE_CLOUD_PROJECT_ID`. +6 new tests covering all precedence paths + preflight failure-reason enumeration + end-to-end run with env-only resolution.
 
 ### Dogfood validation post-fix
 
-Re-ran the scan with both fixes applied. **8 findings emitted** (was 1 false-clean LOW pre-fix): 5 PASS + 2 MEDIUM + 1 LOW. All 7 dims exercise via the impersonated `nsauditor-readonly` audit SA. `accessDeniedByApi.listPolicies: 1` confirms the 0.7.2 R2-MED-13 counter wiring works end-to-end against real GCP.
+Re-ran the scan with both fixes applied. **8 findings emitted** (was 1 false-clean LOW pre-fix): 5 PASS + 2 MEDIUM + 1 LOW. All 7 dims exercise via the impersonated `nsauditor-readonly` audit SA. `accessDeniedByApi.listPolicies: 1` confirms the 0.7.2 counter wiring works end-to-end against real GCP.
 
 ### Regression preserved
 
@@ -476,15 +476,15 @@ EE full regression: **5782/5782 across 900 suites** (was 5768/5768 across 898 su
 
 ### Headline — pure-test functional patch (no plugin/soc2.json/SDK changes)
 
-EE 0.7.2 is a pure-test functional patch closing the 5 test-coverage gaps deferred at 0.7.1's reviewer pass — bundled with the staged `peerDependencies.nsauditor-ai` bump (`^0.1.40` → `^0.1.65`) queued at 0.7.1 post-publish per `[[npm_tarball_replacement_trap]]` discipline. Plugin 1025 GCP IAM Project-Level Auditor's 7-dim coverage shipped in EE 0.7.1; this cycle backfills the test surface around it without altering production behavior.
+EE 0.7.2 is a pure-test functional patch closing the 5 test-coverage gaps deferred at 0.7.1's reviewer pass — bundled with the staged `peerDependencies.nsauditor-ai` bump (`^0.1.40` → `^0.1.65`) queued at 0.7.1 post-publish per the npm tarball-immutability constraint discipline. Plugin 1025 GCP IAM Project-Level Auditor's 7-dim coverage shipped in EE 0.7.1; this cycle backfills the test surface around it without altering production behavior.
 
 ### Test additions — 50 new tests across 6 new suites
 
-- **R2-MED-7 BFS edge cases (+17)** — `_detectGcpImpersonationPaths` exercised against multiple disjoint cycles (Island A doesn't bleed into Island B), disconnected subgraphs, terminate-at-first-admin (multi-admin chain), parallel branches to distinct admins, depthCap exact-match + one-short + =1 boundaries, per-PATH visited Set semantics, malformed edges (null / missing-to / non-string-to), nonexistent edge targets, cycle through admin, self-loop on start, edge label fallback chain (label → displayName → key), fractional depthCap, parallel edges to same admin with different `via`.
-- **R2-MED-13 counter wiring (+15 parameterized)** — 5 v2 apiName strings × 3 counter classes: `projects.roles.list` + `projects.serviceAccounts.list` + `projects.serviceAccounts.keys.list` + `projects.serviceAccounts.getIamPolicy` + `listPolicies` × throttle-retry + access-denied + wall-budget-exhausted. Closes the institutional contract "every API surface increments the right counter key" — prior cycle tested v1's `getIamPolicy` directly but only indirect coverage of v2 apiNames via run() integration.
-- **R2-LOW-16/17 helper edges (+10)** — `_saEmailFromName`: trailing slash → `""`, leading slash → segment-after, only-slash → `""`, multiple slashes (lastIndexOf semantics), control-char strip BEFORE slash detection. `_parseIso8601ToMs`: positive `+HH:MM` offset (yields earlier UTC ms), negative `-HH:MM` offset (yields later UTC ms), date-only string (UTC midnight), fractional-seconds + Z, finite-return for well-formed-with-offset.
-- **R2-HIGH-4 SDK loader graceful-degradation contract (+8)** — direct unit tests for `_loadGoogleApisIamAdminSdk` + `_loadOrgPolicySdk` missing-dep error branches. Both SDKs are in optionalDependencies and NOT installed in the EE working tree by default. The institutional contract: loader throws with dep-name + `Cannot find package` cause; run()'s catch handler converts to single-warning skip of the affected dim cohort.
-- **R2-MED-12 buildGcpAuthOptions real-SDK fallback (+3)** — exercises the `deps._googleAuthLibrarySdk || await _loadGoogleAuthLibrarySdk()` fallback path that all other buildGcpAuthOptions tests bypass via dep injection. Uses `crypto.generateKeyPairSync` to write a valid PKCS#8 SA JSON keyfile to tmpdir, then verifies the real google-auth-library returns a real `Impersonated` instance with documented `targetPrincipal` + `lifetime` shape.
+- **BFS edge cases (+17)** — `_detectGcpImpersonationPaths` exercised against multiple disjoint cycles (Island A doesn't bleed into Island B), disconnected subgraphs, terminate-at-first-admin (multi-admin chain), parallel branches to distinct admins, depthCap exact-match + one-short + =1 boundaries, per-PATH visited Set semantics, malformed edges (null / missing-to / non-string-to), nonexistent edge targets, cycle through admin, self-loop on start, edge label fallback chain (label → displayName → key), fractional depthCap, parallel edges to same admin with different `via`.
+- **counter wiring (+15 parameterized)** — 5 v2 apiName strings × 3 counter classes: `projects.roles.list` + `projects.serviceAccounts.list` + `projects.serviceAccounts.keys.list` + `projects.serviceAccounts.getIamPolicy` + `listPolicies` × throttle-retry + access-denied + wall-budget-exhausted. Closes the institutional contract "every API surface increments the right counter key" — prior cycle tested v1's `getIamPolicy` directly but only indirect coverage of v2 apiNames via run integration.
+- **-16/17 helper edges (+10)** — `_saEmailFromName`: trailing slash → `""`, leading slash → segment-after, only-slash → `""`, multiple slashes (lastIndexOf semantics), control-char strip BEFORE slash detection. `_parseIso8601ToMs`: positive `+HH:MM` offset (yields earlier UTC ms), negative `-HH:MM` offset (yields later UTC ms), date-only string (UTC midnight), fractional-seconds + Z, finite-return for well-formed-with-offset.
+- **SDK loader graceful-degradation contract (+8)** — direct unit tests for `_loadGoogleApisIamAdminSdk` + `_loadOrgPolicySdk` missing-dep error branches. Both SDKs are in optionalDependencies and NOT installed in the EE working tree by default. The institutional contract: loader throws with dep-name + `Cannot find package` cause; run's catch handler converts to single-warning skip of the affected dim cohort.
+- **buildGcpAuthOptions real-SDK fallback (+3)** — exercises the `deps._googleAuthLibrarySdk || await _loadGoogleAuthLibrarySdk` fallback path that all other buildGcpAuthOptions tests bypass via dep injection. Uses `crypto.generateKeyPairSync` to write a valid PKCS#8 SA JSON keyfile to tmpdir, then verifies the real google-auth-library returns a real `Impersonated` instance with documented `targetPrincipal` + `lifetime` shape.
 
 ### Regression preserved
 
@@ -492,11 +492,11 @@ EE full regression: **5768/5768 across 898 suites** (was 5715/5715 across 892 su
 
 ---
 
-## 0.1.32 — Catalog refresh: plugin 1025 GCP IAM Project-Level Auditor EXTENDED to v2 (3 dims → 7 dims) — paired with EE 0.7.1 trio-publish (EE-RT.22 v2 R2 expansion closing all 4 v1-deferred dims; +4 new dims: custom-role permission audit + SA key custody + SA impersonation graph BFS + Organization Policy constraint enumeration; NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT`; **17 same-session reviewer folds = NEW HIGH-WATER MARK** vs 0.7.0's 12 (1 R-CRITICAL EE-RT.20 class recurrence catch + 7 R-HIGH + 8 R-MEDIUM + 1 R-LOW(+1 grouped)); plugin count UNCHANGED at 24; +22 new soc2.json mappings; new SDK deps `googleapis` + `@google-cloud/org-policy` in optionalDependencies; twenty-second consecutive trio-publish)
+## 0.1.32 — Catalog refresh: plugin 1025 GCP IAM Project-Level Auditor EXTENDED to v2 (3 dims → 7 dims) — paired with EE 0.7.1 trio-publish (v2 R2 expansion closing all 4 v1-deferred dims; +4 new dims: custom-role permission audit + SA key custody + SA impersonation graph BFS + Organization Policy constraint enumeration; NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT`; **17 same-session reviewer folds = NEW HIGH-WATER MARK** vs 0.7.0's 12 (1 class recurrence catch + 7 + 8 + 1 (+1 grouped)); plugin count UNCHANGED at 24; +22 new soc2.json mappings; new SDK deps `googleapis` + `@google-cloud/org-policy` in optionalDependencies; twenty-second consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.1 + CE 0.1.65 — **twenty-second consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.1).
 
-### Headline — EE-RT.22 v2 plugin 1025 R2 expansion
+### Headline —, v2 plugin 1025 R2 expansion
 
 Plugin 1025 GCP IAM Project-Level Auditor extended from 3 audit dimensions to **7** via in-place R2 expansion (closes all 4 v1-deferred dims from the EE 0.7.0 cycle). Plugin count UNCHANGED at 24 (v2 = in-place expansion, not new plugin). Coverage matrix UNCHANGED at 10/4/33 — pure substrate-evidence depth uplift on already-covered CC6.1 / CC6.6 / C1.1 controls.
 
@@ -506,15 +506,15 @@ NEW `utils/gcp_auth.mjs` helper honors `GOOGLE_IMPERSONATE_SERVICE_ACCOUNT` env 
 
 ### Reviewer fold high-water mark — 17 same-session folds
 
-NEW HIGH-WATER MARK vs 0.7.0's 12 folds. Distribution: 1 R-CRITICAL + 7 R-HIGH + 8 R-MEDIUM + 1 R-LOW(+1 grouped). The R-CRITICAL fold (R2-CRITICAL-1) was an EE-RT.20 R1-CRITICAL-1 class recurrence — soc2.json PASS-tier SA-key patterns silently failed to match when plugin emitted `(display: 'X')` between email and `has` clause. Production false-clean impact would have been ~100% on real GCP fixtures. Patterns rewritten to `'[^']+'.*has`.
+NEW HIGH-WATER MARK vs 0.7.0's 12 folds. Distribution: 1 + 7 + 8 + 1 (+1 grouped). The review fold was an class recurrence — soc2.json PASS-tier SA-key patterns silently failed to match when plugin emitted `(display: 'X')` between email and `has` clause. Production false-clean impact would have been ~100% on real GCP fixtures. Patterns rewritten to `'[^']+'.*has`.
 
 ### Cross-repo privacy scrub (parallel non-functional work)
 
-Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST NOT contain operator-private references. Substitutions applied across all 3 repos for personal emails / internal repo paths / real account IDs. New memory `[[npm_package_privacy]]` pinned. Force-push history rewrite applied to CE + agent-skill public repos to scrub identifiers from all historical commits.
+Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST NOT contain operator-private references. Substitutions applied across all 3 repos for personal emails / internal repo paths / real account IDs. The package-privacy rule is now enforced. Force-push history rewrite applied to CE + agent-skill public repos to scrub identifiers from all historical commits.
 
 ---
 
-## 0.1.31 — Catalog refresh: NEW EE-RT.22 v1 plugin 1025 GCP IAM Project-Level Auditor — paired with EE 0.7.0 trio-publish (MINOR-VERSION MILESTONE opening the v0.7.x cross-cloud-parity line; first plugin in the GCP-IAM-deep-audit cohort; 3 audit dimensions across CC6.1 + CC6.6; 12 R1 reviewer folds (0 R-CRITICAL + 2 R-HIGH + 5 R-MEDIUM + 5 R-LOW); plugin count 23 → 24; 11 new soc2.json mappings; new SDK dep `@google-cloud/resource-manager`; twenty-first consecutive trio-publish)
+## 0.1.31 — Catalog refresh: NEW, v1 plugin 1025 GCP IAM Project-Level Auditor — paired with EE 0.7.0 trio-publish (MINOR-VERSION MILESTONE opening the v0.7.x cross-cloud-parity line; first plugin in the GCP-IAM-deep-audit cohort; 3 audit dimensions across CC6.1 + CC6.6; 12 R1 reviewer folds (0 + 2 + 5 + 5 ); plugin count 23 → 24; 11 new soc2.json mappings; new SDK dep `@google-cloud/resource-manager`; twenty-first consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.7.0 + CE 0.1.64 — **twenty-first consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.7.0).
 
@@ -525,7 +525,7 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ---
 
-## 0.1.30 — Catalog refresh: EE-RT.21 v2 R2 cleanup for plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.9 trio-publish (patch-level R2 reviewer-deferred-items cleanup: Appendix A multi-cloud renderer extension + evidence-gap soc2.json mappings; 5 R1 reviewer folds (0 R-CRITICAL + 1 R-HIGH + 1 R-MEDIUM + 3 R-LOW); plugin count UNCHANGED at 23; 3 new soc2.json mappings; NEW pre-publish doc-consistency gate; twentieth consecutive trio-publish)
+## 0.1.30 — Catalog refresh:, v2 R2 cleanup for plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.9 trio-publish (patch-level R2 reviewer-deferred-items cleanup: Appendix A multi-cloud renderer extension + evidence-gap soc2.json mappings; 5 R1 reviewer folds (0 + 1 + 1 + 3 ); plugin count UNCHANGED at 23; 3 new soc2.json mappings; NEW pre-publish doc-consistency gate; twentieth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.9 + CE 0.1.63 — **twentieth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.9).
 
@@ -537,14 +537,14 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ### Reviewer-fold highlights (all closed same-session)
 
-- **R1-HIGH-1 (mappings)** — Missing C1.1 dual-mapping for `_CAT_METADATA_UNREADABLE` (rationale prose vs JSON-structure drift). Added the parallel C1.1 entry; cross-cloud parity with plugin 1020 S3 precedent restored.
-- **R1-MEDIUM-1 (renderer)** — Strengthened Azure-exclusion comment to cite the engine-projection constraint in addition to plugin-1022 commingling.
-- **R1-LOW-1 (renderer + mappings)** — Cross-control uniqueBuckets dedup test + combined metadata+IAM-failure regression test.
-- **R1-LOW-2 (renderer)** — Narrative phrasing tweak ("AWS S3 / GCS" → "AWS S3 or GCS" for disambiguation).
+- **(mappings)** — Missing C1.1 dual-mapping for `_CAT_METADATA_UNREADABLE` (rationale prose vs JSON-structure drift). Added the parallel C1.1 entry; cross-cloud parity with plugin 1020 S3 precedent restored.
+- **(renderer)** — Strengthened Azure-exclusion comment to cite the engine-projection constraint in addition to plugin-1022 commingling.
+- **(renderer + mappings)** — Cross-control uniqueBuckets dedup test + combined metadata+IAM-failure regression test.
+- **(renderer)** — Narrative phrasing tweak ("AWS S3 / GCS" → "AWS S3 or GCS" for disambiguation).
 
 ### NEW institutional discipline introduced this cycle
 
-**Pre-publish doc-consistency gate** codified in EE's `tasks/CLAUDE.md` after the 0.6.8 → user-caught doc drift (6 stale "22 plugin" claims hid across 4 docs in 2 repos). 22 doc-surface audit checklist + auto-grep + SOC 2 matrix invariant check. Saved as `[[pre_publish_doc_consistency_gate]]` auto-memory for cross-session persistence.
+**Pre-publish doc-consistency gate** codified in EE's `tasks/CLAUDE.md` after the 0.6.8 → user-caught doc drift (6 stale "22 plugin" claims hid across 4 docs in 2 repos). 22 doc-surface audit checklist + auto-grep + SOC 2 matrix invariant check. Saved as the pre-publish doc-consistency gate auto-memory for cross-session persistence.
 
 ### Tests + regression
 
@@ -552,7 +552,7 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ---
 
-## 0.1.29 — Catalog refresh: NEW plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.8 trio-publish (first multi-cloud parity plugin in 6 months; mirrors plugin 1020 AWS S3 Auditor with 6 GCS-specific dimensions; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 3 R-MEDIUM + 1 R-LOW — clean review pass); plugin count 22 → 23; 20 new soc2.json mappings; nineteenth consecutive trio-publish)
+## 0.1.29 — Catalog refresh: NEW plugin 1024 GCP Cloud Storage Auditor — paired with EE 0.6.8 trio-publish (first multi-cloud parity plugin in 6 months; mirrors plugin 1020 AWS S3 Auditor with 6 GCS-specific dimensions; 4 R1 reviewer folds (0 + 0 + 3 + 1 — clean review pass); plugin count 22 → 23; 20 new soc2.json mappings; nineteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.8 + CE 0.1.62 — **nineteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.8).
 
@@ -565,10 +565,10 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ### Reviewer-fold highlights (all closed same-session)
 
-- **R-MEDIUM-1** — Severity-ladder co-existence: when both `allUsers` and `allAuthenticatedUsers` are present in different bindings, CRITICAL finding surfaces the HIGH evidence in details + narrative.
-- **R-MEDIUM-2** — Per-bucket runtime exception severity: run()-level catch INFO → LOW for consistency with `_auditBucket` metadata-error pattern.
-- **R-MEDIUM-1 (mappings)** — Cross-cloud parity dual-mappings: 5 soc2.json entries dual-mapped to C1.2 + A1.2 matching AWS S3 precedents.
-- **R-LOW-1** — CMEK regex tightened from substring to full-format 6-segment match.
+- **-1** — Severity-ladder co-existence: when both `allUsers` and `allAuthenticatedUsers` are present in different bindings, CRITICAL finding surfaces the HIGH evidence in details + narrative.
+- **-2** — Per-bucket runtime exception severity: run-level catch INFO → LOW for consistency with `_auditBucket` metadata-error pattern.
+- **(mappings)** — Cross-cloud parity dual-mappings: 5 soc2.json entries dual-mapped to C1.2 + A1.2 matching AWS S3 precedents.
+- **-1** — CMEK regex tightened from substring to full-format 6-segment match.
 
 ### Tests + regression
 
@@ -576,17 +576,17 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ---
 
-## 0.1.28 — Catalog refresh: plugin 1170 v3.1 SG-reference-graph edge dedup + plugin 1200 v6.1 CloudWatch Logs probe retry-on-empty parity — paired with EE 0.6.7 trio-publish (patch-level R2 reviewer-deferred-items cleanup cycle: closes both R2 items from 0.6.6 reviewer pass; 4 R1 reviewer folds (0 R-CRITICAL + 0 R-HIGH + 1 R-MEDIUM + 3 R-LOW — clean review pass) + 1 unanticipated `_retryOnNotFound` two-phase restructure (caught by test interaction); plugin count UNCHANGED at 22; soc2.json UNCHANGED; eighteenth consecutive trio-publish)
+## 0.1.28 — Catalog refresh: plugin 1170 v3.1 SG-reference-graph edge dedup + plugin 1200 v6.1 CloudWatch Logs probe retry-on-empty parity — paired with EE 0.6.7 trio-publish (patch-level R2 reviewer-deferred-items cleanup cycle: closes both R2 items from 0.6.6 reviewer pass; 4 R1 reviewer folds (0 + 0 + 1 + 3 — clean review pass) + 1 unanticipated `_retryOnNotFound` two-phase restructure (caught by test interaction); plugin count UNCHANGED at 22; soc2.json UNCHANGED; eighteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.7 + CE 0.1.61 — **eighteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.7).
 
 ### What changed
 
 - **`references/plugins.md`** — two plugin rows updated:
-  - **Plugin 1170 v3.1** — extended row with edge-dedup discipline in `_buildSgReferenceGraph`: edges deduped by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per `[[conservative_classifier_principle]]`). Classifier `_classifyTransitiveReachability` port-render accepts both v3.1 array shape and v3 single-object shape (back-compat preserved).
+ - **Plugin 1170 v3.1** — extended row with edge-dedup discipline in `_buildSgReferenceGraph`: edges deduped by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per the conservative-classifier principle). Classifier `_classifyTransitiveReachability` port-render accepts both v3.1 array shape and v3 single-object shape (back-compat preserved).
   - **Plugin 1200 v6.1** — extended row with CloudWatch Logs probe retry-on-empty parity. Pre-fold the CWL Logs probe was asymmetric: `DescribeLogGroups` returns `logGroups: []` (NOT a thrown exception) on missing groups, so the shared `_retryOnNotFound` helper's thrown-NotFound retry path never fired. A freshly-created CWL log group probed within seconds of creation could false-DEAD. Post-fold `_retryOnNotFound` accepts an optional retry-on-result predicate; the CWL call site passes a predicate that fires retry when the response carries no exact-name match (covers both empty and prefix-only-sibling responses). Eventual-consistency parity now uniform across IAM / Lambda / SNS / SQS / EventBridge API destination / CloudWatch Logs.
   - **Two-phase restructure of `_retryOnNotFound`** — initially the result-based retry was added inside the existing try block, but a compound-path test interaction (transient empty → second-call throws `ResourceNotFoundException`) caused 3 total network calls. Restructured to two mutually-exclusive phases — Phase 1 = initial call + thrown-NotFound retry; Phase 2 = result-based retry — capping total calls at 2 on all compound paths. The per-call-site outer catch routes a second-call thrown error (NotFound → DEAD; AccessDenied → UNVERIFIABLE).
-  - **4 R1 reviewer folds applied** (0 R-CRITICAL + 0 R-HIGH + 1 R-MEDIUM + 3 R-LOW — clean review pass): R-MEDIUM-1 arrival-order-independent AND-aggregation (locked with 2 regression fixtures + JSDoc tightening) + R-LOW-1 partial-render contract on malformed port specs (locked with 2 regression fixtures) + R-LOW-2 `_portKeys` scratch-lifetime documented at function-signature comment + R-LOW-1 compound-path coverage (transient empty → second-call AccessDenied → UNVERIFIABLE / transient empty → second-call thrown RNF → DEAD; drives the two-phase restructure decision).
+ - **4 R1 reviewer folds applied** (0 + 0 + 1 + 3 — clean review pass): arrival-order-independent AND-aggregation (locked with 2 regression fixtures + JSDoc tightening) + partial-render contract on malformed port specs (locked with 2 regression fixtures) + `_portKeys` scratch-lifetime documented at function-signature comment + compound-path coverage (transient empty → second-call AccessDenied → UNVERIFIABLE / transient empty → second-call thrown RNF → DEAD; drives the two-phase restructure decision).
 - **`SKILL.md`** — "post-EE 0.6.6" → "post-EE 0.6.7"; plugin 1170 v3.1 + plugin 1200 v6.1 highlights surfaced in plugin narratives; plugin count enumeration stays at 22.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -603,7 +603,7 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 
 ---
 
-## 0.1.27 — Catalog refresh: plugin 1170 v3 SG→SG transitive reachability + plugin 1200 v6 dead-target probe warm-up — paired with EE 0.6.6 trio-publish (minor cycle: EE-RT.16 v3 transitive chain reachability + EE-RT.20.5 v6 IAM/API-destination/CW-Logs target probes; 5 R1 reviewer folds (1 R-HIGH + 2 R-MEDIUM + 2 R-LOW; 0 R-CRITICAL — clean review pass); plugin count UNCHANGED at 22; seventeenth consecutive trio-publish)
+## 0.1.27 — Catalog refresh: plugin 1170 v3 SG→SG transitive reachability + plugin 1200 v6 dead-target probe warm-up — paired with EE 0.6.6 trio-publish (minor cycle:, v3 transitive chain reachability +, v6 IAM/API-destination/CW-Logs target probes; 5 R1 reviewer folds (1 + 2 + 2 ; 0 — clean review pass); plugin count UNCHANGED at 22; seventeenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.6 + CE 0.1.60 — **seventeenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.6).
 
@@ -612,14 +612,14 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 - **`references/plugins.md`** — two plugin rows updated:
   - **Plugin 1170 v3** — extended row with SG→SG transitive chain reachability dimension: BFS from public-CIDR roots through `UserIdGroupPairs` SG-references; 2-hop emits HIGH, 3+ hop emits CRITICAL (operator-blindness principle); cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100); cross-VPC edges skipped as INFO trailer; per-hop port-flow tracked but NOT intersected (v3 v1 simplification — walkthroughRequired=true). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. 3 new soc2.json mappings under CC6.6 (transitive-public HIGH + CRITICAL + INFO truncation).
   - **Plugin 1200 v6** — extended row with three new dead-target probe branches: IAM role (`iam:GetRole` on path-stripped role NAME) + EventBridge API destination (`events:DescribeApiDestination` reuses `_EventBridgeSdk`) + CloudWatch Logs (`logs:DescribeLogGroups` with `logGroupNamePrefix` filter + exact-name disambiguation guard). New SDK deps `@aws-sdk/client-iam` + `@aws-sdk/client-cloudwatch-logs` (both in optionalDependencies). Companion-LOW emission contract unchanged (existing CC7.1 titlePattern target-type-agnostic). **Operator note**: `iam:GetRole` is a global API resolving per-partition — orchestrators wiring `opts._iamClient` must construct a single global IAM client per-partition.
-  - **5 v6 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass; 1 R-HIGH + 2 R-MEDIUM + 2 R-LOW): R-HIGH-1 (plugin 1170 v3) BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS marked the target truncated but kept cloning `path` and `visited` Sets and walking past the cap) + R-MEDIUM-1 (plugin 1200 v6) IAM `NoSuchEntityException` / `NoSuchEntity` lifted into `_DEAD_TARGET_NOTFOUND_ERROR_NAMES` Set (bare disjunction collapsed; eventual-consistency retry restored for IAM — the canonical worst case for AWS eventual consistency, with IAM lag 10-30s documented; **9th cumulative recurrence** of the `[[emit_literal_set_drift]]` class across the EE codebase) + R-MEDIUM-2 (plugin 1200 v6) IAM partition-routing contract documented at `_loadIamSdk` (orchestrator must construct global IAM client per-partition; doc-only fold) + R-LOW-2 (plugin 1170 v3) depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class — pre-fold a graph deeper than `transitiveChainDepthCap` silently truncated without operator-visible signal) + R-LOW-2 (plugin 1200 v6) API destination ARN regex future-proofed against alias-only ARN shapes.
+ - **5 v6 R1 reviewer folds applied** (0 — clean review pass; 1 + 2 + 2 ): (plugin 1170 v3) BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS marked the target truncated but kept cloning `path` and `visited` Sets and walking past the cap) + (plugin 1200 v6) IAM `NoSuchEntityException` / `NoSuchEntity` lifted into `_DEAD_TARGET_NOTFOUND_ERROR_NAMES` Set (bare disjunction collapsed; eventual-consistency retry restored for IAM — the canonical worst case for AWS eventual consistency, with IAM lag 10-30s documented; **9th cumulative recurrence** of the the emit-literal/set-drift class class across the EE codebase) + (plugin 1200 v6) IAM partition-routing contract documented at `_loadIamSdk` (orchestrator must construct global IAM client per-partition; doc-only fold) + (plugin 1170 v3) depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class — pre-fold a graph deeper than `transitiveChainDepthCap` silently truncated without operator-visible signal) + (plugin 1200 v6) API destination ARN regex future-proofed against alias-only ARN shapes.
 - **`SKILL.md`** — "post-EE 0.6.5" → "post-EE 0.6.6"; plugin 1170 v3 + plugin 1200 v6 highlights surfaced in plugin-1200 narrative; plugin count enumeration stays at 22.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
 ### R2 reviewer-deferred (queued for 0.6.7)
 
-- **R-LOW-1 (plugin 1200 v6)**: CloudWatch Logs probe doesn't retry on empty result (logs:DescribeLogGroups returns `logGroups: []` not an exception, so `_retryOnNotFound` doesn't apply). Lower priority than IAM since CWL eventual-consistency is much narrower.
-- **R-MEDIUM-1 (plugin 1170 v3)**: Edge dedup absent in `_buildSgReferenceGraph` — multi-rule references to the same SG (e.g., one perm per port) inflate chain counts 2-5×. Defer until operator feedback on chain-count noise.
+- **(plugin 1200 v6)**: CloudWatch Logs probe doesn't retry on empty result (logs:DescribeLogGroups returns `logGroups: []` not an exception, so `_retryOnNotFound` doesn't apply). Lower priority than IAM since CWL eventual-consistency is much narrower.
+- **(plugin 1170 v3)**: Edge dedup absent in `_buildSgReferenceGraph` — multi-rule references to the same SG (e.g., one perm per port) inflate chain counts 2-5×. Defer until operator feedback on chain-count noise.
 - **R-NIT** documentation folds.
 
 ### Tests + regression
@@ -637,8 +637,8 @@ Operator-flagged CRITICAL privacy class at 0.7.1 review: shipped npm files MUST 
 - **`references/plugins.md`** — plugin 1200 row updated with v5 dim list:
   - **Dead-target companion-LOW (item)** — per-target liveness probes for Lambda + SNS + SQS via new `_probeTargetLiveness` helper (parallel via Promise.all + 2s default timeout). New MEDIUM verdict `*-alerting-destination-dead-targets` emitted as companion alongside PASS when targets point to deleted resources. New operator opts: `skipTargetLivenessProbe: true` + `deadTargetProbeTimeoutMs`. IAM role + API destination + CloudWatch Logs target probes deferred to 0.6.6.
   - **Sentinel observability** — `targetVerificationReason` enum (AccessDenied / SdkUnavailable / BeyondCap / SkippedByOpts) on rule shape; classifier surfaces `targetVerificationReasonBreakdown` in finding details.
-  - **R-NIT named-constants** — `SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set replaces 2 bare-string sites in SecurityHub helpers per `[[emit_literal_set_drift]]`.
-  - **5 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass; 3 R-HIGH + 1 R-MEDIUM + 1 consolidated R-LOW/R-NIT): R-HIGH-1 case-insensitive NotFound matching + R-HIGH-2 one-retry on NotFound (eventual-consistency defense) + R-HIGH-3 Lambda probe passes FULL ARN (alias-correctness server-side) + R-HIGH (Explore) parallel probes with per-target timeout + R-MEDIUM-1 SQS partition-aware via `GetQueueUrl` (closes false-DEAD on aws-cn / aws-us-gov / aws-iso partitions).
+ - **R-NIT named-constants** — `SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set replaces 2 bare-string sites in SecurityHub helpers per the emit-literal/set-drift class.
+ - **5 R1 reviewer folds applied** (0 — clean review pass; 3 + 1 + 1 consolidated /R-NIT): case-insensitive NotFound matching + one-retry on NotFound (eventual-consistency defense) + Lambda probe passes FULL ARN (alias-correctness server-side) + (Explore) parallel probes with per-target timeout + SQS partition-aware via `GetQueueUrl` (closes false-DEAD on aws-cn / aws-us-gov / aws-iso partitions).
 - **Cross-plugin sessionToken sweep** — note added to the EE plugin catalog narrative: 18 EE AWS plugins (1020-1200) now thread `sessionToken` through their AWS-SDK credentials block. AssumeRole-style auditor credentials work uniformly across the entire EE catalog.
 - **`SKILL.md`** — "post-EE 0.6.4" → "post-EE 0.6.5"; plugin count enumeration stays at 22.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
@@ -668,13 +668,13 @@ npm install nsauditor-ai-agent-skill@0.1.26
 
 ---
 
-## 0.1.25 — Catalog refresh: plugin 1200 v4 reviewer-cleanup cycle — paired with EE 0.6.4 trio-publish (patch-level cycle: EventBridge target verification + multi-failedAccount surface + trigger uniformity; 5 R1 reviewer folds incl. R-HIGH-1 cap-skew classifier closure; plugin count UNCHANGED at 22; fifteenth consecutive trio-publish)
+## 0.1.25 — Catalog refresh: plugin 1200 v4 reviewer-cleanup cycle — paired with EE 0.6.4 trio-publish (patch-level cycle: EventBridge target verification + multi-failedAccount surface + trigger uniformity; 5 R1 reviewer folds incl. cap-skew classifier closure; plugin count UNCHANGED at 22; fifteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.4 + CE 0.1.58 — **fifteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.4).
 
 ### What changed
 
-- **`references/plugins.md`** — plugin 1200 row updated with v4 dim list. **R-HIGH-2 EventBridge target verification (item)**: new `_listEventBridgeRuleTargets` helper with defensive pagination; `events:ListTargetsByRule` per matched rule (cap default 10 via `opts.targetVerificationRuleCap`; opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict `*-alerting-destination-targetless` for sink-less rules. **R-MEDIUM-2 multi-failedAccount surface**: Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccounts: array}` (renamed plural; capped at AWS-documented 100); caller emits one LOW per failed account with per-region emission cap 10 + rollup LOW per region. **R-LOW-2 trigger uniformity**: GuardDuty alerting-destination trigger gates on `detector.Status === ENABLED` (symmetric with Inspector2). **5 R1 reviewer folds applied** (0 R-CRITICAL — clean review pass): R-HIGH-1 cap-skew classifier branch (LOW UNVERIFIABLE not MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) + R-HIGH consolidated pagination + JSDoc clarity + R-MEDIUM-1 multi-failedAccount per-region emission cap (10 + rollup) + R-MEDIUM-4 boundary tests + R-HIGH-2 dead-target documented-limitation note.
+- **`references/plugins.md`** — plugin 1200 row updated with v4 dim list. **EventBridge target verification (item)**: new `_listEventBridgeRuleTargets` helper with defensive pagination; `events:ListTargetsByRule` per matched rule (cap default 10 via `opts.targetVerificationRuleCap`; opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict `*-alerting-destination-targetless` for sink-less rules. **multi-failedAccount surface**: Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccounts: array}` (renamed plural; capped at AWS-documented 100); caller emits one LOW per failed account with per-region emission cap 10 + rollup LOW per region. **trigger uniformity**: GuardDuty alerting-destination trigger gates on `detector.Status === ENABLED` (symmetric with Inspector2). **5 R1 reviewer folds applied** (0 — clean review pass): cap-skew classifier branch (LOW UNVERIFIABLE not MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) + consolidated pagination + JSDoc clarity + multi-failedAccount per-region emission cap (10 + rollup) + boundary tests + dead-target documented-limitation note.
 - **`SKILL.md`** — "post-EE 0.6.3" → "post-EE 0.6.4"; plugin count enumeration stays at 22.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -685,7 +685,7 @@ AI coding agents using this skill now know that plugin 1200:
 - **Verifies EventBridge target presence per matched rule** — a rule with zero `Targets` (or just `ENABLED` state but no targets configured) routes to MEDIUM TARGETLESS instead of PASS. Closes the substrate-without-sink false-PASS class at the rule level.
 - **Emits one LOW per failed Inspector2 account** for delegated-admin scans — was first-failedAccount-only pre-fold; rest were silently dropped. Per-region emission cap of 10 + rollup LOW per region bounds finding pollution.
 - Exposes new operator opts: `skipEventBridgeTargetVerification: true` (cost-sensitive opt-out OR no IAM grant) + `targetVerificationRuleCap: 1..100` (per-rule verification cap; default 10).
-- **Distinguishes cap-skew unverifiable from sink-less rules** — when target-less rules exist AND others are beyond the verification cap (could be the real sink), emits LOW UNVERIFIABLE with `capExceeded: true` per `[[conservative_classifier_principle]]` rather than overclaiming MEDIUM TARGETLESS.
+- **Distinguishes cap-skew unverifiable from sink-less rules** — when target-less rules exist AND others are beyond the verification cap (could be the real sink), emits LOW UNVERIFIABLE with `capExceeded: true` per the conservative-classifier principle rather than overclaiming MEDIUM TARGETLESS.
 
 ### Documented limitation queued for 0.6.5
 
@@ -704,13 +704,13 @@ npm install nsauditor-ai-agent-skill@0.1.25
 
 ---
 
-## 0.1.24 — Catalog refresh: plugin 1200 v3 alerting-destination dim — paired with EE 0.6.3 trio-publish (patch-level extension: substrate-without-sink false-PASS closure via EventBridge rule + SecurityHub product subscription detection; R-CRITICAL Inspector Classic ARN-collision fold; SH-only MEDIUM tier; plugin count UNCHANGED at 22; fourteenth consecutive trio-publish)
+## 0.1.24 — Catalog refresh: plugin 1200 v3 alerting-destination dim — paired with EE 0.6.3 trio-publish (patch-level extension: substrate-without-sink false-PASS closure via EventBridge rule + SecurityHub product subscription detection; Inspector Classic ARN-collision fold; SH-only MEDIUM tier; plugin count UNCHANGED at 22; fourteenth consecutive trio-publish)
 
 **Trio-publish institutionalization continued.** Paired with EE 0.6.3 + CE 0.1.57 — **fourteenth consecutive trio-publish across EE + CE + agent-skill in a single session** (0.4.5–0.6.3).
 
 ### What changed
 
-- **`references/plugins.md`** — plugin 1200 row updated with v3 dim list. NEW alerting-destination dim (item c) verifies EventBridge rule + SecurityHub product subscription per service per region. New SDK deps `@aws-sdk/client-eventbridge` + `@aws-sdk/client-securityhub` (optionalDependencies). 4 same-session R1 reviewer folds applied: R-CRITICAL-1 SH product ARN substring collision closure (Inspector Classic vs Inspector2; boundary-anchored helper) + R-HIGH-1 SH-only PASS narrative split (SH-only is MEDIUM aggregation-only; auditor walkthrough required for SH → downstream paging) + R-HIGH-3 EventBridge content-filter grammar (`{prefix}` / `{wildcard}` matchers; regex-meta escape for operator IaC defense) + R-LOW-1 source case normalization. Also surfaces R-MEDIUM-2 (Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccount}`) + item (d) BatchGetAccountStatus contract verification with `failedAccounts[]` per-account error channel surfaced via new `_CAT_INS_FAILED_ACCOUNT` LOW.
+- **`references/plugins.md`** — plugin 1200 row updated with v3 dim list. NEW alerting-destination dim (item c) verifies EventBridge rule + SecurityHub product subscription per service per region. New SDK deps `@aws-sdk/client-eventbridge` + `@aws-sdk/client-securityhub` (optionalDependencies). 4 same-session R1 reviewer folds applied: SH product ARN substring collision closure (Inspector Classic vs Inspector2; boundary-anchored helper) + SH-only PASS narrative split (SH-only is MEDIUM aggregation-only; auditor walkthrough required for SH → downstream paging) + EventBridge content-filter grammar (`{prefix}` / `{wildcard}` matchers; regex-meta escape for operator IaC defense) + source case normalization. Also surfaces (Inspector2 helper return-shape `{accountStatus, accessDenied, failedAccount}`) + item (d) BatchGetAccountStatus contract verification with `failedAccounts[]` per-account error channel surfaced via new `_CAT_INS_FAILED_ACCOUNT` LOW.
 - **`SKILL.md`** — "post-EE 0.6.2" → "post-EE 0.6.3"; plugin count enumeration stays at 22 (existing plugin grew in scope).
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -722,12 +722,12 @@ AI coding agents using this skill now know that plugin 1200:
 - Distinguishes **PASS** (EventBridge rule present), **MEDIUM SH-only** (SecurityHub aggregates but no proactive paging), **HIGH missing** (no path), and **LOW unverifiable** (AccessDenied / SDK unavailable).
 - Supports **EventBridge content-filter grammar** — `{prefix: "aws."}` catch-all rules and `{wildcard: "aws.guard*"}` glob rules both match correctly.
 - Exposes new operator opt: `skipAlertingDestination: true` for cost-sensitive runs.
-- Distinguishes a **true AccessDenied** from an **empty-body response** (R-MEDIUM-2 close-out) — `_getInspector2AccountStatus` no longer conflates the two cases.
+- Distinguishes a **true AccessDenied** from an **empty-body response** (close-out) — `_getInspector2AccountStatus` no longer conflates the two cases.
 - Surfaces the **AWS-published `failedAccounts[]` per-account error channel** with `errorCode + errorMessage` via new `_CAT_INS_FAILED_ACCOUNT` LOW (item d close-out).
 
-### R-CRITICAL-1 closure (worth a callout)
+### closure (worth a callout)
 
-The pre-fold substring check `:product/aws/inspector` would have matched BOTH Inspector Classic (deprecated 2024) and Inspector2 ARNs — a substrate-without-sink false-PASS where a stale Classic subscription emitting zero findings would have satisfied the Inspector2 dim. The R-CRITICAL fold uses boundary-anchored substring matching + the strict `/aws/inspector2` constant, and pins the regression with a dedicated test that asserts the Classic ARN does NOT match the Inspector2 dim.
+The pre-fold substring check `:product/aws/inspector` would have matched BOTH Inspector Classic (deprecated 2024) and Inspector2 ARNs — a substrate-without-sink false-PASS where a stale Classic subscription emitting zero findings would have satisfied the Inspector2 dim. The review fold uses boundary-anchored substring matching + the strict `/aws/inspector2` constant, and pins the regression with a dedicated test that asserts the Classic ARN does NOT match the Inspector2 dim.
 
 ### Compatibility
 
@@ -748,7 +748,7 @@ npm install nsauditor-ai-agent-skill@0.1.24
 
 ### What changed
 
-- **`references/plugins.md`** — plugin 1200 row updated with v2 dim list. Multi-region enumeration (item a) replaces single-region scope; `FindingPublishingFrequency` check (item b) added as CC7.1 detection-latency dimension; Inspector2 baseline expansion (item e) grows scan-target baseline from {ec2, ecr, lambda} → {ec2, ecr, lambda, lambdaCode, codeRepository}. 4 same-session R1 reviewer folds applied (0 R-CRITICAL clean review pass): R-HIGH-1 region regex GovCloud + ISO support (closes FedRAMP / StateRAMP / IL5+ false-PASS class) + R-HIGH-2 frequency ordering not equality + R-MEDIUM-1 region cap defensibility + R-LOW-1 EC2 client instrumentation parity.
+- **`references/plugins.md`** — plugin 1200 row updated with v2 dim list. Multi-region enumeration (item a) replaces single-region scope; `FindingPublishingFrequency` check (item b) added as CC7.1 detection-latency dimension; Inspector2 baseline expansion (item e) grows scan-target baseline from {ec2, ecr, lambda} → {ec2, ecr, lambda, lambdaCode, codeRepository}. 4 same-session R1 reviewer folds applied (0 clean review pass): region regex GovCloud + ISO support (closes FedRAMP / StateRAMP / IL5+ false-PASS class) + frequency ordering not equality + region cap defensibility + EC2 client instrumentation parity.
 - **`SKILL.md`** — "post-EE 0.6.1" → "post-EE 0.6.2"; plugin count enumeration stays at 22 (existing plugin grew in scope).
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -781,7 +781,7 @@ npm install nsauditor-ai-agent-skill@0.1.23
 
 ### What changed
 
-- **`references/plugins.md`** — **NEW plugin 1200 row** added: 4 active SOC 2 dimensions (GuardDuty Detector enablement per region CC7.1, GuardDuty protection-feature coverage CC7.1 — institutional baseline S3_DATA_EVENTS / EKS_AUDIT_LOGS / EBS_MALWARE_PROTECTION / RDS_LOGIN_EVENTS / LAMBDA_NETWORK_LOGS / RUNTIME_MONITORING, Inspector2 enablement CC7.1+CC7.2, Inspector2 scan-target coverage CC7.1 zero / CC7.2 partial). First AWS-managed-threat-detection substrate audit. HIGH on `gd-not-enabled` silent-blind class; HIGH on `inspector2-disabled` / SUSPENDED silent-blind class for CVE coverage on EC2/ECR/Lambda; HIGH on `inspector2-coverage-zero` (enabled overall but zero scan targets active); MEDIUM on partial coverage with explicit `disabledResources`. **6 same-session R1 reviewer folds applied** including R1-CRITICAL-1 soc2.json titlePattern misalignment closure (4 patterns; would have silently failed CC7.1/CC7.2 compliance routing) + R1-CRITICAL-1 AccessDenied distinct findings + R1-CRITICAL-2 legacy DataSources case normalization + R1-HIGH-2 SUSPENDED/DISABLED Detector silent-blind closure + R1-HIGH-3/4 dead-code drift closures.
+- **`references/plugins.md`** — **NEW plugin 1200 row** added: 4 active SOC 2 dimensions (GuardDuty Detector enablement per region CC7.1, GuardDuty protection-feature coverage CC7.1 — institutional baseline S3_DATA_EVENTS / EKS_AUDIT_LOGS / EBS_MALWARE_PROTECTION / RDS_LOGIN_EVENTS / LAMBDA_NETWORK_LOGS / RUNTIME_MONITORING, Inspector2 enablement CC7.1+CC7.2, Inspector2 scan-target coverage CC7.1 zero / CC7.2 partial). First AWS-managed-threat-detection substrate audit. HIGH on `gd-not-enabled` silent-blind class; HIGH on `inspector2-disabled` / SUSPENDED silent-blind class for CVE coverage on EC2/ECR/Lambda; HIGH on `inspector2-coverage-zero` (enabled overall but zero scan targets active); MEDIUM on partial coverage with explicit `disabledResources`. **6 same-session R1 reviewer folds applied** including soc2.json titlePattern misalignment closure (4 patterns; would have silently failed CC7.1/CC7.2 compliance routing) + AccessDenied distinct findings + legacy DataSources case normalization + SUSPENDED/DISABLED Detector silent-blind closure + -3/4 dead-code drift closures.
 - **`SKILL.md`** — plugin count enumeration 21 → 22; "post-EE 0.6.0" → "post-EE 0.6.1".
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -836,13 +836,13 @@ npm install nsauditor-ai-agent-skill@0.1.20
 
 ---
 
-## 0.1.19 — Catalog refresh: plugin 1190 AWS SES Email Integrity Auditor v3 extension (Part A DKIM public-key fingerprint capture/pin + Part B in-band DMARC alignment classifier; 5 same-session reviewer folds incl. 1 R-CRITICAL false-CLEAN closure on truncated DKIM keys) — EE 0.5.3; plugin count UNCHANGED at 20
+## 0.1.19 — Catalog refresh: plugin 1190 AWS SES Email Integrity Auditor v3 extension (Part A DKIM public-key fingerprint capture/pin + Part B in-band DMARC alignment classifier; 5 same-session reviewer folds incl. 1 false-CLEAN closure on truncated DKIM keys) — EE 0.5.3; plugin count UNCHANGED at 20
 
 **Trio-publish institutionalization continued.** Paired with EE 0.5.3 + CE 0.1.52 — **ninth consecutive trio-publish across EE + CE + agent-skill in a single session** (after 0.4.5/0.4.6/0.4.7/0.4.8/0.4.9/0.5.0/0.5.1/0.5.2). The 0.1.19 refresh keeps the AI-coding-agent knowledge surface current with the latest EE plugin extension.
 
 ### What changed
 
-- **`references/plugins.md`** — **plugin 1190 row** updated v2.1 → v3: 2 NEW evidence dimensions (Part A DKIM public-key fingerprint capture/pin + Part B in-band DMARC alignment classifier). NEW emission categories: `ses-dkim-fingerprint-verified` (PASS) / `ses-dkim-fingerprint-mismatch` (HIGH — operator-supplied pin store enables unauthorized rotation / key substitution attack detection) / `ses-dkim-fingerprint-unverifiable` (LOW + evidenceGap) + `ses-dmarc-alignment-strict-met` (PASS) / `ses-dmarc-alignment-relaxed` (INFO) / `ses-dmarc-alignment-dkim-strict-impossible` (HIGH — adkim=s + DKIM disabled) / `ses-dmarc-alignment-spf-strict-impossible` (HIGH — aspf=s + no custom MailFrom) / `ses-dmarc-alignment-unverifiable` (LOW). NEW kill-switches `_skipDkimFingerprintCapture` + `_skipDmarcAlignmentCheck`. R-CRITICAL closure (discovered via test): `_stripControlChars` 256-char truncation corrupted long DKIM keys → new `_stripControlCharsNoTruncate` helper.
+- **`references/plugins.md`** — **plugin 1190 row** updated v2.1 → v3: 2 NEW evidence dimensions (Part A DKIM public-key fingerprint capture/pin + Part B in-band DMARC alignment classifier). NEW emission categories: `ses-dkim-fingerprint-verified` (PASS) / `ses-dkim-fingerprint-mismatch` (HIGH — operator-supplied pin store enables unauthorized rotation / key substitution attack detection) / `ses-dkim-fingerprint-unverifiable` (LOW + evidenceGap) + `ses-dmarc-alignment-strict-met` (PASS) / `ses-dmarc-alignment-relaxed` (INFO) / `ses-dmarc-alignment-dkim-strict-impossible` (HIGH — adkim=s + DKIM disabled) / `ses-dmarc-alignment-spf-strict-impossible` (HIGH — aspf=s + no custom MailFrom) / `ses-dmarc-alignment-unverifiable` (LOW). NEW kill-switches `_skipDkimFingerprintCapture` + `_skipDmarcAlignmentCheck`. closure (discovered via test): `_stripControlChars` 256-char truncation corrupted long DKIM keys → new `_stripControlCharsNoTruncate` helper.
 - **`SKILL.md`** — plugin 1190 v3 narrative added; "post-EE 0.5.2" → "post-EE 0.5.3". EE plugin count UNCHANGED at 20.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -866,7 +866,7 @@ npm install nsauditor-ai-agent-skill@0.1.19
 
 ### What changed
 
-- **`references/plugins.md`** — **plugin 1190 row** updated v2 → v2.1: 7 deferred reviewer-fold items closed. NEW emission category `ses-dkim-dns-partial-with-transients` MEDIUM (matched>0 + transient on remainder — preserves partial-match evidence rather than collapsing to LOW). NEW named Sets `_DNS_TRANSIENT_ERROR_CODES` + `_SES_CLASSIC_NOT_FOUND_ERROR_NAMES` + `_SES_CLASSIC_QUOTA_ERROR_NAMES` per [[emit_literal_set_drift]] discipline. NEW module-load-time disjointness IIFE `_assertDnsErrorCodeSetsDisjoint()` promotes invariant from test-time to Node startup. R-LOW-6 producer→consumer identityType normalization at both promoter sites.
+- **`references/plugins.md`** — **plugin 1190 row** updated v2 → v2.1: 7 deferred reviewer-fold items closed. NEW emission category `ses-dkim-dns-partial-with-transients` MEDIUM (matched>0 + transient on remainder — preserves partial-match evidence rather than collapsing to LOW). NEW named Sets `_DNS_TRANSIENT_ERROR_CODES` + `_SES_CLASSIC_NOT_FOUND_ERROR_NAMES` + `_SES_CLASSIC_QUOTA_ERROR_NAMES` per the emit-literal/set-drift class discipline. NEW module-load-time disjointness IIFE `_assertDnsErrorCodeSetsDisjoint` promotes invariant from test-time to Node startup. producer→consumer identityType normalization at both promoter sites.
 - **`SKILL.md`** — plugin 1190 v2.1 narrative added; "post-EE 0.5.1" → "post-EE 0.5.2". EE plugin count UNCHANGED at 20.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -884,7 +884,7 @@ npm install nsauditor-ai-agent-skill@0.1.18
 ### Notes
 
 - No SKILL contract changes; pure catalog refresh.
-- `references/schemas.md` + `references/workflows.md` unchanged (no plugin-schema or workflow changes in EE 0.5.2; plugin 1190 v2.1 consolidation uses the same `cloudScanners` capability + same `run()` envelope established in EE-RT.12.25).
+- `references/schemas.md` + `references/workflows.md` unchanged (no plugin-schema or workflow changes in EE 0.5.2; plugin 1190 v2.1 consolidation uses the same `cloudScanners` capability + same `run` envelope established in).
 - Eighth consecutive trio-publish institutionalizes the discipline across 8 ship cycles.
 
 ---
@@ -895,7 +895,7 @@ npm install nsauditor-ai-agent-skill@0.1.18
 
 ### What changed
 
-- **`references/plugins.md`** — **plugin 1150 row** updated v1 → v2: 5 → 7 dimensions. v1 dims preserved (encryption + transit-policy + topic-policy + DLQ). v2 NEW dims: **dim 6 SQS ApproximateAgeOfOldestMessage CloudWatch alarm coverage** (CC7.2 + A1.2 dual-mapped) — per-queue PASS / MEDIUM (silent backlog growth) / LOW (actions-disabled OR empty AlarmActions) / LOW + evidenceGap (CW SDK unavailable / AccessDenied / name un-extractable / truncated); **dim 7 SNS NumberOfNotificationsFailed CloudWatch alarm coverage** (CC7.2 + A1.2 dual-mapped) — per-topic analogue with same severity ladder. v2 single-fetch budget via `_enumerateMetricAlarms` + `_buildAlarmIndex` (mirrors plugin 1040's `_auditAlarmCoverage` scaffold). Soft-degrade contract: CW SDK load failure routes per-resource to LOW + evidenceGap rather than blocking primary substrate audit. **R-CRITICAL v2 fold (false-CLEAN closure)**: `actionable` requires BOTH `ActionsEnabled=true` AND non-empty `AlarmActions[]` (CloudWatch fires NO operator paging when AlarmActions=[] even with ActionsEnabled=true). **R-HIGH v2 fold**: soc2.json PASS-tier titlePatterns narrowed to anchor on namespace:metric clauses.
+- **`references/plugins.md`** — **plugin 1150 row** updated v1 → v2: 5 → 7 dimensions. v1 dims preserved (encryption + transit-policy + topic-policy + DLQ). v2 NEW dims: **dim 6 SQS ApproximateAgeOfOldestMessage CloudWatch alarm coverage** (CC7.2 + A1.2 dual-mapped) — per-queue PASS / MEDIUM (silent backlog growth) / LOW (actions-disabled OR empty AlarmActions) / LOW + evidenceGap (CW SDK unavailable / AccessDenied / name un-extractable / truncated); **dim 7 SNS NumberOfNotificationsFailed CloudWatch alarm coverage** (CC7.2 + A1.2 dual-mapped) — per-topic analogue with same severity ladder. v2 single-fetch budget via `_enumerateMetricAlarms` + `_buildAlarmIndex` (mirrors plugin 1040's `_auditAlarmCoverage` scaffold). Soft-degrade contract: CW SDK load failure routes per-resource to LOW + evidenceGap rather than blocking primary substrate audit. ** v2 fold (false-CLEAN closure)**: `actionable` requires BOTH `ActionsEnabled=true` AND non-empty `AlarmActions[]` (CloudWatch fires NO operator paging when AlarmActions=[] even with ActionsEnabled=true). ** v2 fold**: soc2.json PASS-tier titlePatterns narrowed to anchor on namespace:metric clauses.
 - **`SKILL.md`** — plugin 1150 v2 narrative added to enumeration; "post-EE 0.5.0" → "post-EE 0.5.1". EE plugin count UNCHANGED at 20 (no new plugin in 0.5.1; existing plugin 1150 grew in scope across new dims 6 + 7).
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
@@ -913,7 +913,7 @@ npm install nsauditor-ai-agent-skill@0.1.17
 ### Notes
 
 - No SKILL contract changes; pure catalog refresh.
-- `references/schemas.md` + `references/workflows.md` unchanged (no plugin-schema or workflow changes in EE 0.5.1; plugin 1150 v2 extension uses the same `cloudScanners` capability + same `run()` envelope established in EE-RT.12.25).
+- `references/schemas.md` + `references/workflows.md` unchanged (no plugin-schema or workflow changes in EE 0.5.1; plugin 1150 v2 extension uses the same `cloudScanners` capability + same `run` envelope established in).
 - Seventh consecutive trio-publish institutionalizes the discipline across 7 ship cycles (0.4.5/0.4.6/0.4.7/0.4.8/0.4.9/0.5.0/0.5.1).
 
 ---
@@ -930,9 +930,9 @@ npm install nsauditor-ai-agent-skill@0.1.17
 
 ### EE 0.5.0 paired-release context
 
-- **EE plugin count UNCHANGED at 20** — the 0.5.0 minor-version milestone bump is a single-plugin EXTENSION (fourth extension cycle after EE-RT.16 v2 in 0.4.6 + EE-RT.14 v3 in 0.4.8 + EE-RT.17 v2 in 0.4.9). Plugin 1190 v2 closes the canonical false-CLEAN window where SES `Status=SUCCESS` substrate alone could not rule out post-verification DNS drift.
+- **EE plugin count UNCHANGED at 20** — the 0.5.0 minor-version milestone bump is a single-plugin EXTENSION (fourth extension cycle after, v2 in 0.4.6 +, v3 in 0.4.8 +, v2 in 0.4.9). Plugin 1190 v2 closes the canonical false-CLEAN window where SES `Status=SUCCESS` substrate alone could not rule out post-verification DNS drift.
 - **Part A — DKIM CNAME DNS resolution promotion** (dim 1) — `_resolveDkimCnames` + `_promoteDkimFromDns`. Each `<token>._domainkey.<identityDomain>` CNAME resolved via node:dns/promises + matched against `<token>.dkim.amazonses.com` (case-insensitive per RFC 1035 §2.3.3). Four outcomes: PASS `ses-dkim-dns-verified` / MEDIUM `ses-dkim-dns-partial` / HIGH `ses-dkim-dns-missing` (production false-CLEAN closure) / LOW + evidenceGap `ses-dkim-dns-unverifiable`.
-- **Part B — DMARC TXT record parser + MailFrom promotion** (dim 2) — RFC 7489 §6.4 tag-list parser + `_dmarc.<identityDomain>` TXT lookup. Five outcomes. **R-CRITICAL-1 same-session fold (false-CLEAN closure)**: `pct=0` on `p=reject`/`p=quarantine` functionally equivalent to `p=none`; now routes to HIGH `ses-dmarc-policy-none`. **R-HIGH-1 same-session fold (subdomain-takeover false-NEGATIVE closure)**: `sp` subdomain-policy override now evaluated — `p=reject; sp=none` downgrades to HIGH.
+- **Part B — DMARC TXT record parser + MailFrom promotion** (dim 2) — RFC 7489 §6.4 tag-list parser + `_dmarc.<identityDomain>` TXT lookup. Five outcomes. **same-session fold (false-CLEAN closure)**: `pct=0` on `p=reject`/`p=quarantine` functionally equivalent to `p=none`; now routes to HIGH `ses-dmarc-policy-none`. **same-session fold (subdomain-takeover false-NEGATIVE closure)**: `sp` subdomain-policy override now evaluated — `p=reject; sp=none` downgrades to HIGH.
 - **Part C — SES classic GetIdentityPolicies parity** (dim 4) — `_loadSesClassicSdk` restored (was removed in v1 reviewer-fold MEDIUM as dead-code load-check). Cross-API discrepancy detection emits HIGH `ses-classic-policy-discrepancy` on classic-only policies (canonical false-NEGATIVE class). Conservative on classic SDK unavailable / AccessDenied → LOW + evidenceGap `ses-classic-policy-unverifiable`.
 - **8 same-session reviewer folds across the cycle** (1 CRITICAL + 3 HIGH + 2 MEDIUM + 2 LOW); 6 queued in Pick-up Block.
 - **First plugin in EE to depend on `node:dns/promises`** — first ship to add NETWORK-LAYER cross-reference to AWS-SDK-substrate evidence baseline; structurally distinct evidence-acquisition surface from prior 0.4.x cycles.
@@ -950,18 +950,18 @@ npm install nsauditor-ai-agent-skill@0.1.17
 
 ### What changed
 
-- **`references/plugins.md`** — **plugin 1180 row** updated v1 → v2: dim 2 at-rest+KMS now includes kms:DescribeKey cross-reference promotion (mirrors plugin 1140 v2 pattern: UNVERIFIABLE `:key/UUID` → PASS/MEDIUM via KeyMetadata.KeyManager); dim 6 subnet placement now includes ec2:DescribeRouteTables verifier (HIGH on IGW-routed subnets with per-subnet `igwDestinationsBySubnet` evidence; PASS on all-verified-private; LOW + evidenceGap on main-RT-inheritance per R-MEDIUM-2 false-NEGATIVE closure; LOW + evidenceGap on AccessDenied). Cross-plugin sister of plugin 1170 SG perimeter (layer-3 subnet→IGW vs layer-4 SG ingress). Per-resource caching (kmsKeyManagerCache + subnetGroupCache + subnetSetRoutingCache).
+- **`references/plugins.md`** — **plugin 1180 row** updated v1 → v2: dim 2 at-rest+KMS now includes kms:DescribeKey cross-reference promotion (mirrors plugin 1140 v2 pattern: UNVERIFIABLE `:key/UUID` → PASS/MEDIUM via KeyMetadata.KeyManager); dim 6 subnet placement now includes ec2:DescribeRouteTables verifier (HIGH on IGW-routed subnets with per-subnet `igwDestinationsBySubnet` evidence; PASS on all-verified-private; LOW + evidenceGap on main-RT-inheritance per a review fold false-NEGATIVE closure; LOW + evidenceGap on AccessDenied). Cross-plugin sister of plugin 1170 SG perimeter (layer-3 subnet→IGW vs layer-4 SG ingress). Per-resource caching (kmsKeyManagerCache + subnetGroupCache + subnetSetRoutingCache).
 - **`SKILL.md`** — plugin 1180 v2 narrative added to enumeration; "post-EE 0.4.8" → "post-EE 0.4.9". EE plugin count UNCHANGED at 20 (no new plugin in 0.4.9; existing plugin 1180 grew in scope).
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40`.
 
 ### EE 0.4.9 paired-release context
 
-- **EE plugin count UNCHANGED at 20** — seventh-ship-cycle in the 0.4.x stream is another single-plugin EXTENSION (third extension cycle after EE-RT.16 v2 in 0.4.6 + EE-RT.14 v3 in 0.4.8). Plugin 1180 v2 closes **both** v1 deferred items (R-MEDIUM-3 KMS-DescribeKey promotion + R-LOW-2 subnet route-table cross-reference).
+- **EE plugin count UNCHANGED at 20** — seventh-ship-cycle in the 0.4.x stream is another single-plugin EXTENSION (third extension cycle after, v2 in 0.4.6 +, v3 in 0.4.8). Plugin 1180 v2 closes **both** v1 deferred items (KMS-DescribeKey promotion + subnet route-table cross-reference).
 - **Part A — kms:DescribeKey cross-reference promotion** (dim 2 at-rest encryption; mirrors plugin 1140 v2 pattern). UNVERIFIABLE `:key/UUID` ARN shapes promoted via `KeyMetadata.KeyManager` to deterministic PASS (CUSTOMER) / MEDIUM (AWS). Conservative on AccessDenied / NotFound / unknown KeyManager.
-- **Part B — Subnet route-table verifier** (dim 6 subnet placement; closes v1 R-LOW-2). `elasticache:DescribeCacheSubnetGroups` + `ec2:DescribeRouteTables` walk. Per-subnet IGW-route detection via `/^igw-[a-f0-9]+$/i` (correctly excludes egress-only `eigw-`). HIGH on IGW-routed subnet(s) (with per-subnet `igwDestinationsBySubnet` evidence per R-HIGH-1 fold) / PASS on all-verified-private / **LOW + evidenceGap on main-RT-inheritance per R-MEDIUM-2 reviewer-fold false-NEGATIVE closure** (default-VPC main-RT typically routes `0.0.0.0/0 → igw-*`).
+- **Part B — Subnet route-table verifier** (dim 6 subnet placement; closes v1 -2). `elasticache:DescribeCacheSubnetGroups` + `ec2:DescribeRouteTables` walk. Per-subnet IGW-route detection via `/^igw-[a-f0-9]+$/i` (correctly excludes egress-only `eigw-`). HIGH on IGW-routed subnet(s) (with per-subnet `igwDestinationsBySubnet` evidence per review fold) / PASS on all-verified-private / **LOW + evidenceGap on main-RT-inheritance per reviewer fold false-NEGATIVE closure** (default-VPC main-RT typically routes `0.0.0.0/0 → igw-*`).
 - **7 same-session reviewer folds across the cycle** (independent `general-purpose-agent` review yielded 12 findings; 7 folded same-session, 1 deferred to cross-plugin Thread H sweep, 4 withdrawn after verification).
 - **No new SDK dependencies** — `@aws-sdk/client-kms` + `@aws-sdk/client-ec2` already declared in optionalDependencies since EE 0.4.5.
-- **Real-AWS smoke validation END-TO-END**: smoke against `<operator-test-account>` (no fixture changes needed). `redis-leaky-cache` → dim 6 LOW `elasticache-subnet-main-rt-inheritance` (the R-MEDIUM-2 fold escalation demonstrably firing against the real default-VPC main-RT-inheritance pattern); `findingsBySeverity: { pass:1, medium:3, high:5, low:2, info:1 }`; durationMs=1428. KMS promotion path NOT exercised against real AWS (existing fixtures use alias-form CMK keys; unit tests + plugin 1140 v2 real-AWS validation cover the promotion path).
+- **Real-AWS smoke validation END-TO-END**: smoke against `<operator-test-account>` (no fixture changes needed). `redis-leaky-cache` → dim 6 LOW `elasticache-subnet-main-rt-inheritance` (the review fold escalation demonstrably firing against the real default-VPC main-RT-inheritance pattern); `findingsBySeverity: { pass:1, medium:3, high:5, low:2, info:1 }`; durationMs=1428. KMS promotion path NOT exercised against real AWS (existing fixtures use alias-form CMK keys; unit tests + plugin 1140 v2 real-AWS validation cover the promotion path).
 - **EE full regression: 4696/4696** (was 4642 at EE 0.4.8 publish; +54 tests). 45-session 100% green streak preserved.
 - **Coverage matrix UNCHANGED at 10/4/33** — substrate evidence depth growth on already-covered CC6.6 + C1.1 via 5 new aws-elasticache-redis-auditor mapping rules.
 
@@ -975,13 +975,13 @@ npm install nsauditor-ai-agent-skill@0.1.17
 
 ### What changed
 
-- **`references/plugins.md`** — **plugin 1140 row** updated to reflect v3 extension (7 → 10 dimensions; +database audit-logging triad: pgAudit / CloudWatch Logs exports / CloudWatch Logs retention; aurora-aware log-path detection per R-HIGH-1 reviewer-fold). Notes the false-PASS closure on `rds-pgaudit-misconfigured` (Postgres silently ignores pgaudit.log when shared_preload_libraries omits pgaudit per R-MEDIUM-2 reviewer-fold). Engine-dispatched essential/optional CloudWatch log type policy via `_RDS_ENGINE_CWL_NAMES` covering mysql/mariadb/aurora-mysql/postgres/aurora-postgresql/oracle-*/sqlserver-* variants.
+- **`references/plugins.md`** — **plugin 1140 row** updated to reflect v3 extension (7 → 10 dimensions; +database audit-logging triad: pgAudit / CloudWatch Logs exports / CloudWatch Logs retention; aurora-aware log-path detection per reviewer fold). Notes the false-PASS closure on `rds-pgaudit-misconfigured` (Postgres silently ignores pgaudit.log when shared_preload_libraries omits pgaudit per reviewer fold). Engine-dispatched essential/optional CloudWatch log type policy via `_RDS_ENGINE_CWL_NAMES` covering mysql/mariadb/aurora-mysql/postgres/aurora-postgresql/oracle-*/sqlserver-* variants.
 - **`SKILL.md`** — plugin 1140 v3 enumeration line updated with v3 narrative; "post-EE 0.4.7" → "post-EE 0.4.8". EE plugin count UNCHANGED at 20 (no new plugin in 0.4.8; existing plugin 1140 grew in scope).
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40` (EE 0.4.0-cohort paired-release floor).
 
 ### EE 0.4.8 paired-release context
 
-- **EE plugin count UNCHANGED at 20** — sixth-ship-cycle in the 0.4.x stream is a single-plugin EXTENSION rather than NEW plugin. Plugin 1140 `aws-rds-auditor` grew from 7 → 10 dimensions via **EE-RT.14 v3** — first 0.4.x extension cycle of an existing plugin since EE-RT.16 v2 (plugin 1170 RESTRICTED_PORTS extension in 0.4.6).
+- **EE plugin count UNCHANGED at 20** — sixth-ship-cycle in the 0.4.x stream is a single-plugin EXTENSION rather than NEW plugin. Plugin 1140 `aws-rds-auditor` grew from 7 → 10 dimensions via **, v3** — first 0.4.x extension cycle of an existing plugin since, v2 (plugin 1170 RESTRICTED_PORTS extension in 0.4.6).
 - Closes the "database activity logs" SOC 2 dimension per `tasks/things-to-check.md` §4 audit-canonical checklist (CC7.2 + CC7.3 continuous monitoring + event evaluation).
 - **9 same-session reviewer folds across the cycle** (independent `general-purpose-agent` review yielded 12 findings; 9 folded same-session, 3 deferred to v3.1 / cross-plugin sweep).
 - **HIGH-1 closure** — Aurora cluster log-path detection (pre-fold whole Aurora fleet returned false-INFO MEDIUM on dim 10 because helper hard-coded `/aws/rds/instance/<id>/` even for aurora-* engines that publish to `/aws/rds/cluster/<DBClusterIdentifier>/`).
@@ -1001,22 +1001,22 @@ npm install nsauditor-ai-agent-skill@0.1.17
 
 ### What changed
 
-- **`references/plugins.md`** — added **plugin 1190 row** (AWS SES Email Integrity Auditor; 6 dimensions: DKIM enablement + signing status / custom MailFrom domain alignment / configuration set TLS enforcement / identity sending authorization policy permissive principals / dedicated IP pool sending posture / suppression list state; CC6.1 / CC6.6 / C1.1 / CC7.1-substrate / Privacy-substrate). Notes the **multi-class wildcard detector** (bare `"*"` / `{AWS:*}` / `{Service:*}` / `{Federated:*}` / `{CanonicalUser:*}` / array forms per R-HIGH-4 reviewer-fold) + **distinct HIGH `ses-sending-auth-notprincipal-allow` category** per R-CRITICAL-1 reviewer-fold catching the NotPrincipal+Effect=Allow wildcard-EQUIVALENT class (matches plugins 1070 + 1150 NotPrincipal+Allow discipline) + **LOW + evidenceGap `ses-sending-auth-malformed-statement`** per R-HIGH-2 reviewer-fold for Effect-missing send-action statements + **ZDE invariant** at run() envelope boundary (NEVER reads suppressed-destination email addresses).
+- **`references/plugins.md`** — added **plugin 1190 row** (AWS SES Email Integrity Auditor; 6 dimensions: DKIM enablement + signing status / custom MailFrom domain alignment / configuration set TLS enforcement / identity sending authorization policy permissive principals / dedicated IP pool sending posture / suppression list state; CC6.1 / CC6.6 / C1.1 / CC7.1-substrate / Privacy-substrate). Notes the **multi-class wildcard detector** (bare `"*"` / `{AWS:*}` / `{Service:*}` / `{Federated:*}` / `{CanonicalUser:*}` / array forms per reviewer fold) + **distinct HIGH `ses-sending-auth-notprincipal-allow` category** per reviewer fold catching the NotPrincipal+Effect=Allow wildcard-EQUIVALENT class (matches plugins 1070 + 1150 NotPrincipal+Allow discipline) + **LOW + evidenceGap `ses-sending-auth-malformed-statement`** per reviewer fold for Effect-missing send-action statements + **ZDE invariant** at run envelope boundary (NEVER reads suppressed-destination email addresses).
 - **`SKILL.md`** — added plugin 1190 to the EE plugin enumeration; updated "post-EE 0.4.6" → "post-EE 0.4.7"; bumped EE plugin count 19 → 20 and ID range 1020-1180 → 1020-1190 in the Editions table.
 - **`README.md`** — bumped EE plugin count 19 → 20 and ID range 1020-1180 → 1020-1190 in the Editions table.
 - **`peerDependencies`** floor: unchanged at `nsauditor-ai >=0.1.40` (EE 0.4.0-cohort paired-release floor).
 
 ### EE 0.4.7 paired-release context
 
-- **EE plugin count: 19 → 20** — fifth plugin-count growth in the 0.4.x cycle. NEW plugin **1190 AWS SES Email Integrity Auditor** (EE-RT.18 v1) covers 6 SOC 2 evidence dimensions spanning confidentiality + email-integrity. Closes the next-highest-priority gap from `tasks/things-to-check.md` AWS SOC 2 audit-canonical compliance checklist after Redis closed in 0.4.6. Dual API surface discipline: v1 uses SESv2 only (canonical modern API surface covers all 6 dimensions); `@aws-sdk/client-ses` declared in optionalDependencies for v2+ cross-API parity.
+- **EE plugin count: 19 → 20** — fifth plugin-count growth in the 0.4.x cycle. NEW plugin **1190 AWS SES Email Integrity Auditor** (v1) covers 6 SOC 2 evidence dimensions spanning confidentiality + email-integrity. Closes the next-highest-priority gap from `tasks/things-to-check.md` AWS SOC 2 audit-canonical compliance checklist after Redis closed in 0.4.6. Dual API surface discipline: v1 uses SESv2 only (canonical modern API surface covers all 6 dimensions); `@aws-sdk/client-ses` declared in optionalDependencies for v2+ cross-API parity.
 - **11 same-session reviewer folds across the cycle** — **ties the single-cycle reviewer-fold record** for security-classifier-correctness-surface plugins (independent `general-purpose-agent` review yielded 12 findings; 11 folded same-session, 1 deferred to cross-plugin Thread H sweep).
 - **CRITICAL-1 closure** — NotPrincipal+Effect=Allow distinct HIGH category (pre-fold silently classified as bounded = false-CLEAN class).
 - **HIGH-4 closure** — `_isWildcardPrincipal` walks every Principal class value (pre-fold only `principal.AWS` was inspected, leaking `{Service:"*"}` + `{Federated:"*"}` as silent CLEAN).
 - **HIGH-2 closure** — missing-Effect on send-action statement now surfaces LOW + evidenceGap `ses-sending-auth-malformed-statement` (was silent-dropped pre-fold).
 - **Fourth EE plugin to ship without smoke-time SDK hotfix** — preemptive `@aws-sdk/client-ses` + `@aws-sdk/client-sesv2` addition.
-- **EE full regression: 4574/4574** (was 4458 at EE 0.4.6 publish; +116 tests across the cycle: 94 EE-RT.18 v1 unit-test suite + 22 reviewer-fold pin tests). 43-session 100% green streak preserved.
+- **EE full regression: 4574/4574** (was 4458 at EE 0.4.6 publish; +116 tests across the cycle: 94, v1 unit-test suite + 22 reviewer-fold pin tests). 43-session 100% green streak preserved.
 - **Coverage matrix UNCHANGED at 10/4/33** — substrate-evidence depth growth on already-covered CC6.1 / CC6.6 / C1.1 via 8 new aws-ses-auditor mapping rules.
-- **No real-AWS smoke against violation-tier fixtures** — operator's internal test infrastructure has NO SES paired fixtures yet (full-stack fixtures deferred to EE-RT.18 v2 alongside DKIM CNAME DNS resolution + DMARC TXT record parsing). Empty-account smoke baseline against <operator-test-account> DID succeed end-to-end (plugin loads via CE→EE binding, all 4 SESv2 API enumerations succeed, baseline 2 INFO findings emit correctly, durationMs=842, ZDE invariant preserved).
+- **No real-AWS smoke against violation-tier fixtures** — operator's internal test infrastructure has NO SES paired fixtures yet (full-stack fixtures deferred to, v2 alongside DKIM CNAME DNS resolution + DMARC TXT record parsing). Empty-account smoke baseline against <operator-test-account> DID succeed end-to-end (plugin loads via CE→EE binding, all 4 SESv2 API enumerations succeed, baseline 2 INFO findings emit correctly, durationMs=842, ZDE invariant preserved).
 - **Memory tag closures:** `aws_string_case_normalization` at **20×** with explicit SPLIT-SURFACE callout (DKIM/Tls/MailFromStatus enums upcased / IAM Action/Effect lowercased); `conservative_classifier_principle` reinforced in 5 new fold sites; `emit_literal_set_drift` extended with `_DKIM_STATUS_VALID` + `_MAILFROM_STATUS_SUCCESS` + `_TLS_POLICY_VALID` named-constant discipline.
 
 **Recommended install path:** `npm install nsauditor-ai-agent-skill@0.1.13` (for AI-coding-agent users; pair with `npm install -g nsauditor-ai@0.1.46 @nsasoft/nsauditor-ai-ee@0.4.7`).
@@ -1036,9 +1036,9 @@ npm install nsauditor-ai-agent-skill@0.1.17
 
 ### EE 0.4.6 paired-release context
 
-- **EE plugin count: 18 → 19** — fourth plugin-count growth in the 0.4.x cycle. NEW plugin **1180 AWS ElastiCache Redis Auditor** (EE-RT.17 v1) covers 6 SOC 2 substrate-evidence dimensions spanning confidentiality + availability + segmentation. Dual API enumeration (DescribeReplicationGroups + DescribeCacheClusters) with inter-API dedup; Memcached out-of-scope by design.
-- **Plus EE-RT.16 v2** — plugin 1170 RESTRICTED_PORTS grown 13 → 23 ports per CIS AWS Foundations v3.0 + operator-config + per-SG cardinality cap with rollup trailer + system-managed-SG name-prefix exclusion list.
-- **10 same-session reviewer folds across the cycle** (7 EE-RT.16 v2 incl. 2 CONVERGENT-CRITICAL findings + 3 EE-RT.17 v1) — most-folds-in-a-single-cycle for 0.4.x to date.
+- **EE plugin count: 18 → 19** — fourth plugin-count growth in the 0.4.x cycle. NEW plugin **1180 AWS ElastiCache Redis Auditor** (v1) covers 6 SOC 2 substrate-evidence dimensions spanning confidentiality + availability + segmentation. Dual API enumeration (DescribeReplicationGroups + DescribeCacheClusters) with inter-API dedup; Memcached out-of-scope by design.
+- **Plus, v2** — plugin 1170 RESTRICTED_PORTS grown 13 → 23 ports per CIS AWS Foundations v3.0 + operator-config + per-SG cardinality cap with rollup trailer + system-managed-SG name-prefix exclusion list.
+- **10 same-session reviewer folds across the cycle** (7, v2 incl. 2 CONVERGENT-CRITICAL findings + 3, v1) — most-folds-in-a-single-cycle for 0.4.x to date.
 - **Third EE plugin to ship without smoke-time SDK hotfix** — preemptive `@aws-sdk/client-elasticache` addition.
 - **EE full regression: 4458/4458** (was 4361 at EE 0.4.5 publish; +97 tests). 42-session 100% green streak preserved.
 - **Coverage matrix UNCHANGED at 10/4/33** — substrate-evidence depth growth on already-covered CC6.1 / CC6.2 / CC6.6 / A1.2 / C1.1.

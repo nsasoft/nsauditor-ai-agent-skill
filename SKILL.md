@@ -232,10 +232,10 @@ Operational Integrity (1100), AWS IAM Effective Decrypt-Path Auditor (1110), AWS
 Lifecycle + Cross-Region Replication Auditor (1120), AWS Backup Auditor (1130), AWS
 RDS Auditor (1140 v3 — extended in EE 0.4.8 with database audit-logging; 7→10 dims:
 +pgAudit / +CloudWatch Logs exports / +CloudWatch Logs retention; aurora-aware
-log-path detection per R-HIGH-1 reviewer-fold), AWS SQS/SNS Auditor (1150 v2 —
+log-path detection per reviewer fold), AWS SQS/SNS Auditor (1150 v2 —
 extended in EE 0.5.1: 5 → 7 dims with CloudWatch alarm coverage on SQS
 ApproximateAgeOfOldestMessage + SNS NumberOfNotificationsFailed; closes 1 CRITICAL
-false-CLEAN class on empty-AlarmActions silent-PASS per R-CRITICAL fold; first
+false-CLEAN class on empty-AlarmActions silent-PASS per review fold; first
 plugin-1150 dim to cross an SDK boundary — SQS+SNS → CloudWatch), AWS EC2
 SG Perimeter Auditor (1170 v2 — RESTRICTED_PORTS 23 ports per CIS AWS Foundations
 v3.0), AWS VPC Endpoints / PrivateLink Auditor (1160 — NEW in EE 0.6.0; first plugin
@@ -243,40 +243,40 @@ to audit the PrivateLink isolation boundary; 4 dims: endpoint policy permissive
 principals CC6.6, PrivateDNS enabled CC6.6, endpoint state A1.2+CC7.2, type substrate
 Privacy+CC6.6), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9:
 kms:DescribeKey promotion + subnet route-table verifier; closes both v1 deferred items
-R-MEDIUM-3 + R-LOW-2; main-RT-inheritance false-NEGATIVE closure per R-MEDIUM-2
++ -2; main-RT-inheritance false-NEGATIVE closure per a review fold
 reviewer-fold), AWS SES Email Integrity Auditor (1190 v3 — extended in EE 0.5.0 +
 consolidated in EE 0.5.2 + v3 extension in EE 0.5.3: DKIM CNAME DNS resolution + DMARC
 TXT record parser + SES classic API parity + deferred-items sweep + DKIM public-key
 fingerprint capture/pin + in-band DMARC alignment classifier; closes 1 CRITICAL
-false-CLEAN class on DMARC pct=0 per R-CRITICAL-1 fold + 1 HIGH false-NEGATIVE class
-on DMARC sp subdomain-policy override per R-HIGH-1 fold + new MEDIUM
-ses-dkim-dns-partial-with-transients per v2.1 R-MEDIUM-2 fold + silent-loss-class
+false-CLEAN class on DMARC pct=0 per review fold + 1 HIGH false-NEGATIVE class
+on DMARC sp subdomain-policy override per review fold + new MEDIUM
+ses-dkim-dns-partial-with-transients per v2.1 review fold + silent-loss-class
 closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
-per v2.1 R-HIGH-2 reviewer-fold; first plugin in EE to depend on node:dns/promises
+per v2.1 reviewer fold; first plugin in EE to depend on node:dns/promises
 for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v6 —
 NEW in EE 0.6.1, extended through EE 0.6.6; first AWS-managed-threat-detection
 substrate audit; bundles two services per the plugin 1150 precedent.
 **v4 EE 0.6.4 reviewer-cleanup cycle** (closes 3 of 4 R2-deferred items from
-EE-RT.20.2): **R-HIGH-2 EventBridge target verification** — new `_listEventBridgeRuleTargets`
+): **EventBridge target verification** — new `_listEventBridgeRuleTargets`
 helper with defensive NextToken pagination; per-rule target verification via
 `events:ListTargetsByRule` (cap default 10 via `opts.targetVerificationRuleCap`;
 opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict
 `*-alerting-destination-targetless` for sink-less rules (zero Targets — substrate-
-without-sink at the rule level). **R-MEDIUM-2 multi-failedAccount surface** —
+without-sink at the rule level). **multi-failedAccount surface** —
 helper return-shape `{accountStatus, accessDenied, failedAccounts: array}`
 (renamed plural; capped at AWS-documented 100); caller emits one LOW per failed
-account with per-region emission cap 10 + rollup LOW. **R-LOW-2 trigger
+account with per-region emission cap 10 + rollup LOW. **trigger
 uniformity** — GuardDuty alerting-destination trigger gates on `detector.Status
 === ENABLED` (matches Inspector2 enabled-only semantic). **5 v4 R1 folds**
-(0 R-CRITICAL): R-HIGH-1 cap-skew classifier branch (LOW UNVERIFIABLE not
+(0 ): cap-skew classifier branch (LOW UNVERIFIABLE not
 MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) +
-R-HIGH consolidated `_listEventBridgeRuleTargets` pagination + JSDoc clarity +
-R-MEDIUM-1 multi-failedAccount per-region emission cap (10 + rollup) +
-R-MEDIUM-4 boundary tests + R-HIGH-2 dead-target documented-limitation note.
+ consolidated `_listEventBridgeRuleTargets` pagination + JSDoc clarity +
+multi-failedAccount per-region emission cap (10 + rollup) +
+boundary tests + dead-target documented-limitation note.
 **v3 EE 0.6.3 alerting-destination dim preserved**: EventBridge rule on source
 `aws.guardduty`/`aws.inspector2` OR SecurityHub product subscription (boundary-
 anchored `_shArnMatchesProduct` helper + strict `/aws/inspector2` constant per
-v3 R-CRITICAL-1); verdict tiers PASS / MEDIUM SH-only / MEDIUM TARGETLESS (v4
+v3 -1); verdict tiers PASS / MEDIUM SH-only / MEDIUM TARGETLESS (v4
 added) / HIGH missing / LOW UNVERIFIABLE; new SDK deps `@aws-sdk/client-eventbridge`
 + `@aws-sdk/client-securityhub`. **v2 EE 0.6.2 preserved**: multi-region via
 ec2:DescribeRegions + GuardDuty FindingPublishingFrequency check + Inspector2
@@ -284,14 +284,14 @@ baseline expansion (+lambdaCode +codeRepository). Operator opts: `regions[]` /
 `skipMultiRegion` / `regionListCap` / `gdFrequencyPassFrequency` /
 `skipAlertingDestination` / `skipEventBridgeTargetVerification` /
 `targetVerificationRuleCap` / `skipTargetLivenessProbe` / `deadTargetProbeTimeoutMs`.
-**v5 EE 0.6.5 closes the 0.6.4 R-HIGH-2 documented limitation** via per-target
+**v5 EE 0.6.5 closes the 0.6.4 documented limitation** via per-target
 liveness probes for Lambda (`lambda:GetFunction` on full qualified ARN — alias/
 version correctness verified server-side) + SNS (`sns:GetTopicAttributes`) +
 SQS (`sqs:GetQueueUrl` + `GetQueueAttributes` — partition-aware via SDK URL
 resolution; works on aws-cn / aws-us-gov / aws-iso). Companion-LOW emitted
 alongside PASS when targets dead. Parallel probes via Promise.all + 2s default
 timeout. One-retry on NotFound with 750ms backoff (eventual-consistency defense).
-Case-insensitive NotFound matching per `[[aws_string_case_normalization]]`.
+Case-insensitive NotFound matching per the AWS string-case normalisation discipline.
 Sentinel observability — `targetVerificationReason` enum (AccessDenied /
 SdkUnavailable / BeyondCap / SkippedByOpts) on rule shape. R-NIT
 `SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set. **v6 EE 0.6.6 closes the long
@@ -300,14 +300,14 @@ NAME; new SDK dep `@aws-sdk/client-iam`) + EventBridge API destination
 (`events:DescribeApiDestination` reuses `_EventBridgeSdk`) + CloudWatch Logs
 (`logs:DescribeLogGroups` with `logGroupNamePrefix` filter + exact-name
 disambiguation guard so prefix-match siblings don't false-LIVE; new SDK dep
-`@aws-sdk/client-cloudwatch-logs`). **Operator note (v6 R-MEDIUM-2)**:
+`@aws-sdk/client-cloudwatch-logs`). **Operator note (v6 -2)**:
 `iam:GetRole` is a global API resolving per-partition; orchestrators wiring
 `opts._iamClient` must construct a single global IAM client per-partition (NOT
-per-region). **v6 R-MEDIUM-1 fold**: IAM `NoSuchEntityException` /
+per-region). **v6 review fold**: IAM `NoSuchEntityException` /
 `NoSuchEntity` lifted into `_DEAD_TARGET_NOTFOUND_ERROR_NAMES` Set; bare
 disjunction collapsed; eventual-consistency retry restored for IAM (the canonical
-worst case — 9th cumulative recurrence of `[[emit_literal_set_drift]]` class).
-**v6 R-LOW-2 fold**: API destination ARN regex future-proofed against alias-only
+worst case — 9th cumulative recurrence of the emit-literal/set-drift class class).
+**v6 review fold**: API destination ARN regex future-proofed against alias-only
 ARN shapes. **v6.1 EE 0.6.7 closes the Logs probe retry-on-empty parity**:
 `_retryOnNotFound` accepts an optional retry-on-result predicate; CWL Logs probe
 fires retry when the response carries no exact-name match (covers both empty
@@ -318,8 +318,8 @@ NotFound retry; Phase 2 = result-based retry; phases are mutually exclusive
 sites (Lambda / SNS / SQS / IAM / EventBridge API destination) pass only two
 args; default `retryOnResultPredicate = null` cleanly skips Phase 2. Dim 5
 org-scope still deferred to a future cycle. Total folds across all cycles:
-6 v1 + 4 v2 + 4 v3 (1 R-CRITICAL) + 5 v4 + 5 v5 + 4 v6 (0 R-CRITICAL) + 1 v6.1
-(0 R-CRITICAL / 0 R-HIGH) = 29 R1 folds applied same-session.
+6 v1 + 4 v2 + 4 v3 (1 ) + 5 v4 + 5 v5 + 4 v6 (0 ) + 1 v6.1
+(0 / 0 ) = 29 R1 folds applied same-session.
 
 **v5 also brings a cross-plugin contract change**: all 18 EE AWS plugins
 (1020-1200) now thread `sessionToken` through their AWS-SDK credentials block,
@@ -327,7 +327,7 @@ unblocking AssumeRole-style auditor credentials uniformly across the catalog).
 **EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
 CE collision. CE reserves 001-099.
 
-**Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 R-HIGH-1 fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 R-LOW-2 fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation). **v3.1 EE 0.6.7 closes the edge-dedup R2-deferred item**: `_buildSgReferenceGraph` now dedupes edges by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per `[[conservative_classifier_principle]]`: walk possibly-same-VPC chains rather than silently skip). Classifier port-render accepts both v3.1 array shape and v3 single-object shape (back-compat). **v3.1 R-MEDIUM-1 fold**: arrival-order independence locked with 2 regression fixtures + JSDoc tightening. **v3.1 R-LOW-1 fold**: partial-render contract on malformed port specs locked with 2 fixtures. **v3.1 R-LOW-2 fold**: `_portKeys` scratch-lifetime documented (MUST NOT escape).
+**Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 review fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 review fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation). **v3.1 EE 0.6.7 closes the edge-dedup R2-deferred item**: `_buildSgReferenceGraph` now dedupes edges by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per the conservative-classifier principle: walk possibly-same-VPC chains rather than silently skip). Classifier port-render accepts both v3.1 array shape and v3 single-object shape (back-compat). **v3.1 review fold**: arrival-order independence locked with 2 regression fixtures + JSDoc tightening. **v3.1 review fold**: partial-render contract on malformed port specs locked with 2 fixtures. **v3.1 review fold**: `_portKeys` scratch-lifetime documented (MUST NOT escape).
 
 **EE SOC 2 substrate-evidence coverage (post-EE 0.10.0):** 10 covered controls (CC6.1 /
 CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
