@@ -4,6 +4,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.33 (2026-08-03) — Paired with EE 0.32.10 · no knowledge change, one honesty correction upstream
+
+**No change to the skill's guidance, schemas, or plugin references.** Published in lockstep with Enterprise 0.32.10 and CE 0.2.35 so an agent installing the trio never mixes versions.
+
+Worth knowing if you are teaching an agent to reason about NSAuditor's evidence: the Enterprise release corrects what its dependency-advisory gate measures (the packed-and-installed customer closure, not the maintainer's working tree) and makes it prove an advisory source answered before reporting clean. The SOC 2 matrix is now enumerated in full at **10 / 4 / 37 = 51** — enumeration completeness, not a coverage change. Plugin catalog UNCHANGED at **28 EE / 55 overall**.
+
 ## 0.2.32 (2026-07-29) — Paired with EE 0.32.9 · the skill package's own provenance sweep
 
 **This package carried the marker class the EE cycle existed to kill, and npm freezes it at publish.** `references/plugins.md` is loaded into an LLM's context and quoted back to customers. Swept from the shipped `files[]` set: **330 occurrences → 0** — memory-slug wiki links (19), reviewer-fold codes (274), internal roadmap ids (35) and internal audit-review names (5).
