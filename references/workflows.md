@@ -244,7 +244,9 @@ Track security posture changes over time.
 Step 1: scan_host({ host: "<target>" })  → baseline scan
 Step 2: (time passes, changes made)
 Step 3: scan_host({ host: "<target>" })  → follow-up scan
-Step 4: scan_compare()                   → risk-weighted diff
+Step 4: compare the two scan outputs yourself — there is no compare TOOL. The CLI writes
+        each run to its own timestamped out-dir; diff the `scan_compliance_<fw>.json`
+        (or `scan_conclusion_raw.json`) files across runs.
 
 Look for:
   - New services (unexpected exposure)
@@ -268,10 +270,10 @@ User wants to...
 ├── Detect debug leaks / CORS issues    → probe_service with plugin 050 (Pro)
 ├── Scan a subnet                       → CLI: --host CIDR --parallel N
 ├── Set up continuous monitoring         → CLI: --watch --interval N
-├── Compare two scans                   → scan_compare (Pro)
-├── Get risk overview                   → risk_summary (Pro)
-├── Check compliance gaps               → compliance_check (Enterprise)
-└── Generate formatted report           → export_report (Enterprise)
+├── Compare two scans                   → CLI: diff the per-run out-dirs (no compare tool)
+├── State framework COVERAGE            → compliance_matrix (any tier)
+├── Produce a compliance EVIDENCE PACK  → CLI: --compliance <fw> --out <dir> (not MCP)
+└── Generate a formatted report         → CLI: --output-format sarif|csv|md (not MCP)
 ```
 
 ---
