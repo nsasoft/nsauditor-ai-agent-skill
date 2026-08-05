@@ -4,7 +4,33 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.34 (2026-08-05) — Paired with EE 0.32.11 · a withdrawn capability was still being taught, in the one repo no gate reached
+## 0.2.34 (2026-08-05) — Paired with EE 0.32.11 · a withdrawn capability, and SEVEN MCP tools that do not exist
+
+### The tools that were never there
+
+Found by Gate-3 prompt 6, in a live reply. Asked how to build a SOC 2 Type II evidence package, the assistant answered: *"`scan_compare` (Pro) gives risk-weighted deltas between runs, which is how you show a finding appeared, was remediated, and stayed closed."*
+
+**`scan_compare` does not exist.** Measured against the live registry, SEVEN tools this package advertised return 0 entries in `TOOLS` and `undefined` from `toolHandlers`:
+
+`risk_summary` · `scan_compare` · `save_finding` · `start_assessment` · `prioritize_risks` · `compliance_check` · `export_report`
+
+The shipped set is exactly `scan_host`, `scan_cloud`, `get_findings`, `compliance_matrix`, `probe_service`, `get_vulnerabilities`, `list_plugins`.
+
+`compliance_check` was the worst: **11 occurrences, including a behavioural imperative** — *"If unsure, run `compliance_check` and report what the pack says."* An agent loads this file into context and follows its imperatives, so an operator assembling the artifact an auditor SAMPLES was being routed at a tool that is not there. `export_report` promised "PDF, HTML" — the same phantom as the `pdfExport` capability flag EE withdrew this cycle, wearing a different name.
+
+**The correction is not a deletion.** `compliance_check`'s row carried a great deal of accurate framework detail; what was wrong was the MECHANISM it hung on. Compliance is a **CLI** surface: `nsauditor-ai scan --host <target> --compliance <fw> --out <dir>` runs the compliance phase and writes the pack. `scan_cloud` maps findings to frameworks but never runs that phase, so **no MCP call produces a pack**. The detail is kept and re-attributed; use `compliance_matrix` to state COVERAGE and the CLI to produce EVIDENCE.
+
+**`compliance_matrix` is now documented** — it shipped in CE 0.2.36 and this package had never mentioned it, which is the other direction of the same defect: a tool an agent is not told about is a tool it will not reach for.
+
+### Why nothing caught it, and what now does
+
+`gate:claims` sweeps for withdrawn capability WORDING. **A tool NAME matches no claim pattern** — it is a claim that exists only as an identifier, exactly like the withdrawn capability flags. EE now ships `tests/agent_skill_tool_surface.test.mjs`, which pins this package's advertised tool set against CE's live `TOOLS` **in both directions** (advertised-but-absent, and shipped-but-undocumented), fails rather than skips when the sibling repo is missing, and proves its own extractor on a probe. Both directions are mutation-proven.
+
+> The sweep that first found this was itself too narrow — it enumerated the name prefixes already seen and so missed `start_assessment` and `prioritize_risks`. The guard therefore extracts the documentation STRUCTURALLY rather than grepping for tool-shaped words.
+
+---
+
+## 0.2.34 — also: a withdrawn capability was still being taught, in the one repo no gate reached
 
 **This is a correction release, and the reason it was needed matters more than the two lines it fixes.**
 
