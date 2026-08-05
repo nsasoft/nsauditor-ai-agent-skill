@@ -16,7 +16,9 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.33 (post-EE-0.32.10 — **no knowledge change**; published in lockstep with EE 0.32.10 + CE 0.2.35. Upstream: the dependency-advisory gate now measures the packed-and-installed customer closure rather than the maintainer's working tree, and proves an advisory source answered before reporting clean; SOC 2 matrix enumerated in full at **10 / 4 / 37 = 51** (completeness, not a coverage change). Plugin catalog UNCHANGED at 28 EE / 55 overall.)
+> **Version:** 0.2.34 (post-EE-0.32.11 — **a correction release.** The Verification Engine was WITHDRAWN at EE 0.32.7; this package went on presenting it as a shipped Phase 4, glossing `VERIFIED` as probe-confirmed, and selling "verification probes" in the pricing table. All corrected — the status enum stays, the active-probe gloss goes, and findings are stated to be emitted UNVERIFIED. Upstream: `scan_cloud` summaries now surface the INFO tier and `deferredScope` boundaries; a new `compliance_matrix` MCP tool returns the shipped coverage matrix for any of the seven frameworks, derived at call time; `pdfExport` withdrawn and every capability now ships a description. Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.)
+
+> **Prior:** 0.2.33 (post-EE-0.32.10 — no knowledge change.)
 
 > **Prior:** 0.2.32 (post-EE-0.32.9 — the skill package's own provenance sweep.)
 
@@ -220,13 +222,19 @@ Phase 3: INTELLIGENCE (Pro)    CPE generation → NVD CVE lookup → Parallel ve
                                   • Service Agent (CVE-specific targeted probes)
                                 Output: Structured finding queue
                                         ↓
-Phase 4: VERIFICATION (Pro)    For each finding: run SAFE non-destructive verification probe
-                                Classify: VERIFIED | POTENTIAL | FALSE_POSITIVE
-                                Output: Verified finding queue with evidence
+Phase 4: VERIFICATION          PLANNED — NOT SHIPPED. The finding-status field and its
+         (planned, not shipped) risk-weighting scaffolding exist; the active safe probes
+                                do not. Every finding today is emitted UNVERIFIED.
                                         ↓
 Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance mapping
-                                Output: Risk report + compliance report + PDF
+                                Output: Risk report + compliance report (Markdown, HTML, JSON)
 ```
+
+> **Phase 4 is a roadmap entry, kept in the diagram so the pipeline's shape is legible.** The
+> Verification Engine was withdrawn as a capability claim at EE 0.32.7. Do not describe
+> findings as probe-confirmed (it is WITHDRAWN, not merely unused), and do not tell an
+> operator a finding was "verified" — see
+> `references/schemas.md` § Finding Statuses.
 
 ---
 
@@ -456,8 +464,9 @@ See `references/schemas.md` for complete structures:
 4. **Scan Authorization:** ALWAYS confirm the user has authorization to scan the target.
    Never scan hosts without explicit user instruction. Unauthorized scanning is illegal.
 
-5. **Non-Destructive:** All verification probes are safe read-only queries. NSAuditor AI
-   never exploits vulnerabilities or modifies target systems.
+5. **Non-Destructive:** every scanner probe is a read-only query — NSAuditor AI never
+   exploits vulnerabilities or modifies target systems. (Active *verification* probes are
+   Planned — not shipped; findings are emitted UNVERIFIED.)
 
 ---
 
@@ -541,7 +550,7 @@ Add to your MCP configuration with the same command/args pattern.
 | Edition | Price | Key Features |
 |---------|-------|-------------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, CTEM, SARIF, scan history |
-| **Pro** | $49/mo | + CVE matching, verification probes, risk scoring, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
+| **Pro** | $49/mo | + CVE matching, risk scoring, analysis agents, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
 | **Enterprise** | $2k+/yr | + 28 cloud-substrate auditor plugins (1020-1222 range) covering AWS / GCP / Azure against seven frameworks (SOC 2 10 covered + 4 partial; HIPAA; NIST CSF 2.0; PCI DSS v4.0.1; ISO/IEC 27001:2022; CIS Controls v8; GDPR Art. 32 infrastructure substrate); Zero Trust; SOC 2 evidence-pack generation; SHA-256 chain-of-custody attestations (RFC 3161 timestamping is implemented but not yet wired to a flag — do not quote it as shipping); air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)

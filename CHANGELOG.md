@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.34 (2026-08-05) — Paired with EE 0.32.11 · a withdrawn capability was still being taught, in the one repo no gate reached
+
+**This is a correction release, and the reason it was needed matters more than the two lines it fixes.**
+
+The Verification Engine was **withdrawn at EE 0.32.7**. This package went on presenting it as a shipped pipeline phase for four releases:
+
+- `SKILL.md` showed *"Phase 4: VERIFICATION (Pro) — For each finding: run SAFE non-destructive verification probe"* as a phase that runs.
+- `references/schemas.md` glossed `VERIFIED` as *"Active safe probe confirmed the vulnerability."*
+- A safety bullet asserted *"All verification probes are safe read-only queries."*
+- **The pricing table sold "verification probes" as a Pro feature.**
+
+All four are corrected. The status ENUM stays — the field and its risk-weighting scaffolding are real, which is why the schema documents them — but the gloss describing an active probe is gone, and every finding is now stated to be emitted `UNVERIFIED`. `Phase 4` remains in the diagram, labelled **planned, not shipped**, so the pipeline's shape stays legible without claiming the phase runs.
+
+**Why nothing caught it.** The withdrawal was executed as a capability-FLAG removal plus README edits, so the *wording* was never patterned — and `gate:claims` sweeps web document roots while the honesty test is scoped to six hand-listed docs. This package is a third repo, published with every trio, outside both. It was found by a reader during the Gate-3 battery, not by any matcher.
+
+**The durable fix, upstream:** EE 0.32.11 adds a `verification-engine` claim pattern and this repo is now swept by `gate:claims`. On its first run that pattern also found **two live unhedged claims on nsasoft.us**, including the homepage hero — so the gap was never only about this package.
+
+---
+
 ## 0.2.33 (2026-08-03) — Paired with EE 0.32.10 · no knowledge change, one honesty correction upstream
 
 **No change to the skill's guidance, schemas, or plugin references.** Published in lockstep with Enterprise 0.32.10 and CE 0.2.35 so an agent installing the trio never mixes versions.

@@ -243,10 +243,16 @@ Structured finding format used across all tiers:
 
 | Status | Meaning |
 |--------|---------|
-| `UNVERIFIED` | Detected but not yet confirmed |
-| `VERIFIED` | Active safe probe confirmed the vulnerability |
-| `POTENTIAL` | Likely but not definitively confirmed |
-| `FALSE_POSITIVE` | Investigation determined safe; marked false positive |
+| `UNVERIFIED` | Detected by a scanner. **This is the status every finding carries today** — see the WITHDRAWN note below. |
+| `VERIFIED` | Reserved for the planned Verification Engine. No shipped code sets it. |
+| `POTENTIAL` | Reserved for the planned Verification Engine. No shipped code sets it. |
+| `FALSE_POSITIVE` | Set by an operator suppression, not by a probe. |
+
+> **The Verification Engine is planned, not shipped** (withdrawn as a capability claim at EE
+> 0.32.7). The status field and its risk-weighting scaffolding exist — which is why the enum
+> is documented here — but the probe machinery that would populate `VERIFIED` / `POTENTIAL`
+> is WITHDRAWN and does not ship. Read `UNVERIFIED` as "this is what the scanner detected", never as
+> "this was tried and could not be confirmed".
 
 ---
 
