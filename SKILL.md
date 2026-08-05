@@ -256,163 +256,18 @@ Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance ma
 
 ---
 
-## Plugin Reference (44+ Scanners)
+## Plugin Reference (55 scanners — 27 Community + 28 Enterprise)
 
-See `references/plugins.md` for the complete catalog. Summary:
+**`references/plugins.md` is the authoritative catalog.** The counts above are derived from the
+shipped plugin files; verify any of them with `nsauditor-ai license --plugins`, which prints the
+live total and marks each Enterprise plugin `✓ active` or `✗ requires: <tier>`.
 
-**Core (17):** Ping, SSH, Port Scanner, FTP, Host Up, HTTP Probe, SNMP, Result Concluder,
-DNS, Webapp Detector, TLS, OpenSearch, OS Detector, NetBIOS/SMB, SUN RPC, WS-Discovery,
-TCP SYN (Nmap wrapper)
+The Community set groups roughly as service probes, host/network discovery, and intelligence /
+meta plugins; three further plugins are Pro-gated (040 TLS Certificate & Cipher Auditor, 050
+TRIBE v2 Probe, 060 DNS Security Auditor).
 
-**Discovery (6):** ARP, mDNS/Bonjour, UPnP/SSDP, DNS-SD, LLMNR, DB Scanner
-
-**Pro (3):** TLS Certificate & Cipher Auditor, TRIBE v2 Probe, DNS Security Auditor
-
-**Enterprise (18):** AWS Cloud Scanner (1020), GCP Cloud Scanner (1021), Azure Cloud
-Scanner (1022), Zero Trust Checker (1023), AWS IAM Deep Auditor (1030), AWS CloudTrail
-Operational Integrity (1040), AWS API Gateway Assurance (1050), AWS DynamoDB Audit
-Integrity (1060), AWS KMS Auditor (1070), AWS Lambda Security Auditor (1080), AWS
-Secrets Manager + SSM Parameter Store Auditor (1090), AWS CodePipeline + CodeBuild
-Operational Integrity (1100), AWS IAM Effective Decrypt-Path Auditor (1110), AWS S3
-Lifecycle + Cross-Region Replication Auditor (1120), AWS Backup Auditor (1130), AWS
-RDS Auditor (1140 v3 — extended in EE 0.4.8 with database audit-logging; 7→10 dims:
-+pgAudit / +CloudWatch Logs exports / +CloudWatch Logs retention; aurora-aware
-log-path detection per reviewer fold), AWS SQS/SNS Auditor (1150 v2 —
-extended in EE 0.5.1: 5 → 7 dims with CloudWatch alarm coverage on SQS
-ApproximateAgeOfOldestMessage + SNS NumberOfNotificationsFailed; closes 1 CRITICAL
-false-CLEAN class on empty-AlarmActions silent-PASS per review fold; first
-plugin-1150 dim to cross an SDK boundary — SQS+SNS → CloudWatch), AWS EC2
-SG Perimeter Auditor (1170 v2 — RESTRICTED_PORTS 23 ports per CIS AWS Foundations
-v3.0), AWS VPC Endpoints / PrivateLink Auditor (1160 — NEW in EE 0.6.0; first plugin
-to audit the PrivateLink isolation boundary; 4 dims: endpoint policy permissive
-principals CC6.6, PrivateDNS enabled CC6.6, endpoint state A1.2+CC7.2, type substrate
-Privacy+CC6.6), AWS ElastiCache Redis Auditor (1180 v2 — extended in EE 0.4.9:
-kms:DescribeKey promotion + subnet route-table verifier; closes both v1 deferred items
-+ -2; main-RT-inheritance false-NEGATIVE closure per a review fold
-reviewer-fold), AWS SES Email Integrity Auditor (1190 v3 — extended in EE 0.5.0 +
-consolidated in EE 0.5.2 + v3 extension in EE 0.5.3: DKIM CNAME DNS resolution + DMARC
-TXT record parser + SES classic API parity + deferred-items sweep + DKIM public-key
-fingerprint capture/pin + in-band DMARC alignment classifier; closes 1 CRITICAL
-false-CLEAN class on DMARC pct=0 per review fold + 1 HIGH false-NEGATIVE class
-on DMARC sp subdomain-policy override per review fold + new MEDIUM
-ses-dkim-dns-partial-with-transients per v2.1 review fold + silent-loss-class
-closure on SES classic API quota exhaustion via cause: "classic-sdk-quota-exhausted"
-per v2.1 reviewer fold; first plugin in EE to depend on node:dns/promises
-for live DNS cross-reference), AWS Inspector2 / GuardDuty Enablement Auditor (1200 v6 —
-NEW in EE 0.6.1, extended through EE 0.6.6; first AWS-managed-threat-detection
-substrate audit; bundles two services per the plugin 1150 precedent.
-**v4 EE 0.6.4 reviewer-cleanup cycle** (closes 3 of 4 R2-deferred items from
-): **EventBridge target verification** — new `_listEventBridgeRuleTargets`
-helper with defensive NextToken pagination; per-rule target verification via
-`events:ListTargetsByRule` (cap default 10 via `opts.targetVerificationRuleCap`;
-opt-out via `opts.skipEventBridgeTargetVerification`); new MEDIUM verdict
-`*-alerting-destination-targetless` for sink-less rules (zero Targets — substrate-
-without-sink at the rule level). **multi-failedAccount surface** —
-helper return-shape `{accountStatus, accessDenied, failedAccounts: array}`
-(renamed plural; capped at AWS-documented 100); caller emits one LOW per failed
-account with per-region emission cap 10 + rollup LOW. **trigger
-uniformity** — GuardDuty alerting-destination trigger gates on `detector.Status
-=== ENABLED` (matches Inspector2 enabled-only semantic). **5 v4 R1 folds**
-(0 ): cap-skew classifier branch (LOW UNVERIFIABLE not
-MEDIUM TARGETLESS when cap-exceeded rules could be the actual sink) +
- consolidated `_listEventBridgeRuleTargets` pagination + JSDoc clarity +
-multi-failedAccount per-region emission cap (10 + rollup) +
-boundary tests + dead-target documented-limitation note.
-**v3 EE 0.6.3 alerting-destination dim preserved**: EventBridge rule on source
-`aws.guardduty`/`aws.inspector2` OR SecurityHub product subscription (boundary-
-anchored `_shArnMatchesProduct` helper + strict `/aws/inspector2` constant per
-v3 -1); verdict tiers PASS / MEDIUM SH-only / MEDIUM TARGETLESS (v4
-added) / HIGH missing / LOW UNVERIFIABLE; new SDK deps `@aws-sdk/client-eventbridge`
-+ `@aws-sdk/client-securityhub`. **v2 EE 0.6.2 preserved**: multi-region via
-ec2:DescribeRegions + GuardDuty FindingPublishingFrequency check + Inspector2
-baseline expansion (+lambdaCode +codeRepository). Operator opts: `regions[]` /
-`skipMultiRegion` / `regionListCap` / `gdFrequencyPassFrequency` /
-`skipAlertingDestination` / `skipEventBridgeTargetVerification` /
-`targetVerificationRuleCap` / `skipTargetLivenessProbe` / `deadTargetProbeTimeoutMs`.
-**v5 EE 0.6.5 closes the 0.6.4 documented limitation** via per-target
-liveness probes for Lambda (`lambda:GetFunction` on full qualified ARN — alias/
-version correctness verified server-side) + SNS (`sns:GetTopicAttributes`) +
-SQS (`sqs:GetQueueUrl` + `GetQueueAttributes` — partition-aware via SDK URL
-resolution; works on aws-cn / aws-us-gov / aws-iso). Companion-LOW emitted
-alongside PASS when targets dead. Parallel probes via Promise.all + 2s default
-timeout. One-retry on NotFound with 750ms backoff (eventual-consistency defense).
-Case-insensitive NotFound matching per the AWS string-case normalisation discipline.
-Sentinel observability — `targetVerificationReason` enum (AccessDenied /
-SdkUnavailable / BeyondCap / SkippedByOpts) on rule shape. R-NIT
-`SH_HUB_NOT_ENABLED_ERROR_NAMES` frozen Set. **v6 EE 0.6.6 closes the long
-tail of unverifiable ARN shapes**: IAM role (`iam:GetRole` on path-stripped role
-NAME; new SDK dep `@aws-sdk/client-iam`) + EventBridge API destination
-(`events:DescribeApiDestination` reuses `_EventBridgeSdk`) + CloudWatch Logs
-(`logs:DescribeLogGroups` with `logGroupNamePrefix` filter + exact-name
-disambiguation guard so prefix-match siblings don't false-LIVE; new SDK dep
-`@aws-sdk/client-cloudwatch-logs`). **Operator note (v6 -2)**:
-`iam:GetRole` is a global API resolving per-partition; orchestrators wiring
-`opts._iamClient` must construct a single global IAM client per-partition (NOT
-per-region). **v6 review fold**: IAM `NoSuchEntityException` /
-`NoSuchEntity` lifted into `_DEAD_TARGET_NOTFOUND_ERROR_NAMES` Set; bare
-disjunction collapsed; eventual-consistency retry restored for IAM (the canonical
-worst case — 9th cumulative recurrence of the emit-literal/set-drift class class).
-**v6 review fold**: API destination ARN regex future-proofed against alias-only
-ARN shapes. **v6.1 EE 0.6.7 closes the Logs probe retry-on-empty parity**:
-`_retryOnNotFound` accepts an optional retry-on-result predicate; CWL Logs probe
-fires retry when the response carries no exact-name match (covers both empty
-and prefix-only-sibling responses). **Restructured to two-phase to cap total
-network calls at 2 on compound paths** — Phase 1 = initial call + thrown-
-NotFound retry; Phase 2 = result-based retry; phases are mutually exclusive
-(per-call-site outer catch routes a second-call thrown error). Existing call
-sites (Lambda / SNS / SQS / IAM / EventBridge API destination) pass only two
-args; default `retryOnResultPredicate = null` cleanly skips Phase 2. Dim 5
-org-scope still deferred to a future cycle. Total folds across all cycles:
-6 v1 + 4 v2 + 4 v3 (1 ) + 5 v4 + 5 v5 + 4 v6 (0 ) + 1 v6.1
-(0 / 0 ) = 29 R1 folds applied same-session.
-
-**v5 also brings a cross-plugin contract change**: all 18 EE AWS plugins
-(1020-1200) now thread `sessionToken` through their AWS-SDK credentials block,
-unblocking AssumeRole-style auditor credentials uniformly across the catalog).
-**EE plugin IDs use the disjoint 1000+ range** (per EE 0.3.9 renumbering) to avoid
-CE collision. CE reserves 001-099.
-
-**Plugin 1170 v3 (EE 0.6.6) SG→SG transitive chain reachability** — `aws-ec2-sg-perimeter-auditor` v3 extension. Pre-v3 each Security Group was audited in isolation; a SG with no direct public-CIDR ingress would emit the PASS-tier "no direct public-internet ingress CIDR rules" finding even if transitively reachable from the internet through a `UserIdGroupPairs` chain. v3 builds the SG-reference graph (`_buildSgReferenceGraph`), identifies public-CIDR roots (`_findPubliclyReachableSgs` — 0.0.0.0/0 / ::/0 ingress), and BFS-walks the graph (`_walkTransitiveReachability`) with cycle defense + depth cap (default 5, max 20) + per-target chain cap (default 10, max 100). 2-hop chains emit **HIGH**; 3+ hop chains emit **CRITICAL** (operator-blindness principle — deeper chains less likely to be noticed). Cross-VPC edges skipped (out-of-scope for v3 v1; INFO trailer). v3 v1 simplification: per-hop port-flow tracked but NOT intersected (`walkthroughRequired=true`). New operator opts: `skipTransitiveReachability` / `transitiveChainDepthCap` / `transitiveChainsPerTargetCap` / `transitiveChainSamplesPerFindingCap`. **v3 review fold**: BFS short-circuits enqueue past per-target cap (closes path-enumeration explosion on hub-and-spoke topologies — pre-fold the BFS kept cloning `path` and `visited` Sets and walking past the cap). **v3 review fold**: depth-cap-hit surfaced separately from per-target-cap (closes silent-deep-truncation false-CLEAN class). 3 new soc2.json mappings under CC6.6 (transitive HIGH + CRITICAL + INFO truncation). **v3.1 EE 0.6.7 closes the edge-dedup R2-deferred item**: `_buildSgReferenceGraph` now dedupes edges by `(sourceGroupId, targetGroupId)` with `ports` aggregated as array of `{protocol, fromPort, toPort}`. Pre-fold a real-world ALB-fronting-app SG with 3 ingress perms on different ports (80/443/8080) referencing the same source SG emitted 3 distinct edges A→B; the BFS treated each as a separate chain, inflating `chainCount` 2-5× and exhausting per-target chain caps on noise. Post-fold the BFS sees exactly 1 chain per distinct (source, target) pair. `isCrossVpc` aggregation is AND-semantic — if ANY contributing pair is same-VPC, the merged edge is same-VPC (per the conservative-classifier principle: walk possibly-same-VPC chains rather than silently skip). Classifier port-render accepts both v3.1 array shape and v3 single-object shape (back-compat). **v3.1 review fold**: arrival-order independence locked with 2 regression fixtures + JSDoc tightening. **v3.1 review fold**: partial-render contract on malformed port specs locked with 2 fixtures. **v3.1 review fold**: `_portKeys` scratch-lifetime documented (MUST NOT escape).
-
-**EE SOC 2 substrate-evidence coverage (post-EE 0.10.0):** 10 covered controls (CC6.1 /
-CC6.2 / CC6.6 / CC6.7 / CC6.8 / CC7.1 / CC7.2 / CC7.3 / C1.1 / C1.2) + 4 partial
-(CC6.3 / CC8.1 / A1.2 / PI1.5) + 33 OOS for static substrate scanning. **SOC 2 matrix
-UNCHANGED post-EE 0.10.0 — the NIST CSF 2.0 cycle is additive-only; no SOC 2 mappings
-changed. NIST CSF 2.0 introduced as third Track 3 framework with its own 13/10/83
-matrix across 106 of CSF 2.0 Core's 107 Subcategories; Govern function OOS-by-design
-with GV.SC-04 partial as substrate-evidence exception; Respond function OOS-entirely;
-Implementation Tiers 1-4 OOS as organizational-maturity claim.**
-Coverage matrix is institutionally honest: substrate-evidence depth grows release-over-release
-without the matrix being shifted (the matrix-shift requires net-new control coverage, not just
-more evidence on already-covered controls).
-
-**EE HIPAA §164.312 Technical Safeguards substrate-evidence coverage (NEW EE 0.9.0):**
-7 covered sub-criteria (§164.312(a)(1) Access Control, (a)(2)(i) Unique User ID,
-(a)(2)(iv) Encryption-at-rest, (b) Audit Controls, (d) Person/Entity Auth, (e)(1)
-Transmission Security, (e)(2)(ii) Transmission Encryption) + 3 partial (§164.312(c)(1)
-Integrity — ransomware-defense substrate via Logically Air-Gapped Backup Vault
-cross-verification, (c)(2) Mechanism to Authenticate ePHI, (e)(2)(i) Transmission
-Integrity Controls) + 45 OOS (2 within-§164.312 + entire §164.308 Administrative
-Safeguards [31 specs: workforce training, BAAs, contingency planning, etc.] + entire
-§164.310 Physical Safeguards [12 specs: facility access, workstation security, device
-disposal]). The §164.308 + §164.310 OOS sets are *architecturally* OOS for any
-infrastructure scanner — pair with HIPAA-focused GRC platforms (Drata HIPAA, Vanta HIPAA,
-Compliancy Group, Tugboat Logic) for those families. HHS Required vs Addressable
-discipline surfaced per control. **Zero BAA required** — Zero Data Exfiltration
-architecture means ePHI never leaves customer infrastructure. Use `--compliance hipaa`,
-`--compliance soc2,hipaa` (CSV; wired since EE 0.3.0), or `--compliance all` (all seven
-frameworks; EE 0.31.4) for HIPAA-only, dual-, or full-framework evidence packs from a
-single scan. 175 mappings inherited from soc2.json's grep-verified
-pattern set with HIPAA-grounded rationales. New `data/compliance/hipaa.json`. New
-`docs/hipaa-coverage.md`. **EE regression: 5890/5890 across 928 suites; 69-session
-100% green streak preserved.** AWS-dogfood verified against operator's test account
-(207 findings, per-framework citation map confirmed firing, ransomware-substrate
-surfaces correctly).
-
-Execution order: Discovery (100–150) → Service probes (200–400) → OS Detector (99000) →
-Result Concluder (100000). Plugins with unmet requirements auto-skip.
-
----
+> A per-plugin list used to be duplicated here and drifted: it claimed **18** Enterprise plugins
+> while enumerating **15**, against **28** on disk. One catalog, in `references/plugins.md`.
 
 ## Workflow Recipes
 
@@ -551,12 +406,18 @@ claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
       "args": ["-y", "nsauditor-ai-mcp"],
       "env": {
         "NSA_ALLOW_ALL_HOSTS": "1",
+        "NSA_MCP_AUTH_KEY": "<from: nsauditor-ai mcp install-key>",
         "PLUGIN_TIMEOUT_MS": "5000"
       }
     }
   }
 }
 ```
+
+> ⚠️ **`NSA_MCP_AUTH_KEY` is REQUIRED — the server refuses to start without it.** Generate one with
+> `nsauditor-ai mcp install-key`, then put the SAME value in the `env` block above. Without it the MCP
+> server exits at startup and the client shows the tools as unavailable. (`NSA_MCP_AUTH_DISABLE=1`
+> exists as an escape hatch and warns on stderr; it is not the recommended path.)
 
 **Cursor / Windsurf / VS Code:**
 Add to your MCP configuration with the same command/args pattern.

@@ -98,11 +98,16 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
        "nsauditor-ai": {
          "command": "npx",
          "args": ["-y", "nsauditor-ai-mcp"],
-         "env": { "NSA_ALLOW_ALL_HOSTS": "1" }
+         "env": { "NSA_ALLOW_ALL_HOSTS": "1", "NSA_MCP_AUTH_KEY": "<from: nsauditor-ai mcp install-key>" }
        }
      }
    }
    ```
+
+> ⚠️ **`NSA_MCP_AUTH_KEY` is REQUIRED — the server refuses to start without it.** Generate one with
+> `nsauditor-ai mcp install-key`, then put the SAME value in the `env` block above. Without it the MCP
+> server exits at startup and the client shows the tools as unavailable. (`NSA_MCP_AUTH_DISABLE=1`
+> exists as an escape hatch and warns on stderr; it is not the recommended path.)
 
 ## Editions
 
