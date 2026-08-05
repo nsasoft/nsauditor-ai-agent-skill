@@ -10,12 +10,12 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 The Verification Engine was **withdrawn at EE 0.32.7**. This package went on presenting it as a shipped pipeline phase for four releases:
 
-- `SKILL.md` showed *"Phase 4: VERIFICATION (Pro) — For each finding: run SAFE non-destructive verification probe"* as a phase that runs.
-- `references/schemas.md` glossed `VERIFIED` as *"Active safe probe confirmed the vulnerability."*
-- A safety bullet asserted *"All verification probes are safe read-only queries."*
-- **The pricing table sold "verification probes" as a Pro feature.**
+- `SKILL.md` showed WITHDRAWN Phase-4 text — *"For each finding: run SAFE non-destructive verification probe"* — as a phase that runs.
+- `references/schemas.md` glossed `VERIFIED` with the WITHDRAWN wording *"Active safe probe confirmed the vulnerability."*
+- A safety bullet asserted the WITHDRAWN claim *"All verification probes are safe read-only queries."*
+- **The pricing table sold the WITHDRAWN "verification probes" as a Pro feature.**
 
-All four are corrected. The status ENUM stays — the field and its risk-weighting scaffolding are real, which is why the schema documents them — but the gloss describing an active probe is gone, and every finding is now stated to be emitted `UNVERIFIED`. `Phase 4` remains in the diagram, labelled **planned, not shipped**, so the pipeline's shape stays legible without claiming the phase runs.
+All four are corrected. The status ENUM stays — the field and its risk-weighting scaffolding are real, which is why the schema documents them — but the gloss describing an active probe is WITHDRAWN, and every finding is now stated to be emitted `UNVERIFIED`. `Phase 4` remains in the diagram, labelled **planned, not shipped**, so the pipeline's shape stays legible without claiming the phase runs.
 
 **Why nothing caught it.** The withdrawal was executed as a capability-FLAG removal plus README edits, so the *wording* was never patterned — and `gate:claims` sweeps web document roots while the honesty test is scoped to six hand-listed docs. This package is a third repo, published with every trio, outside both. It was found by a reader during the Gate-3 battery, not by any matcher.
 
@@ -39,7 +39,7 @@ Paired EE 0.32.9 highlights: the evidence pack no longer carries internal roadma
 
 ## 0.2.31 (2026-07-28) — paired content bump for EE 0.32.8 (capability-claim honesty pass, part 2: the air-gapped-delivery class)
 
-- **Two corrections in this package's own tier tables — both were overclaims this skill would otherwise teach an agent to repeat.** `SKILL.md` line 524 listed **"RFC 3161 timestamps"** unhedged among shipping Enterprise capabilities; RFC 3161 timestamping is *implemented but not yet wired to a flag*, so the row now says so explicitly and directs readers not to quote it as shipping. **SHA-256 chain-of-custody is the layer that ships.** Both `SKILL.md` and `README.md` also said **"air-gapped deployment"**, which implied a delivery mechanism that does not exist; both now say **"air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`)"**.
+- **Two corrections in this package's own tier tables — both were overclaims this skill would otherwise teach an agent to repeat.** `SKILL.md` line 524 listed **"RFC 3161 timestamps"** unhedged among shipping Enterprise capabilities; RFC 3161 timestamping is *implemented but not yet wired to a flag*, so the row now says so explicitly and directs readers not to quote it as shipping. **SHA-256 chain-of-custody is the layer that ships.** Both `SKILL.md` and `README.md` also said the now-WITHDRAWN **"air-gapped deployment"**, which implied a delivery mechanism that does not exist; both now say **"air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`)"**.
 - Version line updated to post-EE-0.32.8. Enterprise 0.32.8 is a documentation-and-prose release: **27 withdrawn-claim sites** (distinct lines) across the three published packages, each verified against the code — an arm64 image (the build forces `--platform linux/amd64`), offline-installable tarballs (an `npm pack` tarball still resolves its dependencies from a registry), monthly NVD feed bundles (nothing produces one), an air-gapped installation script (none exists in the tree), a `feed import` CLI command (`importFeed()` has zero non-test callers), and CE's absolute "every feature works without internet access". **Five of the sites were rendered runtime strings, not documentation** — coverage-gap rationales that render verbatim into the assessor-facing evidence pack and named a command that does not exist.
 - No MCP tool, plugin, schema or workflow change. `references/plugins.md` UNCHANGED. Plugin count UNCHANGED at 28; all seven coverage matrices UNCHANGED.
 
