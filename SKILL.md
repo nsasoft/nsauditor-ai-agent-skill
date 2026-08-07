@@ -430,7 +430,7 @@ Add to your MCP configuration with the same command/args pattern.
 |---------|-------|-------------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, CTEM, SARIF, scan history |
 | **Pro** | $49/mo | + CVE matching, risk scoring, analysis agents, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 28 cloud-substrate auditor plugins (1020-1222 range) covering AWS / GCP / Azure against seven frameworks (SOC 2 10 covered + 4 partial; HIPAA; NIST CSF 2.0; PCI DSS v4.0.1; ISO/IEC 27001:2022; CIS Controls v8; GDPR Art. 32 infrastructure substrate); Zero Trust; SOC 2 evidence-pack generation; SHA-256 chain-of-custody attestations (RFC 3161 timestamping is implemented but not yet wired to a flag — do not quote it as shipping); air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`) |
+| **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors covering AWS / GCP / Azure plus the cross-cloud Zero Trust posture check (`1023`, which declares no cloud provider and so is selected explicitly rather than auto-scoped onto a cloud host) — against seven frameworks (SOC 2 10 covered + 4 partial; HIPAA; NIST CSF 2.0; PCI DSS v4.0.1; ISO/IEC 27001:2022; CIS Controls v8; GDPR Art. 32 infrastructure substrate); SOC 2 evidence-pack generation; SHA-256 chain-of-custody attestations (RFC 3161 timestamping is implemented but not yet wired to a flag — do not quote it as shipping); air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
 
