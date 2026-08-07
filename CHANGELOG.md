@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.36 (2026-08-07) — the opt-in RFC 3161 wording corrected: a hedge that had outlived its measurement
+
+`SKILL.md` described RFC 3161 timestamping as *"implemented but not yet wired to a flag — do
+not quote it as shipping"*. EE 0.33.0 wired it via `NSAUDITOR_TSA_URL`, and on 2026-08-07 the
+live smoke exercised it against a real Time-Stamp Authority through the published binary
+(`openssl ts -verify` returning OK, with a one-byte-mutated copy returning FAILED as the
+control). The sentence had been false for a full release, and because this file is
+instruction material for AI agents it did not merely sit there — a live Claude Desktop reply
+repeated it downstream, which is how it was found.
+
+The row now states what is true: opt-in via `NSAUDITOR_TSA_URL`, no CLI flag and no default,
+an outbound call to the Time-Stamp Authority you name, and **not yet verified inside the
+Marketplace container image** — the one residual that is still genuinely unproven.
+
+No behaviour change; wording only. Paired with the EE-side renderer correction on the same
+root cause.
+
+---
+
 ## 0.2.35 (2026-08-07) — paired with EE 0.33.0 · requires CE ≥ 0.2.37
 
 Three new CE entry points to teach: `compliance attest` (Type II recurring-scan attestation;
