@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.35 (2026-08-07) — paired with EE 0.33.0 · requires CE ≥ 0.2.37
+
+Three new CE entry points to teach: `compliance attest` (Type II recurring-scan attestation;
+exit 3 on an empty history, because absence of evidence is the finding), plus `--sla-policy`
+and `--compliance-history`. A startup posture veto refuses an offline-plus-egress
+contradiction with exit 2.
+
+Two corrections to this package's own prose:
+
+- The `compliance_check` disclosure in `SKILL.md` now carries the **WITHDRAWN** marker in the
+  same sentence. An absence guard cannot tell a disclosure from the thing it discloses, and
+  the sentence whose whole job is to say the tool does not exist was being read as a claim.
+- The Enterprise row no longer calls plugin **1023** a cloud auditor. Measured by driving the
+  CLI: it scores zero-trust posture from a **network-host** scan, never runs on a cloud pass,
+  and cannot be invoked with `--plugins 1023` — it needs a discovery plugin to confirm the
+  host is up first, so selecting it alone removes its own precondition.
+
+Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.
+
 ## 0.2.34 (2026-08-05) — Paired with EE 0.32.11 · a withdrawn capability, and SEVEN MCP tools that do not exist
 
 ### The tools that were never there
