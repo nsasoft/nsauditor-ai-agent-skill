@@ -16,9 +16,10 @@ repeated it downstream, which is how it was found.
 
 The row now states what is true: opt-in via `NSAUDITOR_TSA_URL`, no CLI flag and no default,
 an outbound call to the Time-Stamp Authority you name, and exercised against a live authority
-on the npm path. The `:0.33.0` Marketplace image carries the capability too, gate-verified at
-build; **the live round-trip from inside that image is not yet exercised** — the one residual
-that is still genuinely unproven, and it is narrower than "unverified in the container".
+on the npm path. ⚠️ **Superseded within the day:** the in-container live round-trip was then
+run too, from inside the pushed `:0.33.0` image, so BOTH delivery vehicles are proven end to
+end. The only container caveat that survives is version scope — retained images at `:0.32.11`
+and earlier carry no `openssl` and nothing here speaks for them.
 
 No behaviour change; wording only. Paired with the EE-side renderer correction on the same
 root cause.
