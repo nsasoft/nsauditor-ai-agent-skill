@@ -222,6 +222,16 @@ mapping the engine did not emit, and never claim an MCP call produced a pack.
 
 ---
 
+### Suppressions — the workflow SHIPS, the signature does NOT (post EE 0.33.1)
+
+An operator can mark a finding as accepted-risk or false-positive. That suppression workflow **ships and is reachable**: a suppressed finding renders with status `FALSE_POSITIVE`, set by an operator rather than by a probe, and the suppression is applied before the pack is written — so it sits **inside** the hashed artifact rather than being independently attested.
+
+⚠️ **Ed25519 SIGNING of suppressions is implemented in the package but NOT REACHABLE — no shipped entry point signs a suppression, so no first-party run produces a signed one.** The signer backends and the frozen `algorithm` / `backend` record fields are groundwork, deliberately landed before reachability because retrofitting algorithm agility once signatures exist in customer archives would break every auditor holding one. Setting `NSAUDITOR_SIGNING_KEY` changes nothing today, because nothing calls the signer.
+
+**Never tell an operator their suppressions are cryptographically signed** — not even in the softer form "signed once you configure a key". If asked what the SHA-256 chain-of-custody covers: it proves the pack was not altered after generation. It does **not** attest who suppressed a finding, when, or with what justification, and an assessor asking about suppressions usually wants the second thing.
+
+⚠️ **Disambiguation:** "suppression" also appears in this package in the unrelated **AWS SES email suppression list** sense (plugin 1190). They are different subjects; check which one is being asked about.
+
 ## Five-Phase Pipeline Architecture
 
 NSAuditor AI follows an institutional five-phase pipeline:
