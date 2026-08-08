@@ -15,8 +15,10 @@ instruction material for AI agents it did not merely sit there — a live Claude
 repeated it downstream, which is how it was found.
 
 The row now states what is true: opt-in via `NSAUDITOR_TSA_URL`, no CLI flag and no default,
-an outbound call to the Time-Stamp Authority you name, and **not yet verified inside the
-Marketplace container image** — the one residual that is still genuinely unproven.
+an outbound call to the Time-Stamp Authority you name, and exercised against a live authority
+on the npm path. The `:0.33.0` Marketplace image carries the capability too, gate-verified at
+build; **the live round-trip from inside that image is not yet exercised** — the one residual
+that is still genuinely unproven, and it is narrower than "unverified in the container".
 
 No behaviour change; wording only. Paired with the EE-side renderer correction on the same
 root cause.
