@@ -4,6 +4,28 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.37 (2026-08-10) — post-EE-0.34.0: teach exploit intelligence, and stop teaching a risk-score formula the code never used
+
+Enterprise findings carrying CVEs are joined by CVE-ID against a local **CISA KEV** catalog and a
+local **FIRST EPSS** scores file, banded `KNOWN_EXPLOITED` / `ELEVATED` / `BASELINE`, with the
+finding queue ordered exploit-first.
+
+Two things an agent must get right when it explains this:
+
+1. **No feed data ships with the product.** Both stores are operator-populated via
+   `NSAUDITOR_EXPLOIT_KEV_STORE` / `NSAUDITOR_EXPLOIT_EPSS_STORE` — the same rule as the offline
+   NVD store — and both fail closed when stale (KEV 14-day / EPSS 10-day windows), so an
+   out-of-date catalog never reports "not exploited". Never describe the feeds as included.
+2. **`riskScore` is unchanged.** `exploitPriority` is a new axis beside it, not a re-weighting.
+
+Corrected in this package's own prose: the risk score is **CVSS weighted by verification status
+with an initial-access uplift**, not "severity x exploitability x impact x exposure" — that
+phrasing named an exploitability input that did not exist until EE 0.34.0.
+
+Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.
+
+---
+
 ## 0.2.36 (2026-08-07) — the opt-in RFC 3161 wording corrected: a hedge that had outlived its measurement
 
 `SKILL.md` described RFC 3161 timestamping as *"implemented but not yet wired to a flag — do
