@@ -4,6 +4,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.38 (2026-08-12) — post-EE-0.35.0: the suppression-approval commands are reachable
+
+Paired with EE 0.35.0 / CE 0.2.40. Four Enterprise commands reach the CLI — `compliance suppress | review | renew | keygen` — so the suppression-approval workflow has an operator entry point for the first time. ⚠️ The skill's own prose is corrected with them: Ed25519 suppression signing was taught as NOT REACHABLE, which this release makes false. It is now **reachable and not yet proven** — the verification gate has not run against published bytes, so a produced signature must never be presented as verified evidence. Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.
+
+
 ## 0.2.37 (2026-08-10) — post-EE-0.34.0: teach exploit intelligence, and stop teaching a risk-score formula the code never used
 
 Enterprise findings carrying CVEs are joined by CVE-ID against a local **CISA KEV** catalog and a
