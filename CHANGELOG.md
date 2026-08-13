@@ -4,6 +4,19 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.39 (2026-08-13) — post-EE 0.36.0: the report verifies the signatures it renders
+
+**Requires CE >= 0.2.40** (unchanged — nothing this cycle needs new CE code).
+
+Enterprise 0.36.0 makes every compliance report cryptographically verify each suppression signature — the Ed25519 suppression-signing capability this exercises stays **not yet proven**, its verification gate not having run against published bytes — writing `report.signatureVerification` beside `identityVerification` in the machine-JSON report. What an agent reading these artifacts must know:
+
+- A **missing** verdict for a suppression means NOT CHECKED, never FAILED. Only `verified: false` is a failure. Do not report an unchecked approval as tampered.
+- `verified` and `cryptoValid` are different questions — should this suppression stand, versus did these bytes come from the named key. They diverge on a revoked key, which is the case that matters.
+- `cryptoValid` is ABSENT when unanswerable and never `false`.
+- `identityVerification.configured` means A REGISTRY IS PRESENT; `signatureVerification.configured` means KEY MATERIAL IS PRESENT. The join of the two is the partial-migration state.
+
+**Ed25519 suppression signing remains reachable and NOT YET PROVEN** — its verification gate has not run against published bytes, so do not describe a produced signature as verified evidence.
+
 ## 0.2.38 (2026-08-12) — post-EE-0.35.0: the suppression-approval commands are reachable
 
 Paired with EE 0.35.0 / CE 0.2.40. Four Enterprise commands reach the CLI — `compliance suppress | review | renew | keygen` — so the suppression-approval workflow has an operator entry point for the first time. ⚠️ The skill's own prose is corrected with them: Ed25519 suppression signing was taught as NOT REACHABLE, which this release makes false. It is now **reachable and not yet proven** — the verification gate has not run against published bytes, so a produced signature must never be presented as verified evidence. Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.
