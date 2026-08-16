@@ -8,7 +8,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 **Requires CE >= 0.2.42** — raised, because the new entry points live in CE.
 
-Enterprise 0.37.0 ships `feed bundle` and `feed import` — commands whose air-gap capability claim is still WITHDRAWN.
+Enterprise 0.37.0 ships `feed bundle` and `feed import` — delivered as a **restricted** distribution, amd64 only.
 They merge NVD feed files downloaded on a connected host into one archive, carry it, and import it
 into the offline store on an isolated host. What an agent working with these artifacts must know:
 
