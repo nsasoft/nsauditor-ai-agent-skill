@@ -23,10 +23,11 @@ into the offline store on an isolated host. What an agent working with these art
 - **Import skips about a quarter of a real NVD year file by design** — withdrawn CVEs and entries
   with no CPE match data. That is not data loss. Malformed records are a different signal and mean
   re-download.
-- **Each of these remains WITHDRAWN at this release**: the offline install tarball is WITHDRAWN, the
-  install script is WITHDRAWN, the feed-import CLI claim is WITHDRAWN, air-gapped deployment is
-  WITHDRAWN, and arm64 images are WITHDRAWN. The commands exist; the claims turn on a gate result
-  against built artifacts, not on the code existing.
+- **The air-gap delivery claims are EARNED BACK at this release** — offline installation tarball,
+  install script, feed-import CLI and air-gapped deployment. Teach them WITH their conditions, which
+  are part of the claim: the bundle is a **restricted** distribution (not a public `npm install`) and
+  it is **amd64** only. **arm64 images remain WITHDRAWN**, so never describe an arm64 enclave as
+  supported.
 
 ---
 
