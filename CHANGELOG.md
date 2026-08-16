@@ -4,6 +4,32 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.40 (2026-08-15) — post-EE 0.37.0: offline CVE data can be hand-carried
+
+**Requires CE >= 0.2.42** — raised, because the new entry points live in CE.
+
+Enterprise 0.37.0 ships `feed bundle` and `feed import` — commands whose air-gap capability claim is still WITHDRAWN.
+They merge NVD feed files downloaded on a connected host into one archive, carry it, and import it
+into the offline store on an isolated host. What an agent working with these artifacts must know:
+
+- **`feed bundle` bundles the FEEDS YOU DOWNLOADED, never "your database".** The offline store is a
+  lossy derivation of an NVD feed and cannot be turned back into one. Do not describe this as a
+  store export, and do not tell an operator it will back up their store.
+- **No KEV or EPSS data ships with the product.** `--kev` / `--epss` carry the operator's own
+  downloads from CISA and FIRST. "Exploit intelligence ships with NSAuditor" is wrong.
+- **A bundle is integrity-checked, not authenticated.** The recorded SHA-256 detects alteration in
+  transit; it cannot establish authorship, because it travels inside the archive it covers. Never
+  describe an imported bundle as trusted or verified-as-genuine.
+- **Import skips about a quarter of a real NVD year file by design** — withdrawn CVEs and entries
+  with no CPE match data. That is not data loss. Malformed records are a different signal and mean
+  re-download.
+- **Each of these remains WITHDRAWN at this release**: the offline install tarball is WITHDRAWN, the
+  install script is WITHDRAWN, the feed-import CLI claim is WITHDRAWN, air-gapped deployment is
+  WITHDRAWN, and arm64 images are WITHDRAWN. The commands exist; the claims turn on a gate result
+  against built artifacts, not on the code existing.
+
+---
+
 ## 0.2.39 (2026-08-13) — post-EE 0.36.0: the report verifies the signatures it renders
 
 **Requires CE >= 0.2.40** (unchanged — nothing this cycle needs new CE code).

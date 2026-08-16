@@ -18,9 +18,13 @@ environment setting behind them.
 ⚠️ **What the skill must teach accurately about this release, because it is easy to overstate:**
 `NSAUDITOR_SIGNING_KEY` is not a new variable — it existed and was inert. As of Enterprise 0.35.0
 it is **CONSUMED**: `compliance suppress` signs the approval it writes when the variable names a
-local Ed25519 key — a capability that is **reachable and not yet proven**, because its verification
-gate has not run against published bytes — so an agent must never present a produced signature as verified
-evidence, and must never use the bare word "signed" without that qualifier. The commands are
+local Ed25519 key — reachable, and PROVEN as of EE 0.36.0 per approver holding key material.
+Its verification
+gate ran against the published bytes and passed, with a length-preserving tamper rendering
+`signature FAILED verification` as the negative control. An agent may describe a produced signature
+as verified evidence **for approvers whose registry entry carries key material** — for a
+fingerprint-only entry a report reads `not checked by this report`, which records that no check ran
+and never that one failed, and must not be reported as tampering. The commands are
 **CLI-only**; no MCP tool reaches them, so an agent asked to record an approval must shell out
 rather than look for a tool.
 
@@ -132,7 +136,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 |---------|-------|-----------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
 | **Pro** | $49/mo | + CVE matching, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
-| **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, seven-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, not yet proven), air-gapped operation (offline licensing + offline CVE matching) |
+| **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, seven-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, proven 0.36.0, verified per approver holding key material), air-gapped operation (offline licensing + offline CVE matching) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
 
