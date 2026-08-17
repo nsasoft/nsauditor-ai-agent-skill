@@ -11,9 +11,23 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.38** — paired with **Enterprise 0.35.0 / Community 0.2.40**. Teaches the four new
-suppression-approval commands (`compliance suppress | review | renew | keygen`) and the
-environment setting behind them.
+**0.2.41** — paired with **Enterprise 0.38.0 / Community 0.2.43**. Not yet proven: the two new pack-signing
+commands (`compliance sign-pack | verify-pack`) — reachable, **not yet** proven by the gate that runs
+against published bytes — and the exact scope of what a verified pack signature does and does not
+establish.
+
+⚠️ **What the skill must teach accurately about THIS release, because it is the claim most easily
+overstated:** a verified signature proves the holder of a key asserted authorship of **one
+framework's** chain-of-custody envelope at a stated time, **relative to operator key custody**. It
+is never a vendor attestation, never proof the scan ran, and never proof the findings are true. It
+covers that envelope plus the four artifacts it enumerates — **not the directory and not the pack**;
+a seven-framework pack holds 74 files and no object in it enumerates the set. `verify-pack` also
+recomputes every enumerated artifact hash against disk, so an edited report fails while the
+signature itself still reads VERIFIED. And exit **2** means the run could not measure — an unsigned
+pack, an unsupplied key or a registry member with no key material — which an agent must never
+report as a verification failure.
+
+*(The suppression-approval material below is retained; it remains accurate.)*
 
 ⚠️ **What the skill must teach accurately about this release, because it is easy to overstate:**
 `NSAUDITOR_SIGNING_KEY` is not a new variable — it existed and was inert. As of Enterprise 0.35.0

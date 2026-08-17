@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.41 (2026-08-17) — post-EE 0.38.0: the evidence pack can be signed
+
+**Requires CE >= 0.2.43** — both new verbs are routed from CE.
+
+Enterprise 0.38.0 ships `compliance sign-pack` and `compliance verify-pack` — reachable, **not yet** proven. The skill teaches the
+scope precisely, because this is the claim most easily overstated: a verified signature proves the
+holder of a key asserted authorship of **one framework's** chain-of-custody envelope at a stated
+time, relative to **operator** key custody. It is never a vendor attestation, never proof the scan
+ran, and never proof the findings are true — and it covers that envelope plus the four artifacts it
+enumerates, not the directory and not the pack.
+
+Also taught: `verify-pack` recomputes every enumerated artifact hash as well as checking the
+signature (so an edited report fails while the signature still reads VERIFIED); the two trust
+anchors and what the `--public-key` arm discloses it skipped; and the exit contract, where **2**
+means the run could not measure and is never a failure.
+
+Correction carried from EE: a **gzipped** KEV/EPSS store loaded with zero entries, so exploit
+banding reported *no store* rather than a band. Misdiagnosis, not a false security verdict.
+
 ## 0.2.40 (2026-08-15) — post-EE 0.37.0: offline CVE data can be hand-carried
 
 **Requires CE >= 0.2.42** — raised, because the new entry points live in CE.
