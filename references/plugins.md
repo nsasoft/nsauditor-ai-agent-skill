@@ -126,7 +126,13 @@ LLMNR poisoning risk).
 
 ---
 
-## Pro Plugins (3)
+## Local-Surface Plugins (1)
+
+| ID | Name | Protocol | Purpose |
+|----|------|----------|---------|
+| 070 | MCP Scanner | local | Detects Model Context Protocol servers reachable from the host and audits their exposure. Community tier; requires host: up. |
+
+## Deep-Audit Plugins (3) — Community tier
 
 | ID | Name | Ports | Purpose |
 |----|------|-------|---------|
@@ -134,7 +140,7 @@ LLMNR poisoning risk).
 | 050 | TRIBE v2 Probe | 80, 443 | Detect debug info leaks, stack traces, verbose errors, CORS misconfig |
 | 060 | DNS Security Auditor | 53 | SPF/DKIM/DMARC validation, DNSSEC, zone transfer, MX security, CAA |
 
-### Pro Plugin Details
+### Deep-Audit Plugin Details
 
 **040 — TLS Certificate & Cipher Auditor:** Goes beyond the basic TLS Scanner (011)
 with full certificate chain validation, expiration warnings, and a comprehensive weak

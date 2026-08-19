@@ -1,6 +1,6 @@
 {
   "name": "nsauditor-ai-agent-skill",
-  "version": "0.2.41",
+  "version": "0.2.42",
   "description": "AI Agent Skill for NSAuditor AI — gives any AI coding agent built-in knowledge of NSAuditor's MCP tools, schemas, plugins, and security audit workflows.",
   "keywords": [
     "nsauditor",
@@ -48,7 +48,7 @@
     "examples/"
   ],
   "peerDependencies": {
-    "nsauditor-ai": ">=0.1.40"
+    "nsauditor-ai": ">=0.2.43"
   },
   "peerDependenciesMeta": {
     "nsauditor-ai": {

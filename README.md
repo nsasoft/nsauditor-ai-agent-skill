@@ -11,17 +11,24 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.41** — paired with **Enterprise 0.38.0 / Community 0.2.43**. Not yet proven: the two new pack-signing
-commands (`compliance sign-pack | verify-pack`) — reachable, **not yet** proven by the gate that runs
-against published bytes — and the exact scope of what a verified pack signature does and does not
-establish.
+**0.2.42** — paired with **Enterprise 0.39.0 / Community 0.2.44**. Coverage honesty: every GCP and Azure
+plugin now declares what it does NOT evaluate, so `deferredScope` must be taught as a **per-plugin static
+capability boundary** — not an evidence gap, not a finding, routing to zero compliance controls — and an
+empty or short list is **never** a claim of full coverage.
+
+⚠️ **Correcting this section's own prior text.** It called the sign-pack and verify-pack commands
+*"reachable, not yet proven"*, which was true when written and became false on 2026-08-17, when the
+published-bytes gate ran against the EE 0.38.0 registry bytes and passed. So the capability is now
+PROVEN for an operator-held key over one framework's envelope and the artifacts it enumerates, never
+a vendor attestation. That scope bound is permanent and did not move.
 
 ⚠️ **What the skill must teach accurately about THIS release, because it is the claim most easily
 overstated:** a verified signature proves the holder of a key asserted authorship of **one
 framework's** chain-of-custody envelope at a stated time, **relative to operator key custody**. It
 is never a vendor attestation, never proof the scan ran, and never proof the findings are true. It
 covers that envelope plus the four artifacts it enumerates — **not the directory and not the pack**;
-a seven-framework pack holds 74 files and no object in it enumerates the set. `verify-pack` also
+a seven-framework pack holds ten files per framework plus the scan-level output, and no object in
+it enumerates the set. `verify-pack` also
 recomputes every enumerated artifact hash against disk, so an edited report fails while the
 signature itself still reads VERIFIED. And exit **2** means the run could not measure — an unsigned
 pack, an unsupplied key or a registry member with no key material — which an agent must never
@@ -52,7 +59,7 @@ nsauditor-ai-agent-skill/
 ├── references/
 │   ├── workflows.md                  # Multi-step workflow recipes (full audit, CI/CD, CTEM)
 │   ├── schemas.md                    # Complete data structures (scan results, CVEs, findings)
-│   └── plugins.md                    # Full plugin catalog (55 scanners with ports & protocols — 27 Community incl. 3 Pro + 28 Enterprise)
+│   └── plugins.md                    # Full plugin catalog (55 scanners with ports & protocols — 27 Community + 28 Enterprise)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
 ├── package.json
@@ -109,7 +116,7 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 55 scanner plugins (27 Community incl. 3 Pro + 28 Enterprise) with protocols, ports, capabilities, and seven-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32) substrate-evidence dimensions |
+| **Plugin awareness** | 55 scanner plugins (27 Community + 28 Enterprise) with protocols, ports, capabilities, and seven-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32) substrate-evidence dimensions |
 | **Compliance frameworks** | **Seven frameworks, one scan** — SOC 2 (AICPA TSC 2017) · HIPAA Security Rule §164.312 Technical Safeguards (HHS Required/Addressable discipline per control) · NIST CSF 2.0 (Subcategory-level) · PCI DSS v4.0.1 (QSA RoC sub-requirement-level) · ISO/IEC 27001:2022 (per-Annex-A-code, SoA discipline) · CIS Controls v8 (per-Safeguard; Implementation Group IG1/IG2/IG3 cumulative discipline) · GDPR Article 32 (sub-measure-level; **Art. 32 infrastructure substrate only, NOT GDPR compliance**). All seven via `--compliance all`, or any CSV subset via `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
@@ -149,7 +156,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 | Edition | Price | Highlights |
 |---------|-------|-----------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
-| **Pro** | $49/mo | + CVE matching, risk scoring, 3 Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
+| **Pro** | $49/mo | + CVE matching, risk scoring, and intelligence-enriched AI prompts (CVE + MITRE ATT&CK context injected) |
 | **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, seven-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, proven 0.36.0, verified per approver holding key material), air-gapped operation (offline licensing + offline CVE matching) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)

@@ -4,6 +4,43 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.42 (2026-08-19) — post-EE 0.39.0: teach `deferredScope` as a per-PLUGIN boundary, and correct a stale "not yet proven"
+
+**Requires CE >= 0.2.43 — UNCHANGED.** Enterprise 0.39.0 raises no floor.
+
+Enterprise 0.39.0 gives every GCP and Azure plugin a `details.deferredScope` declaration (1021, 1022,
+1024, 1025, 1220, 1221, 1222), joining the AWS plugins that already had one. The skill teaches four
+things about it, and each is a mis-teaching this package could otherwise ship:
+
+- A declaration is a **static capability boundary**, not an evidence gap and not a finding. It routes
+  to **zero** compliance controls by design. Report it as "not assessed".
+- It is emitted **even over an empty estate**, because "zero findings" is otherwise indistinguishable
+  from "assessed and clean".
+- ⚠️ **An empty or short list is NEVER a claim of full coverage.** Not every plugin declares its
+  boundaries, so the list bounds only what the DECLARING plugins state. This is stated as a per-plugin
+  invariant rather than a provider roster, deliberately: a roster sentence goes stale on the peer's
+  next release, and CE floats over a peer RANGE and cannot derive Enterprise's plugin set.
+- Two AWS declarations (1080, 1130) now emit **once per run** rather than once per region, so the count
+  no longer scales with the estate.
+
+Also taught: GCP impersonation now **refuses** an impersonated client that yields no Authorization
+header — by name, with the target principal — surfacing as `up:false` plus a warning that fires
+scanner-down synthesis. That refusal is the fail-closed design working and must not be taught as a
+regression; what it replaced was silent anonymous requests producing FALSE evidence gaps.
+
+### A correction this package owed, in the underclaim direction
+
+0.2.41 taught that pack signing was *"reachable, not yet proven"*. **True when written, false since
+2026-08-17**, when the published-bytes gate ran against the EE 0.38.0 registry bytes and passed. Every
+"not yet proven" clause about pack signing is corrected here. npm freezes this package's prose at
+publish time, so the correction needed its own release. The **scope** bound did not move and is the
+part to keep repeating: one framework's envelope and the artifacts it enumerates, an operator-held
+key, never a vendor attestation, never proof the scan ran.
+
+Plugin catalog UNCHANGED at 28 EE / 55 overall; all seven matrices UNCHANGED.
+
+---
+
 ## 0.2.41 (2026-08-17) — post-EE 0.38.0: the evidence pack can be signed
 
 **Requires CE >= 0.2.43** — both new verbs are routed from CE.
