@@ -27,7 +27,7 @@ overstated:** a verified signature proves the holder of a key asserted authorshi
 framework's** chain-of-custody envelope at a stated time, **relative to operator key custody**. It
 is never a vendor attestation, never proof the scan ran, and never proof the findings are true. It
 covers that envelope plus the four artifacts it enumerates — **not the directory and not the pack**;
-a seven-framework pack holds ten files per framework plus the scan-level output, and no object in
+a multi-framework pack holds ten files per framework plus the scan-level output, and no object in
 it enumerates the set. `verify-pack` also
 recomputes every enumerated artifact hash against disk, so an edited report fails while the
 signature itself still reads VERIFIED. And exit **2** means the run could not measure — an unsigned
@@ -116,8 +116,8 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 55 scanner plugins (27 Community + 28 Enterprise) with protocols, ports, capabilities, and seven-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32) substrate-evidence dimensions |
-| **Compliance frameworks** | **Seven frameworks, one scan** — SOC 2 (AICPA TSC 2017) · HIPAA Security Rule §164.312 Technical Safeguards (HHS Required/Addressable discipline per control) · NIST CSF 2.0 (Subcategory-level) · PCI DSS v4.0.1 (QSA RoC sub-requirement-level) · ISO/IEC 27001:2022 (per-Annex-A-code, SoA discipline) · CIS Controls v8 (per-Safeguard; Implementation Group IG1/IG2/IG3 cumulative discipline) · GDPR Article 32 (sub-measure-level; **Art. 32 infrastructure substrate only, NOT GDPR compliance**). All seven via `--compliance all`, or any CSV subset via `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
+| **Plugin awareness** | 55 scanner plugins (27 Community + 28 Enterprise) with protocols, ports, capabilities, and multi-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32 · NIST SP 800-171 Rev 2) substrate-evidence dimensions |
+| **Compliance frameworks** | **Eight frameworks, one scan** — SOC 2 (AICPA TSC 2017) · HIPAA Security Rule §164.312 Technical Safeguards (HHS Required/Addressable discipline per control) · NIST CSF 2.0 (Subcategory-level) · PCI DSS v4.0.1 (QSA RoC sub-requirement-level) · ISO/IEC 27001:2022 (per-Annex-A-code, SoA discipline) · CIS Controls v8 (per-Safeguard; Implementation Group IG1/IG2/IG3 cumulative discipline) · GDPR Article 32 (sub-measure-level; **Art. 32 infrastructure substrate only, NOT GDPR compliance**) · NIST SP 800-171 Rev 2 (requirement-level for the matrix, SP 800-171A determination-statement level for evidence; **examine-method evidence substrate for CMMC Level 2 preparation — never a CMMC certification and never a MET/NOT MET verdict**). All via `--compliance all`, or any CSV subset via `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr,nist-800-171`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |
@@ -157,7 +157,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 |---------|-------|-----------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
 | **Pro** | $49/mo | + CVE matching, risk scoring, and intelligence-enriched AI prompts (CVE + MITRE ATT&CK context injected) |
-| **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, seven-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, proven 0.36.0, verified per approver holding key material), air-gapped operation (offline licensing + offline CVE matching) |
+| **Enterprise** | $2k+/yr | + 28 enterprise plugins (1020-1222 range) — 27 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, multi-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32 / NIST SP 800-171 Rev 2), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, proven 0.36.0, verified per approver holding key material), air-gapped operation (offline licensing + offline CVE matching) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
 
