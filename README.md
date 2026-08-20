@@ -11,7 +11,17 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.42** — paired with **Enterprise 0.39.0 / Community 0.2.44**. Coverage honesty: every GCP and Azure
+**0.2.43** — paired with **Enterprise 0.40.0 / Community 0.2.45**. The eighth compliance framework:
+**NIST SP 800-171 Rev 2**, taught as **evidence substrate for CMMC Level 2 preparation**. ⚠️ **Requires
+Community >= 0.2.45** — a real floor bump: the framework stem is registered in CE, and an older CE
+rejects the name outright. What the agent must refuse to say is part of the skill, not a footnote:
+**never a CMMC certification, never a FedRAMP authorization, never a MET / NOT MET determination, and
+never an SPRS score** — each is a C3PAO's determination. Rev 2 is pinned because CMMC assesses Rev 2 by
+rule; Rev 3 is a different 97-requirement universe, and answering a Rev 3 question with Rev 2 output is
+drift. CUI scope stays the operator's assertion — the scanner cannot see CUI, cannot tell FCI from CUI,
+and cannot see an enclave boundary.
+
+**Prior: 0.2.42** — paired with Enterprise 0.39.0 / Community 0.2.44. Coverage honesty: every GCP and Azure
 plugin now declares what it does NOT evaluate, so `deferredScope` must be taught as a **per-plugin static
 capability boundary** — not an evidence gap, not a finding, routing to zero compliance controls — and an
 empty or short list is **never** a claim of full coverage.
