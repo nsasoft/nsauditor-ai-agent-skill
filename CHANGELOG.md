@@ -4,6 +4,34 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.43 (2026-08-20) — post-EE 0.40.0: the EIGHTH framework, and the words the skill must never use
+
+**Requires CE >= 0.2.45 — RAISED.** Enterprise 0.40.0 registers `nist-800-171`, and CE 0.2.44 does
+NOT carry the stem: a 0.40.0 Enterprise paired with an older CE rejects the framework name. This is
+the one floor-raising entry in this cycle, and the floor is derived from the version that SHIPS the
+stem, not from whatever the sibling working tree happened to read.
+
+Enterprise 0.40.0 adds **NIST SP 800-171 Rev 2** as the eighth compliance framework, scoped as
+**evidence substrate for CMMC Level 2 preparation**. What the skill must teach, and what it must
+refuse to say:
+
+- `--compliance nist-800-171` is available alongside the other seven; all eight route from a single
+  scan.
+- All 110 Rev 2 requirements are enumerated with a written reason each — no declared subset.
+- Coverage is claimed at the **SP 800-171A determination-statement (objective) level**, which is why
+  only two requirements are `covered`: a requirement clears that bar only when EVERY objective is a
+  statement of technical state the scan reads directly.
+- **Rev 2 is pinned.** CMMC assesses Rev 2 by rule; Rev 3 is a different 97-requirement universe with
+  organization-defined parameters, and answering a Rev 3 question with Rev 2 output is drift.
+- ⚠️ **NEVER tell a user the output is a CMMC certification, a FedRAMP authorization, a MET / NOT MET
+  determination, or an SPRS score.** It is none of those. Each is a C3PAO's determination, and a
+  misrepresented 800-171 posture is the shape the DOJ Civil Cyber-Fraud Initiative settles — which is
+  why this is a refusal rule for the agent, not a style note.
+- CUI scope is the operator's assertion. The scanner cannot see CUI, cannot distinguish FCI from CUI,
+  and cannot see an enclave boundary.
+
+---
+
 ## 0.2.42 (2026-08-19) — post-EE 0.39.0: teach `deferredScope` as a per-PLUGIN boundary, and correct a stale "not yet proven"
 
 **Requires CE >= 0.2.43 — UNCHANGED.** Enterprise 0.39.0 raises no floor.
