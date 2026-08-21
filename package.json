@@ -48,7 +48,7 @@
     "examples/"
   ],
   "peerDependencies": {
-    "nsauditor-ai": ">=0.2.43"
+    "nsauditor-ai": ">=0.2.45"
   },
   "peerDependenciesMeta": {
     "nsauditor-ai": {
