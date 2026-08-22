@@ -83,7 +83,7 @@ Out of scope, with the control ids and the per-group out-of-scope reasons.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `framework` | string | ❌ | `soc2` \| `hipaa` \| `nist-csf` \| `pci-dss` \| `iso-27001` \| `cis-v8` \| `gdpr` \| `all` (default) |
+| `framework` | string | ❌ | `soc2` \| `hipaa` \| `nist-csf` \| `pci-dss` \| `iso-27001` \| `cis-v8` \| `gdpr` \| `nist-800-171` \| `all` (default) |
 
 **ALWAYS call this before stating or tabulating any coverage matrix, and quote what it returns.** Do NOT derive a
 matrix from the plugin inventory, from a scan result, or from documentation — coverage is a property of the shipped
