@@ -4,6 +4,36 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## Unreleased — SKILL.md header corrections (skill version UNCHANGED at 0.2.43)
+
+Three corrections to the header, none of them a knowledge change, recorded here because the
+CHANGELOG is where a record belongs.
+
+1. **The version line read `post-EE-0.40.0` while EE 0.40.1 was live.** The skill's own version is
+   correct and is not moving; what drifted is the EE release it claims currency with. EE 0.40.1 was
+   a prose correction that changed no capability this skill teaches — which is exactly why nothing
+   forced the label to move. A version label that rots on somebody ELSE's release is invisible to
+   every code-triggered review. Second instance in this file; `7146320` fixed the same class when
+   the header still read 0.2.42.
+
+2. **The added pre-publish note bled into live teaching.** It ended mid-paragraph and the
+   eighth-framework content continued in the same block, so the header read as though
+   `--compliance nist-800-171` were part of what the unpublished EE 0.40.2 will carry. It shipped at
+   0.40.0 and is live. Sell-before-ship arriving by punctuation rather than by claim — caused by the
+   note written to prevent that class.
+
+3. **⚠️ AND THE CORRECTIONS THEMSELVES WERE WRITTEN INTO THE WRONG SURFACE.** The fixes for (1) and
+   (2) were made as commentary INSIDE `SKILL.md`: a warning about what the line used to read, a
+   commit hash, and a paragraph on how version labels rot. `SKILL.md` is an agent's INSTRUCTIONS and
+   the first thing Claude Desktop renders — so an agent loading the skill read an incident report
+   about a version label before it read anything about NSAuditor, and a customer saw it in the
+   Skills pane. Repo process commentary does not belong on a surface a customer sees and an agent
+   consumes. 618 characters removed; the operator-facing note is now two sentences telling the agent
+   what to do — do not teach 0.40.2, say it is not released — and the record is here instead.
+
+**The durable rule: a fix and its record are different artifacts.** Writing the record into the
+artifact is how a set of instructions becomes a changelog nobody asked the agent to read.
+
 ## 0.2.43 (2026-08-20) — post-EE 0.40.0: the EIGHTH framework, and the words the skill must never use
 
 **Requires CE >= 0.2.45 — RAISED.** Enterprise 0.40.0 registers `nist-800-171`, and CE 0.2.44 does
