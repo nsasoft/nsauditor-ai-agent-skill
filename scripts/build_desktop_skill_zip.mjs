@@ -91,6 +91,16 @@ if (absent.length) {
  * Bare uses of the word are PRINTED for adjudication, never refused: "live tenant", "NOT live
  * state", "exercised against a live TSA" are all correct, and a rule that killed them would be a
  * false-positive machine nobody would keep.
+ *
+ * ⚠️ STATED LIMIT, AND IT IS THIS RULE'S OWN LESSON POINTED AT ITSELF. The vocabulary below is
+ * THREE adjectives. That narrowness is deliberate — it is what keeps the rule out of false
+ * positives — but it means a FOURTH spelling ("0.40.1, published", "0.40.1, shipping", "0.40.1,
+ * GA") is INVISIBLE until someone adds it, and an incomplete vocabulary costs SILENCE rather than
+ * noise. That asymmetry is exactly how three spellings of this claim got past two hand sweeps.
+ *
+ * SO: GROW THE ALTERNATION AND THE PROBE SET TOGETHER, in the same edit. A word added to
+ * VERSION_LIVENESS without a matching entry in MUST_FIRE is a rule nobody has watched fire, and
+ * this file already refuses to build on exactly that condition — use it.
  */
 const shipped = execFileSync('unzip', ['-p', out, 'SKILL.md'], { cwd: here, encoding: 'utf8' });
 // A version and a liveness adjective separated ONLY by punctuation/space — `(EE 0.40.0, live)`.
