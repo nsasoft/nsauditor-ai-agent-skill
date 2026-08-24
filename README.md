@@ -11,7 +11,11 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.43** — paired with **Enterprise 0.40.1 / Community 0.2.45** (the live trio; EE 0.40.2 is prepared and unpublished, and this skill is unchanged by it). The eighth compliance framework:
+**0.2.44** — paired with **Enterprise 0.40.2 / Community 0.2.46**. New in this release's teaching: a TSA
+rejection is refused instead of being written as a signed sidecar (five named refusal codes; a missing
+`.tsr` beside a `.sha256` means refused, not failed), the TSA policy-OID option works on OpenSSL ≥ 3.0
+hosts, and parenthesised `(Dim N)` internal codes are out of GCP finding prose. Carried forward, the
+eighth compliance framework:
 **NIST SP 800-171 Rev 2**, taught as **evidence substrate for CMMC Level 2 preparation**. ⚠️ **Requires
 Community >= 0.2.45** — a real floor bump: the framework stem is registered in CE, and an older CE
 rejects the name outright. What the agent must refuse to say is part of the skill, not a footnote:

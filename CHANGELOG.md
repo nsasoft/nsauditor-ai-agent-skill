@@ -4,9 +4,34 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## Unreleased — SKILL.md header corrections (skill version UNCHANGED at 0.2.43)
+## 0.2.44 (2026-08-23) — paired with EE 0.40.2: the TSA status gate reaches the skill's teaching
 
-Three corrections to the header, none of them a knowledge change, recorded here because the
+**Requires CE >= 0.2.45 — UNCHANGED.** Paired with **Enterprise 0.40.2 / Community 0.2.46**.
+
+What EE 0.40.2 adds to the taught knowledge, and the skill now teaches:
+
+- **A TSA rejection is refused, never written as evidence.** The response status is read before
+  anything reaches disk; a refusal writes no `.tsr`, leaves a prior success's sidecar byte-identical,
+  and records `signed: false` with one of five reason codes in the chain-of-custody envelope
+  (`artifacts[].tsa.signed` / `.error` is the per-artifact ledger). A missing `.tsr` beside a
+  `.sha256` means REFUSED, not failed. `signed: true` attests protocol status, never cryptography —
+  `openssl ts -verify` remains the adjudicator.
+- **The TSA policy-OID option works on OpenSSL ≥ 3.0 hosts for the first time** — the query flag is
+  attempted as `-tspolicy` with a `-policy` fallback (LibreSSL kept the old spelling; both report a
+  3.x version, so no version table can decide it), and the result carries `tsaPolicyFlagFallback`
+  when the legacy spelling was used. This is the option commercial TSAs require.
+- **Parenthesised `(Dim N)` internal dimension codes are out of GCP finding prose**; bare `Dim N`
+  references remain in some GCP IAM finding text, a census-pinned residual the agent should not
+  report as a new defect.
+
+Plugin catalog UNCHANGED at 28 EE / 55 overall; all eight coverage matrices UNCHANGED.
+
+Also in this release: the header-correction set below — made at 0.2.43 as unreleased edits, shipping
+now with the bump.
+
+### The SKILL.md header corrections (made pre-release at 0.2.43)
+
+Four corrections to the header, none of them a knowledge change, recorded here because the
 CHANGELOG is where a record belongs.
 
 1. **The version line read `post-EE-0.40.0` while EE 0.40.1 was live.** The skill's own version is
