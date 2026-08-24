@@ -77,8 +77,63 @@ if (absent.length) {
 // `total / total` and announced "carries 100% of the skill" — true by construction, impossible to
 // falsify, and therefore not a measurement at all. What IS measurable is the share SKILL.md alone
 // would have delivered, and that is the number an operator needs.
+/**
+ * ⛔ CURRENCY SWEEP OVER THE SHIPPED BYTES — enumerate the vocabulary, do not pattern-match.
+ *
+ * ⚠️ WHY THIS IS CODE AND NOT A HABIT. Three liveness claims were cut from this header by hand in
+ * one session and a FOURTH survived both a reviewer's sweep and mine — `(EE 0.40.0, live)` —
+ * because each sweep grepped for the phrases the previous diff had REMOVED. That is a diff-shaped
+ * check of a reading-shaped property: it verifies what changed, never what the file now says. A
+ * liveness vocabulary is a vocabulary, and a missed spelling costs SILENCE.
+ *
+ * The refusal is narrow on purpose: a liveness adjective ATTACHED TO A VERSION is the defect class,
+ * because it carries a real rot trigger — superseded versions get deprecated at the next publish.
+ * Bare uses of the word are PRINTED for adjudication, never refused: "live tenant", "NOT live
+ * state", "exercised against a live TSA" are all correct, and a rule that killed them would be a
+ * false-positive machine nobody would keep.
+ */
+const shipped = execFileSync('unzip', ['-p', out, 'SKILL.md'], { cwd: here, encoding: 'utf8' });
+// A version and a liveness adjective separated ONLY by punctuation/space — `(EE 0.40.0, live)`.
+// `(?![-\w])` is load-bearing: without it `live-TSA` matches and the rule fires on an honest
+// past-tense record. The window is deliberately tiny; a wide one spans intervening words and
+// invents defects, which this rule did on its first run.
+const VERSION_LIVENESS = /\d+\.\d+\.\d+[\s,;·—-]{1,4}(?:the\s)?(?:live|latest|current)(?![-\w])/gi;
+
+// ⛔ SELF-TEST, BOTH DIRECTIONS, EVERY RUN. A rule that cannot fire is decoration; a rule that
+// fires on honest prose gets deleted by the next maintainer. Both failure modes are real here —
+// the first version of this regex committed the second one.
+const MUST_FIRE = ['**What this release (EE 0.40.0, live) teaches:**', 'EE 0.40.1 — latest'];
+const MUST_NOT_FIRE = [
+  'which EE 0.33.0 falsified and the live-TSA smokes then falsified twice over',
+  'a per-session cache (NOT live state; cleared when the MCP server restarts)',
+  'it was exercised against a live Time-Stamp Authority on BOTH delivery vehicles',
+  'derives the live total and marks each Enterprise plugin',
+];
+for (const probe of MUST_FIRE) {
+  if (!new RegExp(VERSION_LIVENESS.source, 'i').test(probe)) {
+    console.error(`refusing: the currency rule is DEAD — it did not fire on ${JSON.stringify(probe)}`);
+    process.exit(1);
+  }
+}
+for (const probe of MUST_NOT_FIRE) {
+  if (new RegExp(VERSION_LIVENESS.source, 'i').test(probe)) {
+    console.error(`refusing: the currency rule is a FALSE-POSITIVE MACHINE — it fired on honest prose: ${JSON.stringify(probe)}`);
+    process.exit(1);
+  }
+}
+const rot = [...shipped.matchAll(VERSION_LIVENESS)].map((m) => m[0].trim());
+if (rot.length) {
+  console.error('refusing: a liveness claim is attached to a VERSION in the shipped SKILL.md. It goes false');
+  console.error('the next time that version is superseded, and a shipped file cannot know registry state:');
+  for (const r of rot) console.error(`    ${r}`);
+  console.error('  Drop the adjective — the knowledge bound in the version header already carries the semantics.');
+  process.exit(1);
+}
+const bareLive = [...shipped.matchAll(/\blive\b/gi)].length;
+
 const alonePct = Math.round((skillOnly / total) * 100);
 console.log(`built ${out}`);
 console.log(`  members (derived): ${listed.length} — ${listed.join(', ')}`);
 console.log(`  ${total} B across ${listed.length} file(s). Uploading SKILL.md ALONE would deliver ${alonePct}% (${skillOnly} B) and leave every reference dangling.`);
+console.log(`  currency sweep: 0 version-attached liveness claim(s) · ${bareLive} bare "live" use(s), printed not refused`);
 console.log('  ⛔ Upload THIS FILE to Claude Desktop, not SKILL.md. Full-quit and relaunch Desktop after replacing a skill.');
