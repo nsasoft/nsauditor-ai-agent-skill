@@ -31,8 +31,30 @@ CHANGELOG is where a record belongs.
    consumes. 618 characters removed; the operator-facing note is now two sentences telling the agent
    what to do — do not teach 0.40.2, say it is not released — and the record is here instead.
 
-**The durable rule: a fix and its record are different artifacts.** Writing the record into the
-artifact is how a set of instructions becomes a changelog nobody asked the agent to read.
+4. **⚠️ A FOURTH INSTANCE, AND IT WAS THE FIX FOR THE THIRD.** The replacement note read *"EE 0.40.2
+   exists but is NOT published — do not teach it. If asked, say it is not released."* Measured: that
+   line was the **ONLY** mention of 0.40.2 anywhere in the skill. An agent that never read it could
+   not have taught 0.40.2 — so its sole effect was to hand every customer's agent the fact it
+   otherwise lacked. **Pre-release existence disclosure delivered by the sentence written to prevent
+   talking about it.** It also carried a rot clock pointing the wrong way: the moment 0.40.2
+   publishes, *"is NOT published"* becomes a FALSE INSTRUCTION and agents would DENY a shipped
+   release — the underclaim class — repairable only by three coupled motions (edit, re-zip,
+   redistribute), any one of which could be missed. Replaced with a version-agnostic behavioural
+   rule that never needs editing: if tool output reports a version newer than the knowledge bound,
+   say the skill does not cover it. Also cut *"the LIVE Enterprise release"* and *"live today"* —
+   mutable registry state a shipped file cannot know, false at the next publish. The bounded
+   *"knowledge current as of EE 0.40.1"* stays: it is true, and it stays true after 0.40.2 ships.
+
+**THE DURABLE RULE, CORRECTED — the first version of it was keyed on the wrong noun.** It read *"a
+fix and its record are different artifacts"*, with the discriminator being whether a surface is
+CONSUMED by an agent or MAINTAINED by a human. That boundary does not survive contact: CI consumes
+test files, and it would eventually be used to strip the annotations that make a red test
+diagnosable. The working test is behavioural — **an annotation earns its place iff it changes what
+THIS reader DOES at the moment of reading.** The board and `tasks/CLAUDE.md` records change a
+maintainer's next action (do not retry that approach; do not delete that guard) — load-bearing. A
+test-file annotation serves the human staring at a red — load-bearing. An incident narrative in
+`SKILL.md` changes nothing an advising agent should do — pure cost, and it occupies the most
+expensive real estate an agent surface has.
 
 ## 0.2.43 (2026-08-20) — post-EE 0.40.0: the EIGHTH framework, and the words the skill must never use
 
