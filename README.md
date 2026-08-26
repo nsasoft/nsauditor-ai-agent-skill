@@ -11,6 +11,11 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
+**0.2.45** — paired with **Enterprise 0.40.3 / Community 0.2.47**. New in this release's teaching: a
+granted RFC 3161 token that attests a DIFFERENT digest than the request carried is now refused
+(`tsa_imprint_mismatch`); the auditor instruction printed on every timestamped report is corrected to
+one that actually runs; and a BER-encoded token is no longer refused when openssl can read it.
+
 **0.2.44** — paired with **Enterprise 0.40.2 / Community 0.2.46**. New in this release's teaching: a TSA
 rejection is refused instead of being written as a signed sidecar (five named refusal codes; a missing
 `.tsr` beside a `.sha256` means refused, not failed), the TSA policy-OID option works on OpenSSL ≥ 3.0
