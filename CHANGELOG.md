@@ -4,6 +4,16 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.47 (2026-08-27) — paired with EE 0.42.0: the sovereign-cloud release
+
+Requires **CE >= 0.2.49** (raised from 0.2.45 — Enterprise 0.42.0 needs the new partition detection).
+
+- **Teaches that non-commercial AWS partitions and Azure sovereign clouds are first-class.** An agent driving a GovCloud, China, ISO or European-Sovereign scan should expect findings that previously read clean: public S3 access points riding a bucket delegation, IAM privesc at CRITICAL rather than HIGH, shadow-admin graph edges that were absent, and the full effective-decrypt severity ladder.
+- **Teaches the Azure cloud selectors and, more importantly, the REFUSAL.** `AZURE_ENVIRONMENT` / `ARM_ENVIRONMENT` / `AZURE_ARM_ENDPOINT` / `AZURE_AUTHORITY_HOST` select the cloud; an unrecognised or contradicted selection refuses and emits an evidence gap. An agent must not treat that refusal as a scan failure to retry past — it is the product declining to report on an estate the operator did not select.
+- **Teaches the subject stamp.** Every Azure scan states which estate it addressed. An agent summarising a clean Azure result should name the estate, because a clean report about the wrong estate looks exactly like a clean report.
+- **Teaches the FIPS boundary.** `docs/fips-posture.md` claims approved *algorithms* and explicitly not a validated *module*; an agent must never let a user infer FIPS 140 validation from it.
+- Plugin count **UNCHANGED at 29**; all eight coverage matrices **UNCHANGED**.
+
 ## 0.2.46 (2026-08-26) — paired with EE 0.41.0: the DocumentDB plugin reaches the skill's teaching
 
 **Requires CE >= 0.2.45 — UNCHANGED.** Paired with **Enterprise 0.41.0 / Community 0.2.48**.

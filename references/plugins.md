@@ -165,7 +165,24 @@ listings, and default pages.
 
 ---
 
-## Enterprise Plugins (28)
+## Enterprise Plugins (29)
+
+> **⚠️ EE 0.42.0 — non-commercial estates.** These plugins are partition- and sovereign-cloud aware.
+> **AWS:** ARN handling covers `aws`, `aws-us-gov`, `aws-cn`, the four ISO partitions and `aws-eusc`.
+> Before 0.42.0 several plugins under-reported outside the commercial partition — a public S3 access
+> point produced **no finding** in GovCloud (1110), IAM privilege escalation demoted CRITICAL→HIGH
+> with shadow-admin edges missing (1030), the KMS effective-decrypt ladder collapsed to `info` (1050),
+> and 1040's region denominator borrowed the commercial universe for an unknown partition. **If a
+> report predates 0.42.0 and its estate is non-commercial, treat a clean result as unmeasured.**
+> **Azure (1022, 1220, 1221, 1222):** the estate is selected by `AZURE_ENVIRONMENT` /
+> `ARM_ENVIRONMENT` / `AZURE_ARM_ENDPOINT` / `AZURE_AUTHORITY_HOST`. An unrecognised or
+> self-contradicting selection **refuses** — the plugin reports `up:false` with an evidence gap naming
+> the variable to fix, which fails the controls that source attests rather than passing them. **A
+> refusal is not a scan failure to route around; it is the finding.** Every Azure scan states the
+> estate it addressed in its summary — **quote that estate when you summarise a clean Azure result**,
+> because a clean report about the wrong subscription reads exactly like a clean report about the
+> right one.
+
 
 > **EE plugin ID range.** As of EE 0.3.9 (2026-05-12), all EE plugins use the disjoint **1000+ ID range** to avoid CE collision. The earlier 020/021/022/023/030/040/050/060 IDs were renumbered to 1020/1021/1022/1023/1030/1040/1050/1060. CE reserves 001-099. EE plugins audit AWS / GCP / Azure cloud substrate end-to-end against **every shipped compliance framework** — SOC 2, HIPAA §164.312, NIST CSF 2.0, PCI DSS v4.0.1, ISO/IEC 27001:2022, CIS Controls v8, GDPR Article 32 (Art. 32 infrastructure substrate only, NOT GDPR compliance) and NIST SP 800-171 Rev 2 (examine-method evidence substrate for CMMC Level 2 preparation, never a certification). **The authoritative enumeration, with each framework's citation level and ship version, is in `SKILL.md` — it is not repeated here.** Each plugin's findings route to every one of them via the framework-agnostic engine plus a per-framework control-citation map, so a report cites only its own framework's ids (SOC 2 `CC6.1`, HIPAA `§164.312(a)(1)`, NIST `PR.AA-01`, PCI `Req 1.2.1`, ISO `A.8.24`, CIS `4.4`, GDPR `Art.32(1)(b)`, 800-171 `3.13.16`) — closing cross-framework citation leak across every ordered pair. ⚠️ 800-171 and PCI DSS ids COLLIDE exactly (`3.5.1` is real in both), so an 800-171 citation always carries its qualifier. Every plugin is enterprise-gated by the `cloudScanners` capability and runs against customer-supplied cloud credentials. Multi-framework workflow: `--compliance all` (every shipped framework), or any CSV subset such as `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr,nist-800-171` — one scan produces a separate, complete auditor-ready evidence pack per framework requested. **Zero BAA required** for HIPAA — Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure (and CHD never leaves for PCI DSS CDE-isolation threat models). **NIST CSF 2.0 Implementation Tiers 1-4** (Partial / Risk-Informed / Repeatable / Adaptive) are organizational-maturity claims explicitly OOS for infrastructure scanning — surfaced in renderer as cover-page Tiers OOS disclaimer section (markdown + HTML parity); pair with NIST-aware GRC platforms (Tugboat Logic, Drata NIST CSF, Vanta NIST CSF, AuditBoard). **PCI DSS v4.0.1 specifics**: sub-requirement-level mapping for QSA Report on Compliance workflow (MVP-67 density: 67 of ~250 sub-requirements. **For the current covered/partial/OOS triple, call `compliance_matrix` with `framework: "pci-dss"`** — it derives from the shipped framework map at call time. A figure typed here goes stale: this sentence carried `20 + 8 + 39` against a shipped `19 / 9 / 39`, the same stale triple that had already propagated to a public page once). **Req 12 Information Security Program OOS-by-design entirely** (Targeted Risk Analysis Req 12.3.1 + Customized Approach Documentation Req 12.3.2 + TPSP Responsibility Matrix Req 12.8.5 + IR personnel training Req 12.10.4 all Defined-only per Appendix E). **Req 5 anti-malware + Req 9 physical OOS-entirely** (endpoint EDR + facility-tier). **Req 3 stored CHD OOS-by-design at technical-control layer** pending operator CDE attestation via CDE Data Flow Diagram per Req 1.2.4 + Req 12.5.1. **Defined-vs-Customized Approach discipline per Appendix E** — 15 Defined-only sub-requirements enforced at schema layer. CAO text MVP-deferred to EE 0.11.1 patch. **Card-brand AOC enforcement priority view** (Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC — the actual penalty mechanism). Pair with PCI-aware GRC platforms (Drata PCI, Vanta PCI, AuditBoard PCI module, OneTrust GRC).
 

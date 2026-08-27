@@ -11,7 +11,20 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.46** — paired with **Enterprise 0.41.0 / Community 0.2.48**. New in this release's teaching: the 29th Enterprise plugin, `1230 AWS DocumentDB Auditor` (docdb-engine ownership on the shared RDS control plane — encryption + custody, `tls`, audit logging + export, retention, deletion protection, replica/AZ topology, snapshot sharing), the RDS auditor's engine filter with its standing disclosure (a Neptune estate is explicitly unaudited), and the deferred status of DocumentDB Elastic clusters. Prior: **0.2.45** — paired with **Enterprise 0.40.3 / Community 0.2.47**. New in this release's teaching: on
+**0.2.47** — paired with **Enterprise 0.42.0 / Community 0.2.49**. ⚠️ **A real floor bump: Community >= 0.2.49.**
+New in this release's teaching: non-commercial AWS partitions (GovCloud, China, the ISO partitions and
+the European Sovereign Cloud) and Azure sovereign clouds are first-class, and both **refuse rather than
+silently reporting on the wrong estate**. An agent driving a sovereign scan should expect findings that
+previously read clean — a public S3 access point riding a bucket delegation, IAM privesc at CRITICAL
+instead of HIGH, shadow-admin graph edges that were missing, the full effective-decrypt severity ladder.
+For Azure, `AZURE_ENVIRONMENT` / `ARM_ENVIRONMENT` / `AZURE_ARM_ENDPOINT` / `AZURE_AUTHORITY_HOST` select
+the cloud, an unrecognised or self-contradicting selection **refuses and emits an evidence gap**, and
+every Azure scan **states which estate it addressed** — an agent summarising a clean Azure result should
+name the estate, because a clean report about the wrong estate looks exactly like a clean one. Also
+taught: the FIPS boundary (approved *algorithms*, explicitly not a validated *module*) and the SBOM gate.
+Plugin count **unchanged at 29**; all eight coverage matrices **unchanged**.
+
+**Prior: 0.2.46** — paired with **Enterprise 0.41.0 / Community 0.2.48**. New in this release's teaching: the 29th Enterprise plugin, `1230 AWS DocumentDB Auditor` (docdb-engine ownership on the shared RDS control plane — encryption + custody, `tls`, audit logging + export, retention, deletion protection, replica/AZ topology, snapshot sharing), the RDS auditor's engine filter with its standing disclosure (a Neptune estate is explicitly unaudited), and the deferred status of DocumentDB Elastic clusters. Prior: **0.2.45** — paired with **Enterprise 0.40.3 / Community 0.2.47**. New in this release's teaching: on
 the **opt-in** RFC 3161 path (`NSAUDITOR_TSA_URL`; no default authority), a granted token that attests
 a DIFFERENT digest than the request carried is now refused (`tsa_imprint_mismatch`); the auditor
 instruction printed on every timestamped report is corrected to one that actually runs; and a
