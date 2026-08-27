@@ -11,7 +11,7 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.45** — paired with **Enterprise 0.40.3 / Community 0.2.47**. New in this release's teaching: on
+**0.2.46** — paired with **Enterprise 0.41.0 / Community 0.2.48**. New in this release's teaching: the 29th Enterprise plugin, `1230 AWS DocumentDB Auditor` (docdb-engine ownership on the shared RDS control plane — encryption + custody, `tls`, audit logging + export, retention, deletion protection, replica/AZ topology, snapshot sharing), the RDS auditor's engine filter with its standing disclosure (a Neptune estate is explicitly unaudited), and the deferred status of DocumentDB Elastic clusters. Prior: **0.2.45** — paired with **Enterprise 0.40.3 / Community 0.2.47**. New in this release's teaching: on
 the **opt-in** RFC 3161 path (`NSAUDITOR_TSA_URL`; no default authority), a granted token that attests
 a DIFFERENT digest than the request carried is now refused (`tsa_imprint_mismatch`); the auditor
 instruction printed on every timestamped report is corrected to one that actually runs; and a

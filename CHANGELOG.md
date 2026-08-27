@@ -4,6 +4,21 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.46 (2026-08-26) — paired with EE 0.41.0: the DocumentDB plugin reaches the skill's teaching
+
+**Requires CE >= 0.2.45 — UNCHANGED.** Paired with **Enterprise 0.41.0 / Community 0.2.48**.
+
+- **Teaches plugin `1230 AWS DocumentDB Auditor`** (the 29th Enterprise plugin): docdb-engine
+  ownership on the shared RDS control plane; seven dimensions (storage encryption + KMS custody,
+  `tls` cluster parameter, `audit_logs` + CloudWatch export, backup retention, deletion
+  protection, replica/AZ topology under the CLUSTER lens, manual-snapshot restorability probes).
+- **Teaches the RDS auditor's shared-plane engine filter**: DocumentDB is delegated to 1230,
+  Neptune is skipped with a counted, standing disclosure — an agent asked about Neptune must say
+  the estate is UNAUDITED, because the report itself says so.
+- **Teaches the deferred scopes**: DocumentDB Elastic clusters (separate API) are declared
+  deferred; the per-instance Multi-AZ flag is RDS semantics and never applies to DocumentDB.
+- Plugin count 28 → 29 across the reference tables; all eight coverage matrices UNCHANGED.
+
 ## 0.2.44 (2026-08-23) — paired with EE 0.40.2: the TSA status gate reaches the skill's teaching
 
 **Requires CE >= 0.2.45 — UNCHANGED.** Paired with **Enterprise 0.40.2 / Community 0.2.46**.
