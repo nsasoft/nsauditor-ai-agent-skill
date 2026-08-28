@@ -18,6 +18,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -61,15 +62,48 @@ if (total < BYTE_FLOOR) {
   process.exit(1);
 }
 
-fs.rmSync(out, { force: true });
-execFileSync('zip', ['-q', '-r', out, ...members, '-x', '*.DS_Store'], { cwd: here });
+// ⚠️ THE ENTRIES ARE WRAPPED IN A TOP-LEVEL SKILL FOLDER, AND THE FLAT LAYOUT THIS SCRIPT
+// FIRST SHIPPED WAS A LIVE DEFECT — found by the OPERATOR looking at Desktop, not by any check
+// here. The canonical package format (skill-creator's package_skill.py) writes every entry as
+// `<skill-name>/…` — arcname relative to the skill folder's PARENT. Fed a FLAT zip instead,
+// Claude Desktop ingested SKILL.md and silently dropped references/ — the UI read "Contents · 1"
+// and the install was the exact 37%-delivery failure this script exists to prevent, reintroduced
+// by this script's own layout. The hand-built zip it replaced worked precisely because
+// compressing the FOLDER produces the wrapper. The folder name is DERIVED from the frontmatter
+// `name:` so it cannot drift from the skill's identity.
+const nameMatch = /^name:\s*(\S+)\s*$/m.exec(fs.readFileSync(path.join(here, 'SKILL.md'), 'utf8'));
+if (!nameMatch) {
+  console.error('refusing: SKILL.md frontmatter has no `name:` — the wrapper folder is derived from it.');
+  process.exit(1);
+}
+const SKILL_DIR = nameMatch[1];
+const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'skill-zip-'));
+try {
+  for (const m of members) {
+    const dest = path.join(stage, SKILL_DIR, m);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(path.join(here, m), dest);
+  }
+  fs.rmSync(out, { force: true });
+  execFileSync('zip', ['-q', '-r', out, SKILL_DIR, '-x', '*.DS_Store'], { cwd: stage });
+} finally {
+  fs.rmSync(stage, { recursive: true, force: true });
+}
 
-// Assert on the ARTIFACT, not on the inputs: read back what the zip actually holds.
+// Assert on the ARTIFACT, not on the inputs: read back what the zip actually holds — the
+// WRAPPED paths, because the wrapper is the property whose absence broke the install.
+const expectedEntries = members.map((m) => `${SKILL_DIR}/${m}`);
 const listed = execFileSync('unzip', ['-Z1', out], { cwd: here, encoding: 'utf8' })
   .split('\n').map((s) => s.trim()).filter((s) => s && !s.endsWith('/'));
-const absent = members.filter((m) => !listed.includes(m));
+const absent = expectedEntries.filter((m) => !listed.includes(m));
 if (absent.length) {
   console.error(`refusing: built the zip but it does not contain ${absent.join(', ')}`);
+  process.exit(1);
+}
+const strays = listed.filter((m) => !expectedEntries.includes(m));
+if (strays.length) {
+  console.error(`refusing: the zip contains entries outside ${SKILL_DIR}/ — ${strays.join(', ')} — `
+    + 'a flat or mixed layout is how Desktop silently drops references/.');
   process.exit(1);
 }
 
@@ -102,7 +136,7 @@ if (absent.length) {
  * VERSION_LIVENESS without a matching entry in MUST_FIRE is a rule nobody has watched fire, and
  * this file already refuses to build on exactly that condition — use it.
  */
-const shipped = execFileSync('unzip', ['-p', out, 'SKILL.md'], { cwd: here, encoding: 'utf8' });
+const shipped = execFileSync('unzip', ['-p', out, `${SKILL_DIR}/SKILL.md`], { cwd: here, encoding: 'utf8' });
 // A version and a liveness adjective separated ONLY by punctuation/space — `(EE 0.40.0, live)`.
 // `(?![-\w])` is load-bearing: without it `live-TSA` matches and the rule fires on an honest
 // past-tense record. The window is deliberately tiny; a wide one spans intervening words and
