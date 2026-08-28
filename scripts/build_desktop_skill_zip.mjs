@@ -175,6 +175,28 @@ if (rot.length) {
 }
 const bareLive = [...shipped.matchAll(/\blive\b/gi)].length;
 
+// ⛔ THE ID→DEFECT MAPPING MUST STAY ON THE ALWAYS-LOADED SURFACE (P10-RETEST, 2026-08-28).
+// It lived only in an on-demand reference once, and a first-ask agent told a reader the
+// partition-side fix did not exist. Asserted on the SKILL.md read back from the ZIP, so a
+// mapping that retreats to references/ — or an edit that drops an id — refuses the build.
+// ⚠️ Scoped to the MAPPING SEGMENT, not bare id presence — the first version of this guard
+// checked `shipped.includes(id)` and a mutant that DELETED an id from the mapping survived,
+// because every id also appears elsewhere (the misattribution warning, the plugin table).
+// A guard satisfiable by the wrong occurrence is unfalsifiable for exactly the edit it guards.
+// The segment ends at the FIRST ⚠️ after the mapping — the misattribution warning that follows
+// it also carries backticked ids (`1110`, `1050`), and a window that reached into it was the
+// SECOND unfalsifiable version of this guard: the warning's `1050` satisfied a check about the
+// mapping's. Non-greedy to the warning marker bounds exactly the id list.
+const mapSeg = (shipped.match(/THE ID→DEFECT MAPPING[\s\S]*?⚠️/) || [''])[0];
+const ALWAYS_LOADED_IDS = ['1020', '1030', '1110', '1050', '1200', '1040'];
+const missingIds = ALWAYS_LOADED_IDS.filter((id) => !mapSeg.includes('`' + id + '`'));
+if (!mapSeg || missingIds.length) {
+  console.error(`refusing: the shipped SKILL.md's ID→DEFECT MAPPING segment is ${mapSeg ? 'missing id(s) '
+    + missingIds.join(', ') : 'ABSENT'} — the mapping must stay on the always-loaded surface `
+    + '(P10-RETEST class: an agent answered "the fix does not exist" while it sat in an on-demand reference).');
+  process.exit(1);
+}
+
 const alonePct = Math.round((skillOnly / total) * 100);
 console.log(`built ${out}`);
 console.log(`  members (derived): ${listed.length} — ${listed.join(', ')}`);
