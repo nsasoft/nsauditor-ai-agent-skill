@@ -199,9 +199,14 @@ listings, and default pages.
 > badge** (`details.evidenceGap === true`, shown at any severity). You will **not** see a literal
 > `up:false` — no MCP consumer reads that field. And the **estate stamp is NOT in the `scan_cloud`
 > summary**: it rides an INFO-severity evidence line, which the summariser rolls up rather than
-> itemizing. **Retrieve it with `get_findings` before you call an Azure result clean** — a clean report
-> about the wrong subscription reads exactly like a clean report about the right one, and on this
-> channel the subject is not in front of you unless you go and get it. Via the **CLI**: the estate is
+> itemizing. ⚠️ **and the estate is NOT retrievable here at all.** `get_findings` iterates
+> `result.findings` with no `result.data` fallback, and the summariser short-circuits on a non-nullish
+> `findings[]` — an EMPTY array is non-nullish, so a clean Azure scan never reaches `data[]` either.
+> **On Desktop, say you cannot confirm the estate and point the operator at the CLI or the selector
+> variables. Never name one you did not see.** A clean report about the wrong subscription reads
+> exactly like a clean report about the right one, and on this channel the subject is not available.
+> ⚠️ Refusals are `severity: 'low'`, NOT `INFO` — a `get_findings` call filtered `severity:"INFO"`
+> returns ZERO rows for them. Filter by provider, or not at all. Via the **CLI**: the estate is
 > stated in the scan summary, and `up:false` additionally FAILS the controls that source attests
 > instead of passing them — the compliance layer only exists on this path.
 
