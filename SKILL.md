@@ -34,7 +34,7 @@ description: >
 > to quote the whole thrown message — so the loaders' own `Install: npm install <pkg>@latest`
 > reached the gap text of 7 SOC 2, 2 GDPR and 12 NIST SP 800-171 controls. ⚠️ **NEVER quote an
 > evidence-gap line to a user as a remediation step**, and be aware the old wording is still in
-> packs produced before 0.43.0. For **air-gapped** deployments an `npm install` instruction
+> packs produced before 0.43.0. Under **air-gapped operation** an `npm install` instruction
 > cannot be followed at all, which is why it was the wrong channel. The two causes are now
 > distinct: `plugin skipped: <reason>` (fix with `--host` / `CLOUD_PROVIDER`) versus
 > `scanner error: <cause>` (fix a dependency or a credential).
