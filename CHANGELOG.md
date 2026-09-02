@@ -4,6 +4,33 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.48 (2026-09-02) — paired with EE 0.43.0: teach what a provider badge means, and what an evidence gap must not say
+
+**Two teaching changes, both about how to READ a scan rather than how to run one.**
+
+**A provider badge is now trustworthy, and the assistant should say why it was not.** Until
+EE 0.43.0, an Enterprise scan whose cloud SDK failed to load reported that provider as
+**audited** — eighteen refusals across seventeen AWS and GCP plugins returned `up: false` with
+the cause written only into `warnings`, and the Community plugin manager derives
+`auditedProviders` from plugins that *ran*. Teach: **`auditedProviders` and `providerStatus`
+are now answerable questions** — `{ran, skipped, errored}` per provider — and a cloud whose SDK
+is missing appears as `errored`, not as audited. If a user reports a provider missing from
+`auditedProviders` after upgrading, that is the fix working, not a regression.
+
+**An evidence gap states a CAUSE, never an instruction.** The engine quotes a plugin's reason
+into the *"could not run"* sentence of every control that plugin evidences. It used to quote the
+whole thrown message, and the SDK loaders throw remediation inside it, so `Install: npm install
+<pkg>@latest` reached the gap text of 7 SOC 2, 2 GDPR and 12 NIST SP 800-171 controls. Teach the
+split: **the report says what was not evidenced; the operator channel says how to change it** —
+and never quote an evidence-gap line to a user as a remediation step. ⚠️ Especially for
+**air-gapped** deployments, where an `npm install` instruction cannot be followed at all.
+
+**Also taught:** the two causes are now distinct in the gap text — `plugin skipped: <reason>`
+(fix with `--host` / `CLOUD_PROVIDER`) versus `scanner error: <cause>` (fix a dependency or a
+credential); and a GDPR Art. 32 report now fails closed when an Azure scan refuses, where it
+previously failed nothing. Plugin catalog UNCHANGED at 29 EE; all eight coverage matrices
+UNCHANGED; **peer floor UNCHANGED at CE >= 0.2.49** — not a bump.
+
 ## 0.2.47 (2026-08-27) — paired with EE 0.42.0: the sovereign-cloud release
 
 Requires **CE >= 0.2.49** (raised from 0.2.45 — Enterprise 0.42.0 needs the new partition detection).

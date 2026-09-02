@@ -11,7 +11,9 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.47** — paired with **Enterprise 0.42.0 / Community 0.2.49**. ⚠️ **A real floor bump: Community >= 0.2.49.**
+**0.2.48** — paired with **Enterprise 0.43.0 / Community 0.2.50**. ⚠️ **NOT a floor bump: Community stays >= 0.2.49**, derived rather than reflexive — the one Community behaviour the Enterprise fix depends on already shipped there. New in this release's teaching: **a provider badge is now trustworthy** (an Enterprise scan whose cloud SDK failed to load used to report that provider as *audited*, because a plugin result carrying neither an error nor a skip flag falls through to `ran` and `auditedProviders` derives from `ran`; eighteen refusals across seventeen AWS and GCP plugins now carry their cause, so such a provider reads `errored` and drops out — a provider disappearing after upgrade is the fix, not a regression), and **an evidence gap states a cause, never an instruction** (the engine quoted whole thrown messages, so the loaders' `Install: npm install <pkg>@latest` reached the gap text of 7 SOC 2 / 2 GDPR / 12 NIST SP 800-171 controls — never quote a gap line to a user as remediation, and note it cannot be followed at all on an air-gapped install). The two causes are now distinct — `plugin skipped:` vs `scanner error:` — because the remedies differ; and a GDPR Art. 32 report now fails closed on an Azure refusal where it previously failed nothing.
+
+**Prior: 0.2.47** — paired with **Enterprise 0.42.0 / Community 0.2.49**. ⚠️ **A real floor bump: Community >= 0.2.49.**
 New in this release's teaching: non-commercial AWS partitions (GovCloud, China, the ISO partitions and
 the European Sovereign Cloud) and Azure sovereign clouds are first-class, and both **refuse rather than
 silently reporting on the wrong estate**. An agent driving a sovereign scan should expect findings that

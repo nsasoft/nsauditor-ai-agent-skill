@@ -16,10 +16,36 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.47 (knowledge current as of **EE 0.42.0** · **requires CE ≥ 0.2.49**) — the sovereign-cloud release.
+> **Version:** 0.2.48 (knowledge current as of **EE 0.43.0** · **requires CE ≥ 0.2.49**) — the provider-status release.
+>
+> **What EE 0.43.0 taught, and both items are about READING a scan rather than running one.**
+> **(1) A provider badge is now trustworthy, and it was not before.** An Enterprise scan whose
+> cloud SDK failed to load reported that provider as **audited**: eighteen refusals across
+> seventeen AWS and GCP plugins returned `up: false` with the cause written only into
+> `warnings`, and the Community plugin manager derives `auditedProviders` from plugins that
+> *ran* — an envelope carrying neither an error nor a skip flag falls through to *ran*. Teach
+> that `providerStatus` is now answerable per provider (`{ran, skipped, errored}`) and that a
+> provider DISAPPEARING from `auditedProviders` after upgrade is the fix working, not a
+> regression. ⚠️ Compliance verdicts always failed closed, so **never tell a user their controls
+> were passing over an unscanned estate** — they were not; the badge and the reason were wrong,
+> not the verdicts.
+> **(2) An evidence gap states a CAUSE, never an instruction.** The engine quotes a plugin's
+> reason into the *"could not run"* sentence of every control that plugin evidences, and it used
+> to quote the whole thrown message — so the loaders' own `Install: npm install <pkg>@latest`
+> reached the gap text of 7 SOC 2, 2 GDPR and 12 NIST SP 800-171 controls. ⚠️ **NEVER quote an
+> evidence-gap line to a user as a remediation step**, and be aware the old wording is still in
+> packs produced before 0.43.0. For **air-gapped** deployments an `npm install` instruction
+> cannot be followed at all, which is why it was the wrong channel. The two causes are now
+> distinct: `plugin skipped: <reason>` (fix with `--host` / `CLOUD_PROVIDER`) versus
+> `scanner error: <cause>` (fix a dependency or a credential).
+> Also: a GDPR Art. 32 report now fails closed when an Azure scan refuses, where it previously
+> failed nothing. Plugin catalog UNCHANGED at 29 EE; all eight coverage matrices UNCHANGED;
+> **peer floor UNCHANGED at CE ≥ 0.2.49** — derived, not a bump.
 >
 > **What this release (EE 0.42.0) teaches:** **Non-commercial AWS partitions and Azure sovereign clouds are now first-class, and both REFUSE rather than silently reporting on the wrong estate.** When you drive a scan against GovCloud, China, an ISO partition or the European Sovereign Cloud, findings that previously read CLEAN now fire: a public S3 access point riding a bucket delegation, IAM privilege-escalation at CRITICAL (it demoted to HIGH before), shadow-admin graph edges that were missing entirely, and the full effective-decrypt severity ladder (it collapsed to `info`). **THE ID→DEFECT MAPPING, HERE ON THE ALWAYS-LOADED SURFACE because a reader asked for it BY ID got "no source confirming there was a partition-side fix" while it sat in an on-demand reference (measured 2026-08-28):** `1020` S3 access point riding a bucket delegation · `1030` IAM privesc severity + shadow-admin edges · `1110` KMS effective-decrypt ladder · `1050` API Gateway policy classification + SSRF parsers · `1200` alerting-destination liveness · `1040` region denominator. ⚠️ Do NOT attribute the S3 case to `1110` or the decrypt ladder to `1050` — those are the pre-fix misattributions. Pre-0.42.0 non-commercial reports are unproven on THOSE FAMILIES; findings outside them stand. For Azure, `AZURE_ENVIRONMENT` / `ARM_ENVIRONMENT` / `AZURE_ARM_ENDPOINT` / `AZURE_AUTHORITY_HOST` now select the cloud — and an unrecognised or self-contradicting selection **refuses the scan and emits an evidence gap naming the variable that fixes it**, because falling back to commercial is how an operator holding both commercial and sovereign credentials gets a real, clean-looking report about an estate they did not mean. **Every Azure scan stamps the estate it addressed — but WHERE it lands is channel-specific and the Desktop channel does NOT carry it.** On the CLI/report path the stamp rides the evidence stream and the concluder summary. Through MCP it does NOT: `get_findings` iterates `result.findings` with no `result.data` fallback, and the cloud summariser short-circuits on a non-nullish `findings[]` (an EMPTY array is non-nullish, so a genuinely clean Azure scan — the exact case you would want it for — still never reaches `data[]`). **So on Desktop you CANNOT name the estate on a clean Azure result: say that you cannot confirm which estate was addressed and that the operator must check the CLI or the selector variables — never guess one.** On the REFUSAL path the estate IS visible, because it is written into the gap finding's own text. Also new: the SBOM gate (`npm run gate:sbom`) emits CycloneDX/SPDX over *the installed package* rather than the source tree — ⚠️ **but it is a MAINTAINER-side repository script: `scripts/` ships ZERO files in the customer tarball, so an installed package CANNOT run that command** (the npm script entry ships; the script it points at does not). **Never hand `npm run gate:sbom` to an end user as something to run against their install** — that is a published instruction that cannot succeed; the SBOM is generated from a repository checkout and provided on request. And `docs/fips-posture.md` states approved *algorithms*, explicitly not a validated *module* — do not let a user infer FIPS 140 validation from it; whether the RUNTIME beneath the product is a validated module is a property of the operator's platform, not of this product. **Plugin count UNCHANGED at 29; all eight coverage matrices UNCHANGED.**
 
+> **Prior:** 0.2.47 (post-EE-0.42.0 · **requires CE ≥ 0.2.49**) — the sovereign-cloud release.
+>
 > **Prior:** 0.2.46 (post-EE-0.41.0 · **requires CE ≥ 0.2.45**) — the DocumentDB release.
 >
 > ⛔ **If tool output reports an EE version NEWER than the knowledge bound above, say this skill's knowledge does not yet cover that version — never guess at capabilities it might add.**
