@@ -96,7 +96,7 @@ nsauditor-ai-agent-skill/
 ├── references/
 │   ├── workflows.md                  # Multi-step workflow recipes (full audit, CI/CD, CTEM)
 │   ├── schemas.md                    # Complete data structures (scan results, CVEs, findings)
-│   └── plugins.md                    # Full plugin catalog (55 scanners with ports & protocols — 27 Community + 28 Enterprise)
+│   └── plugins.md                    # Full plugin catalog (56 scanners with ports & protocols — 27 Community + 29 Enterprise)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
 ├── package.json
@@ -153,7 +153,7 @@ When an AI agent loads this skill, it gains:
 | **Workflow patterns** | Multi-step chains: scan → CVE lookup → remediation report |
 | **Schema knowledge** | Complete data structures for parsing and presenting results |
 | **CPE construction** | How to map detected services to NVD vulnerability lookups |
-| **Plugin awareness** | 55 scanner plugins (27 Community + 28 Enterprise) with protocols, ports, capabilities, and multi-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32 · NIST SP 800-171 Rev 2) substrate-evidence dimensions |
+| **Plugin awareness** | 56 scanner plugins (27 Community + 29 Enterprise) with protocols, ports, capabilities, and multi-framework (SOC 2 · HIPAA §164.312 · NIST CSF 2.0 · PCI DSS v4.0.1 · ISO/IEC 27001:2022 · CIS Controls v8 · GDPR Art. 32 · NIST SP 800-171 Rev 2) substrate-evidence dimensions |
 | **Compliance frameworks** | **Eight frameworks, one scan** — SOC 2 (AICPA TSC 2017) · HIPAA Security Rule §164.312 Technical Safeguards (HHS Required/Addressable discipline per control) · NIST CSF 2.0 (Subcategory-level) · PCI DSS v4.0.1 (QSA RoC sub-requirement-level) · ISO/IEC 27001:2022 (per-Annex-A-code, SoA discipline) · CIS Controls v8 (per-Safeguard; Implementation Group IG1/IG2/IG3 cumulative discipline) · GDPR Article 32 (sub-measure-level; **Art. 32 infrastructure substrate only, NOT GDPR compliance**) · NIST SP 800-171 Rev 2 (requirement-level for the matrix, SP 800-171A determination-statement level for evidence; **examine-method evidence substrate for CMMC Level 2 preparation — never a CMMC certification and never a MET/NOT MET verdict**). All via `--compliance all`, or any CSV subset via `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr,nist-800-171`. Zero BAA required for HIPAA — ePHI never leaves customer infrastructure. |
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |

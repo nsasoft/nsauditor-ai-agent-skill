@@ -219,6 +219,7 @@ AI_ENABLED=true AI_PROVIDER=openai OPENAI_API_KEY=sk-... OPENAI_REDACT=true \
 | `scan_response_ai_payload.json` | Redacted payload sent to AI |
 | `scan_response_ai.html` | Styled HTML report with CVE links, severity badges |
 | `scan_response_ai.txt` | AI vulnerability assessment in markdown |
+| `scan_run_<runId>.json` | **Per-run scan record** — written at the ROOT of `--out` (one level above the per-host folders) at run start, appended per host, finalized at the end. It is what `report` is built from, and what lets a report cover STATE its coverage (hosts requested / written / reachable) instead of implying it. On the free tier these are pruned after a retention window. |
 
 ### AI Prompt Modes
 
@@ -273,7 +274,18 @@ User wants to...
 ├── Compare two scans                   → CLI: diff the per-run out-dirs (no compare tool)
 ├── State framework COVERAGE            → compliance_matrix (any tier)
 ├── Produce a compliance EVIDENCE PACK  → CLI: --compliance <fw> --out <dir> (not MCP)
-└── Generate a formatted report         → CLI: --output-format sarif|csv|md (not MCP)
+├── Generate a formatted report         → CLI: --output-format sarif|csv|md (not MCP)
+└── Produce a CLIENT-FACING report      → CLI (Pro): nsauditor-ai report --from <dir>
+                                          --format executive  → self-contained print-ready HTML
+                                                                (+ --brand <brand.json> for a branded cover)
+                                          --format jira       → Jira-importer CSV
+                                          --run <id> | --out <path> | --allow-partial
+                                          exit 0 rendered · 1 fix the RUN · 2 fix the REQUEST
+                                          ⚠️ TELL THE USER: the Jira import mapping is done in
+                                          Jira and has NOT been verified against a live Jira
+                                          instance, and the emitted CSV does not carry that
+                                          caveat — you must hand it over with the file.
+                                          ⚠️ --brand with --format jira is REFUSED, not ignored.
 ```
 
 ---

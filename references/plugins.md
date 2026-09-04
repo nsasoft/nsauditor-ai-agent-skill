@@ -215,7 +215,7 @@ listings, and default pages.
 
 | ID | Name | Tier | Purpose | SOC 2 Controls |
 |----|------|------|---------|----------------|
-| 1020 | AWS Cloud Scanner | Enterprise | S3 bucket hardening (PAB, encryption, versioning, Object Lock, MFA Delete, logging) | C1.1 / C1.2 / CC7.1 |
+| 1020 | AWS Cloud Scanner | Enterprise | S3 bucket hardening (PAB, encryption, versioning, Object Lock, MFA Delete) + object-access audit trail as a JOIN of server access logging AND CloudTrail S3 data-event coverage — a bucket a trail records is not a gap; any uncertain answer keeps the finding | C1.1 / C1.2 / CC7.1 |
 | 1021 | GCP Cloud Scanner | Enterprise | Firewall rule audit + IAM bindings + Storage bucket public-access | CC6.1 / CC6.6 / C1.1 |
 | 1022 | Azure Cloud Scanner | Enterprise | NSG rule analysis + RBAC role assignments + Storage account hardening | CC6.1 / CC6.6 / C1.1 |
 | 1023 | Zero Trust Checker | Enterprise | Segmentation + encryption + identity + lateral movement scoring (reads OBSERVED open ports) | CC6.6 |
