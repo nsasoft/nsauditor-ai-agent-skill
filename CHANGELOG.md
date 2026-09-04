@@ -4,6 +4,24 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.49 (2026-09-04) — the client-report release
+
+Paired with **Enterprise 0.44.0 / Community 0.2.51**. **NOT a floor bump: Community stays `>= 0.2.49`.**
+
+- **New teaching: the Pro `report` subcommand.** `nsauditor-ai report --from <dir> --format
+  executive|jira` turns a completed run into a client-facing HTML report or a Jira-importer CSV, with
+  `--run`, `--brand`, `--out` and `--allow-partial`. Two limits an agent must state rather than
+  discover: the Jira import mapping has not been verified against a live Jira instance, and a
+  value-less flag is a fatal error rather than a silent default.
+- **New teaching: an S3 audit-trail gap now means BOTH streams are missing.** Plugin 1020
+  cross-checks CloudTrail data-event coverage before reporting a missing server access log, and emits
+  positive substrate naming the covering trail instead. A gap disappearing after upgrade on a covered
+  bucket is the fix working. Every uncertain answer — denied read, absent optional SDK, stopped trail,
+  delivery error, prefix-scoped or one-sided selector — keeps the finding unchanged.
+- Plugin catalog unchanged at 29 EE; all eight coverage matrices unchanged.
+
+---
+
 ## 0.2.48 (2026-09-02) — paired with EE 0.43.0: teach what a provider badge means, and what an evidence gap must not say
 
 **Two teaching changes, both about how to READ a scan rather than how to run one.**

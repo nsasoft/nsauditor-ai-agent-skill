@@ -16,7 +16,34 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.48 (knowledge current as of **EE 0.43.0** · **requires CE ≥ 0.2.49**) — the provider-status release.
+> **Version:** 0.2.49 (knowledge current as of **EE 0.44.0** · **requires CE ≥ 0.2.49**) — the client-report release.
+>
+> **What EE 0.44.0 / CE 0.2.51 teaches, and both items are about what a REPORT may claim.**
+> **(1) There is a `report` subcommand now, and it is Pro-gated.**
+> `nsauditor-ai report --from <dir> --format executive|jira` turns a completed scan run under
+> `--from` into a client-facing deliverable — an HTML report a consultant sends to their
+> customer, or a Jira-importer CSV. `--run <id>` reports a specific run instead of the newest,
+> `--brand <brand.json>` adds cover-page branding to the executive format, `--out <path>`
+> overrides the destination, `--allow-partial` renders an incomplete run with the caveat stated
+> on the cover. Exit **0** rendered · **1** fix the RUN · **2** fix the REQUEST. ⚠️ Two things to
+> teach a user rather than discover for them: **the Jira import mapping is done in Jira and has
+> not been verified against a live Jira instance** (say so when you hand over the CSV), and a
+> value-less `--from`/`--brand`/`--run`/`--out` is a **fatal error, not a silent default**.
+> **(2) An S3 audit-trail gap now means BOTH streams are missing.** Plugin 1020 used to report
+> *"Access logging not enabled – audit trail gap"* from the bucket's own server access log alone,
+> so a bucket whose object reads and writes a CloudTrail data-event trail already recorded was
+> reported as a gap. It now cross-checks CloudTrail and, where a trail positively covers the
+> bucket, emits positive substrate naming that trail instead. ⚠️ **A gap that DISAPPEARS after
+> upgrade on a bucket covered by a trail is the fix working, not a regression** — the same shape
+> as the provider badge below. Every uncertain answer keeps the finding unchanged: a denied
+> CloudTrail read, an absent optional SDK, a stopped trail, a trail with a delivery error, a
+> prefix-scoped or one-sided selector, a region not reached. The cross-check's own status is
+> reported once in the scan summary with its declared limits, so *"the gap persisted"* and *"the
+> cross-check could not run"* are distinguishable. SOC 2 CC7.1, HIPAA §164.312(b) and NIST SP
+> 800-171 3.12.3 rationales were reworded accordingly — they no longer call server access logs
+> the sole record of object-level access.
+> Plugin catalog UNCHANGED at 29 EE; all eight coverage matrices UNCHANGED; **peer floor
+> UNCHANGED at CE ≥ 0.2.49** — derived, not a bump.
 >
 > **What EE 0.43.0 taught, and both items are about READING a scan rather than running one.**
 > **(1) A provider badge is now trustworthy, and it was not before.** An Enterprise scan whose
