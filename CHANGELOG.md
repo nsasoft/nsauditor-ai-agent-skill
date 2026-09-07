@@ -4,6 +4,37 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.50 (2026-09-07) — the NTP-withdrawal release
+
+Paired with **Enterprise 0.45.0 / Community 0.2.52**. **NOT a floor bump: Community stays `>= 0.2.49`.**
+
+**The teaching change is a REFUSAL rule: the NTP clock attestation is WITHDRAWN.** `utils/ntp_probe.mjs`
+is deleted, the compliance phase's clock stage is a withdrawal record, and the three `complianceNtp*`
+options are gone. An agent must not describe it, offer it, or plan around it.
+**WITHDRAWN, and never real: there is no `NSAUDITOR_NTP_*` environment variable and there never was one.**
+**`COMPLIANCE_NTP_STRICT` is WITHDRAWN too** — it was published to auditors and read by zero code in
+either repo. **It is not on a roadmap either**, which inverts the
+previous guidance: a hedge like "planned" or "not yet wired" is now a promise about unscheduled work
+rather than a disclosure.
+
+**Why, because a user will ask.** The probe accepted any reply of at least 48 bytes carrying a non-null
+transmit timestamp and nothing else — no mode byte, no stratum check, no originate-timestamp echo — so
+over unauthenticated UDP a datagram of the right shape produced a false clean reading, or a false abort
+in strict mode, while the word printed beside it was *attestation*. And it measured the SCANNER's own
+host clock, while every framework control about time synchronisation (PCI DSS 10.6, NIST SP 800-171
+3.3.7, ISO 27001 A.8.17, CIS v8 8.4, NIST CSF PR.PS-04) asks about the customer's estate.
+
+**Point users at opt-in RFC 3161 timestamping instead** — `NSAUDITOR_TSA_URL`, an outbound call to a
+third party and off by default; the `.tsr` time comes from the authority rather than from this host.
+
+**⚠️ The attestation's SHAPE did not change.** `scan_attestation_<fw>.json` still carries all six `ntp`
+keys, now as constants, because the envelope is a frozen schema id and every pack a customer already
+holds carries them. A null `probedAt` is not a failed probe.
+
+Plugin catalog UNCHANGED at 29 EE; all eight coverage matrices UNCHANGED.
+
+---
+
 ## 0.2.49 (2026-09-04) — the client-report release
 
 Paired with **Enterprise 0.44.0 / Community 0.2.51**. **NOT a floor bump: Community stays `>= 0.2.49`.**

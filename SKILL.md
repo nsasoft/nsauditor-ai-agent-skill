@@ -16,9 +16,41 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.49 (knowledge current as of **EE 0.44.0** · **requires CE ≥ 0.2.49**) — the client-report release.
+> **Version:** 0.2.50 (knowledge current as of **EE 0.45.0** · **requires CE ≥ 0.2.49**) — the NTP-withdrawal release.
 >
-> **What EE 0.44.0 / CE 0.2.51 teaches, and both items are about what a REPORT may claim.**
+> **What EE 0.45.0 teaches, and it is a REFUSAL rule before it is a feature note.**
+> **⚠️ THE NTP CLOCK ATTESTATION IS WITHDRAWN. Do not describe it, offer it, or plan around it.**
+> `utils/ntp_probe.mjs` is deleted, the compliance phase's clock stage is a withdrawal record, and the
+> three options that gated it are gone.
+> **WITHDRAWN and never real: there is no `NSAUDITOR_NTP_*` environment variable, and there never was.**
+> **`COMPLIANCE_NTP_STRICT` is WITHDRAWN as well** — published to auditors, read by zero code in either
+> repo. If a user asks how the scanner measures clock drift, the answer is that it does not — and the
+> honest next sentence names the opt-in RFC 3161 path, which is off unless a Time-Stamp Authority is
+> configured. **It is NOT on a roadmap:** a hedge like "planned" or "not yet wired" is now a promise
+> about work nobody has scheduled, which is the opposite of the disclosure it used to be.
+> **Why it was withdrawn rather than finished, because a user will ask and the reason is teachable.**
+> The probe accepted any reply of at least 48 bytes carrying a non-null transmit timestamp and nothing
+> else — no mode byte, no stratum check, no originate-timestamp echo — so over unauthenticated UDP a
+> datagram of the right shape produced a false clean reading, or a false abort in strict mode, while
+> the word printed beside it was *attestation*. **And it answered the wrong question:** it measured the
+> SCANNER's own host clock, while every framework control about time synchronisation (PCI DSS 10.6,
+> NIST SP 800-171 3.3.7, ISO 27001 A.8.17, CIS v8 8.4, NIST CSF PR.PS-04) asks about the CUSTOMER's
+> estate — which this probe never read.
+> **What to point at instead: RFC 3161 trusted timestamping, untouched and opt-in.** Set
+> `NSAUDITOR_TSA_URL` to a Time-Stamp Authority and each artifact ships a `.tsr` sidecar whose time
+> comes from the AUTHORITY, not from this host, so a wrong host clock cannot corrupt it. An assessor
+> comparing the pack's `generatedAt` against the token's signing time reads host skew more reliably
+> than the withdrawn probe ever could, with a signature behind it. ⚠️ It is an OUTBOUND call to a third
+> party and off by default — say both when you recommend it.
+> **⚠️ THE ATTESTATION'S SHAPE DID NOT CHANGE, and that matters when you help someone diff two packs.**
+> `scan_attestation_<fw>.json` still carries all six `ntp` keys — `driftSeconds`, `source`, `note`,
+> `probedAt`, `error`, `staleness` — now as constants, because `nsauditor.scope-attestation/v1` is a
+> frozen schema id and every pack a customer already holds carries them. `staleness.status` is
+> `unknown` and its `reason` names the withdrawal. **A null `probedAt` is not a failed probe.**
+> Plugin catalog UNCHANGED at 29 EE; all eight coverage matrices UNCHANGED; **peer floor UNCHANGED at
+> CE ≥ 0.2.49** — derived, not a bump. CE 0.2.52 changes no scanner behaviour.
+>
+> **Prior: 0.2.49** — what EE 0.44.0 / CE 0.2.51 taught, and both items were about what a REPORT may claim.
 > **(1) There is a `report` subcommand now, and it is Pro-gated.**
 > `nsauditor-ai report --from <dir> --format executive|jira` turns a completed scan run under
 > `--from` into a client-facing deliverable — an HTML report a consultant sends to their
