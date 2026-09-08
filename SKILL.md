@@ -33,9 +33,11 @@ description: >
 > else — no mode byte, no stratum check, no originate-timestamp echo — so over unauthenticated UDP a
 > datagram of the right shape produced a false clean reading, or a false abort in strict mode, while
 > the word printed beside it was *attestation*. **And it answered the wrong question:** it measured the
-> SCANNER's own host clock, while every framework control about time synchronisation (PCI DSS 10.6,
-> NIST SP 800-171 3.3.7, ISO 27001 A.8.17, CIS v8 8.4, NIST CSF PR.PS-04) asks about the CUSTOMER's
-> estate — which this probe never read.
+> SCANNER's own host clock, while every framework control that asks about time synchronisation —
+> PCI DSS 10.6.1, NIST SP 800-171 3.3.7, ISO/IEC 27001:2022 A.8.17 and CIS v8 8.4 — asks about the
+> CUSTOMER's estate, which this probe never read. ⚠️ **NIST CSF 2.0 is deliberately NOT in that list:
+> it has no time-synchronisation subcategory at all.** Its `PR.PS-04` is *log-record generation*, which
+> DEPENDS on accurate clocks without asking about them — do not cite it as a clock control.
 > **What to point at instead: RFC 3161 trusted timestamping, untouched and opt-in.** Set
 > `NSAUDITOR_TSA_URL` to a Time-Stamp Authority and each artifact ships a `.tsr` sidecar whose time
 > comes from the AUTHORITY, not from this host, so a wrong host clock cannot corrupt it. An assessor

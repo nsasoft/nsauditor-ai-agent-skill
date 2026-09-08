@@ -21,8 +21,7 @@ rather than a disclosure.
 transmit timestamp and nothing else — no mode byte, no stratum check, no originate-timestamp echo — so
 over unauthenticated UDP a datagram of the right shape produced a false clean reading, or a false abort
 in strict mode, while the word printed beside it was *attestation*. And it measured the SCANNER's own
-host clock, while every framework control about time synchronisation (PCI DSS 10.6, NIST SP 800-171
-3.3.7, ISO 27001 A.8.17, CIS v8 8.4, NIST CSF PR.PS-04) asks about the customer's estate.
+host clock, while every framework control about time synchronisation (PCI DSS 10.6.1, NIST SP 800-171 3.3.7, ISO/IEC 27001:2022 A.8.17 and CIS v8 8.4 — and NOT NIST CSF 2.0, which has no time-synchronisation subcategory at all) asks about the customer's estate.
 
 **Point users at opt-in RFC 3161 timestamping instead** — `NSAUDITOR_TSA_URL`, an outbound call to a
 third party and off by default; the `.tsr` time comes from the authority rather than from this host.
