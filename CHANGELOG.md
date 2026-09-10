@@ -4,6 +4,24 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.51 (2026-09-09) — the retired PCI density label, and why a pointer did not save it
+
+Paired with **Enterprise 0.46.0 / Community 0.2.53**. **NOT a floor bump: Community stays
+`>= 0.2.49`.** Plugin enumeration unchanged at 29 Enterprise plugins.
+
+`references/plugins.md` read *"MVP-67 density: 67 of ~250 sub-requirements"*. The Enterprise
+0.46.0 cycle derived the PCI eligibility set from PCI DSS v4.0.1 itself rather than from a
+transcribed list, and the enumeration moved to **72 — 19 covered, 9 partial, 44 declared out of
+scope with a stated reason**. `MVP-67` is a retired LABEL, not merely a stale number: it names a
+density programme the product no longer runs, so there is no correct figure to put after `MVP-`.
+
+⚠️ **The line already carried the right instruction and it did not help.** It said, and still
+says, *call `compliance_matrix` for the current triple* — a pointer at a derived source sitting
+directly beside a transcribed number. **A pointer beside a hard-coded figure does not stop the
+figure rotting; only removing the figure does.** That is the durable half of this entry.
+
+---
+
 ## 0.2.50 (2026-09-07) — the NTP-withdrawal release
 
 Paired with **Enterprise 0.45.0 / Community 0.2.52**. **NOT a floor bump: Community stays `>= 0.2.49`.**

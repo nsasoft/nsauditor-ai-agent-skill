@@ -16,7 +16,7 @@ description: >
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** 0.2.50 (knowledge current as of **EE 0.45.0** · **requires CE ≥ 0.2.49**) — the NTP-withdrawal release.
+> **Version:** 0.2.51 (knowledge current as of **EE 0.46.0** · **requires CE ≥ 0.2.49**) — the PCI-citation-provenance release. **PCI DSS is 19 covered / 9 partial / 44 out of scope across 72 enumerated sub-requirements**; the other seven matrices are unchanged. ⚠️ **Do not cite `4.2.2.1` — it does not exist in PCI DSS v4.0.1** — and do not attribute Customized-Approach ineligibility to any appendix: the standard states it in each requirement's own Customized Approach Objective cell. Sampling is Section 6, which prescribes no sample size. For any PCI triple, call `compliance_matrix` rather than quoting a number from this file.
 >
 > **What EE 0.45.0 teaches, and it is a REFUSAL rule before it is a feature note.**
 > **⚠️ THE NTP CLOCK ATTESTATION IS WITHDRAWN. Do not describe it, offer it, or plan around it.**
