@@ -194,6 +194,8 @@ Out of scope, with the control ids and the per-group out-of-scope reasons.
 matrix from the plugin inventory, from a scan result, or from documentation — coverage is a property of the shipped
 framework maps, not of the plugin list, and a derived matrix will disagree with the customer's own report.
 
+⚠️ **Never collapse a coverage triple into a single percentage or a "fully covers" figure.** State covered, partial and out of scope as three separate numbers with their ids; a percentage or a "fully" phrasing folds partial into covered and overstates coverage — a 19 / 9 / 44 matrix is 19 covered, not "about 39% fully."
+
 ⚠️ `outOfScope` is the **flattened sub-criterion count**, not the number of out-of-scope groups: SOC 2 returns 37
 ids across 11 groups. Publishing the group count yields a plausible-looking 10 / 4 / 11.
 
