@@ -4,6 +4,20 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.52 (⏳ PRE-PUBLISH — opened 2026-09-14, NOT YET ON npm) — Enterprise 1.0.0: the contract is binding, the counts are corrected
+
+Paired with **Enterprise 1.0.0**; **Community unchanged at 0.2.53** (no cargo, no bump). **NOT a
+floor bump: Community stays `>= 0.2.49`.** Plugin enumeration unchanged at 29 Enterprise plugins;
+all eight coverage matrices unchanged.
+
+What the skill now teaches: `Findings analyzed` counts findings rather than issues, so a 1.0.0 pack
+reads a SMALLER number than a 0.46.0 pack over the same estate and that is the correction — the new
+`report.summary.findingsReceived` / `findingsRouted` fields let an agent check the chain from the
+pack alone; an Azure RBAC assignment at the root scope is named as such; PCI DSS `11.5.2` is
+critical-file change detection. No tool surface changed.
+
+---
+
 ## 0.2.51 (2026-09-09) — the retired PCI density label, and why a pointer did not save it
 
 Paired with **Enterprise 0.46.0 / Community 0.2.53**. **NOT a floor bump: Community stays
