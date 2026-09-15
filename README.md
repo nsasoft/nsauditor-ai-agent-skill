@@ -9,6 +9,8 @@ An installable knowledge package that teaches AI coding agents how to use NSAudi
 
 Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS Code Copilot**, and any MCP-aware agent.
 
+> **About the `<!-- nsa:derived id="…" -->…<!-- /nsa:derived -->` markers in `SKILL.md`:** the text between them is a fact rendered by the Enterprise build from the trio's `package.json` files and shipped framework data (versions, the Community floor, plugin counts, matrix movement). Quote the text; the markers are only how it stays current.
+
 ## Current release
 
 **0.2.51** — paired with **Enterprise 0.46.0 / Community 0.2.53**. ⚠️ **NOT a floor bump: Community stays >= 0.2.49.** `references/plugins.md` carried the retired `MVP-67` PCI density label; the enumeration is **72 — 19 covered, 9 partial, 44 out of scope with a stated reason**, derived from the shipped framework file. The line already told a reader to call `compliance_matrix` for the current triple and that did not save it: **a pointer beside a hard-coded number does not stop the number rotting; only removing the number does.**
