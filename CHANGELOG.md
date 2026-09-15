@@ -6,7 +6,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ## 0.2.52 (⏳ PRE-PUBLISH — opened 2026-09-14, NOT YET ON npm) — Enterprise 1.0.0: the contract is binding, the counts are corrected
 
-Paired with **Enterprise 1.0.0**; **Community unchanged at 0.2.53** (no cargo, no bump). **NOT a
+Paired with **Enterprise 1.0.0 / Community 0.2.54** (Community is a README-only release; no scanner change). **NOT a
 floor bump: Community stays `>= 0.2.49`.** Plugin enumeration unchanged at 29 Enterprise plugins;
 all eight coverage matrices unchanged.
 
