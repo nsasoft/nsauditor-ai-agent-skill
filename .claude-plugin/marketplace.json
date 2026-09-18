@@ -1,0 +1,14 @@
+{
+  "name": "nsauditor-ai-agent-skill",
+  "owner": {
+    "name": "Nsasoft US LLC",
+    "url": "https://www.nsauditor.com"
+  },
+  "plugins": [
+    {
+      "name": "nsauditor-ai",
+      "source": "./",
+      "description": "Network security auditing and eight-framework compliance evidence with NSAuditor AI, for Claude Code."
+    }
+  ]
+}

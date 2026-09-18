@@ -20,6 +20,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { frontmatterViolations } from './frontmatter_contract.mjs';
 import { fileURLToPath } from 'node:url';
 
 const here = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -46,6 +47,17 @@ const members = ['SKILL.md', ...fs.readdirSync(path.join(here, 'references'))
  */
 const REQUIRED = ['SKILL.md', 'references/plugins.md', 'references/schemas.md', 'references/workflows.md'];
 const BYTE_FLOOR = 120_000;
+
+// ⚠️ THE CEILING, beside the floor below. The floor exists because the failure once was shipping
+// too little; this is the other edge — the description sits 41 chars under a hard cap, and one more
+// trigger phrase would break the skill on every surface at once, silently. Checked here because
+// this script already refuses on member and byte conditions: it is where refusals live.
+const fmViolations = frontmatterViolations(fs.readFileSync(path.join(here, 'SKILL.md'), 'utf8'));
+if (fmViolations.length) {
+  console.error('REFUSING: the skill frontmatter breaches its published contract:');
+  for (const v of fmViolations) console.error(`  - ${v}`);
+  process.exit(1);
+}
 
 const missing = REQUIRED.filter((m) => !members.includes(m) || !fs.existsSync(path.join(here, m)));
 if (missing.length) {

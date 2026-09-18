@@ -1,0 +1,12 @@
+{
+  "name": "nsauditor-ai",
+  "description": "Network security scanning, vulnerability assessment and cloud compliance-evidence auditing with NSAuditor AI, via its MCP server.",
+  "author": {
+    "name": "Nsasoft US LLC",
+    "url": "https://www.nsauditor.com"
+  },
+  "homepage": "https://github.com/nsasoft/nsauditor-ai-agent-skill",
+  "repository": "https://github.com/nsasoft/nsauditor-ai-agent-skill.git",
+  "license": "MIT",
+  "keywords": ["nsauditor", "network-security", "vulnerability-assessment", "compliance", "mcp"]
+}

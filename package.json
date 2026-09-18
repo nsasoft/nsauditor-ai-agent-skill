@@ -45,7 +45,10 @@
     "CHANGELOG.md",
     "LICENSE",
     "references/",
-    "examples/"
+    "examples/",
+    "bin/",
+    "scripts/",
+    ".claude-plugin/"
   ],
   "peerDependencies": {
     "nsauditor-ai": ">=0.2.49"
@@ -56,6 +59,10 @@
     }
   },
   "scripts": {
-    "build:desktop-zip": "node scripts/build_desktop_skill_zip.mjs"
+    "build:desktop-zip": "node scripts/build_desktop_skill_zip.mjs",
+    "test": "node --test"
+  },
+  "bin": {
+    "nsauditor-ai-agent-skill": "bin/nsauditor-ai-agent-skill.mjs"
   }
 }
