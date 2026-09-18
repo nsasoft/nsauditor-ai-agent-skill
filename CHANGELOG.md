@@ -4,7 +4,33 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.52 (⏳ PRE-PUBLISH — opened 2026-09-14, NOT YET ON npm) — Enterprise 1.0.0: the contract is binding, the counts are corrected
+## 0.2.53 (⏳ PRE-PUBLISH — opened 2026-09-18, NOT YET ON npm) — the skill installs itself now
+
+**`npx nsauditor-ai-agent-skill install`** copies the skill into `~/.claude/skills/` for Claude Code.
+**`npx nsauditor-ai-agent-skill build-zip --out ~/Desktop`** builds the Claude Desktop upload zip.
+
+⚠️ **The zip builder already existed and already worked — it was never DELIVERED.** `files[]`
+excluded `scripts/` and there was no `bin`, so a guarded, working builder reached zero users while
+the maintainer ran it from a checkout every release. It ships now, with the CLI in front of it.
+Members are DERIVED from disk on both paths, and `install` REFUSES rather than copying a partial
+skill, because a skill missing a reference file loads and is silently poorer.
+
+**An explicit command, never a `postinstall`** — writing into `$HOME` from a postinstall is skipped
+under `--ignore-scripts`, breaks in CI and sandboxes, and orphans files on uninstall.
+
+**Claude Code users can now add this as a plugin marketplace:**
+`/plugin marketplace add nsasoft/nsauditor-ai-agent-skill`, then `/plugin install`. The manifests
+deliberately carry NO version, so they track the commit rather than needing a bump every release.
+⚠️ **Stated non-reach:** a marketplace installs into Claude Code only. It does **not** reach Claude
+Desktop, and nothing does — Desktop accepts skills only as an uploaded zip, and skills do not sync
+between surfaces.
+
+**A frontmatter ceiling joins the builder's existing floors.** The skill description is 983 of the
+1024 characters the platform allows; one more trigger phrase would break the skill on Claude Code,
+Desktop and the API at once, silently, because the frontmatter is rejected and the skill stops
+loading. The builder now refuses over-cap frontmatter instead of producing a zip nobody can install.
+
+## 0.2.52 (2026-09-15) — Enterprise 1.0.0: the contract is binding, the counts are corrected
 
 Paired with **Enterprise 1.0.0 / Community 0.2.54** (Community is a README-only release; no scanner change). **NOT a
 floor bump: Community stays `>= 0.2.49`.** Plugin enumeration unchanged at 29 Enterprise plugins;
