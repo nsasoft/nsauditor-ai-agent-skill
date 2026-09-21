@@ -41,6 +41,31 @@ test('the PACKAGE SHIPS the builder and the CLI — the whole defect was that it
     'the zip builder must be in the tarball — it works, it was simply never delivered');
 });
 
+test('the CHANGELOG is NOT shipped, and nothing shipped POINTS at it', () => {
+  // ⚠️ BOARD S1. `CHANGELOG.md` is 200 kB of a 428 kB tarball — 47% of what every agent
+  // installing this skill downloads — and no shipped code reads it, the Desktop zip never
+  // included it (its members are SKILL.md + references/*.md, derived), and no test pinned it.
+  // Dropping it halves the package.
+  //
+  // ⚠️ THE SECOND ASSERTION IS THE ONE THAT NEARLY SHIPPED BROKEN. Removing a file leaves the
+  // POINTERS to it, and the README does ship: it carried two relative links, `[CHANGELOG.md]
+  // (./CHANGELOG.md)`, which resolve to nothing inside an installed package. npm rewrites
+  // relative links on the package PAGE, so the defect would have been invisible exactly where
+  // people look and live exactly where they do not. They point at the repository now.
+  const r = spawnSync('npm', ['pack', '--dry-run', '--json'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const files = JSON.parse(r.stdout)[0].files.map((f) => f.path);
+  assert.ok(!files.includes('CHANGELOG.md'),
+    'the CHANGELOG is back in the tarball — it is 47% of the package and nothing reads it');
+  const shipped = files.filter((f) => f.endsWith('.md'));
+  for (const f of shipped) {
+    const body = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    const relative = [...body.matchAll(/\]\((\.\/)?CHANGELOG\.md\)/g)];
+    assert.equal(relative.length, 0,
+      `${f} links to ./CHANGELOG.md relatively, which is dead inside an installed package`);
+  }
+});
+
 test('`install --dest` copies EVERY shipped member, not merely SKILL.md', () => {
   const dest = tmp();
   const r = run('install', '--dest', dest);
