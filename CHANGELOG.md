@@ -30,6 +30,15 @@ between surfaces.
 Desktop and the API at once, silently, because the frontmatter is rejected and the skill stops
 loading. The builder now refuses over-cap frontmatter instead of producing a zip nobody can install.
 
+⚠️ **`scan_host` never had a `timeout` input, and the skill taught one.** The tool advertised a
+per-call `timeout` (default 30000) that its handler never read, and this skill showed it twice — a
+parameter row and an example call. Community 0.2.55 removes it from the tool, and the skill no
+longer teaches it. The timeout guidance is corrected with it. `PLUGIN_TIMEOUT_MS` is the per-plugin
+budget that `scan_host` and `probe_service` bind every plugin to. On the CLI a plugin that declares
+its own budget outranks it, and `PLUGIN_TIMEOUT_CEILING_MS` is what caps those. The budget bounds
+each plugin, not the call, which is roughly their sum. A plugin that ran out of time reads `timeout`
+in the result's `manifest`, which means NOT measured, never clean.
+
 ## 0.2.52 (2026-09-15) — Enterprise 1.0.0: the contract is binding, the counts are corrected
 
 Paired with **Enterprise 1.0.0 / Community 0.2.54** (Community is a README-only release; no scanner change). **NOT a

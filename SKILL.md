@@ -165,13 +165,17 @@ order (discovery → service probes → OS detection → result fusion).
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `host` | string | ✅ | — | Target hostname or IP address |
-| `timeout` | number | ❌ | 30000 | Per-plugin timeout in ms |
+
+Every plugin runs under the server's `PLUGIN_TIMEOUT_MS` (default 30000), including a plugin that
+declares a longer budget of its own; there is no per-call timeout. A plugin that runs out of time
+reads `timeout` in the result's `manifest` — its surface was NOT measured, which is never a clean
+result.
 
 **Returns:** `{ summary, host, services[], findings[] }` — see `references/schemas.md`
 
 **Example:**
 ```json
-{ "host": "192.168.1.1", "timeout": 10000 }
+{ "host": "192.168.1.1" }
 ```
 
 **Important:**
@@ -515,7 +519,8 @@ See `references/schemas.md` for complete structures:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `NSA_ALLOW_ALL_HOSTS` | unset | Set to `1` to scan RFC 1918 private ranges |
-| `PLUGIN_TIMEOUT_MS` | 30000 | Global per-plugin timeout |
+| `PLUGIN_TIMEOUT_MS` | 30000 | Per-plugin budget. `scan_host` and `probe_service` bind every plugin to it; on the CLI a plugin that declares its own budget outranks it |
+| `PLUGIN_TIMEOUT_CEILING_MS` | 120000 | Upper bound on any plugin's declared budget — the setting that caps every plugin on the CLI |
 | `AI_ENABLED` | false | Enable AI analysis |
 | `AI_PROVIDER` | openai | `openai` · `claude` · `ollama` |
 | `OPENAI_API_KEY` | — | OpenAI API key (or `keychain:OPENAI_API_KEY`) |
@@ -579,6 +584,10 @@ claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
 }
 ```
 
+`PLUGIN_TIMEOUT_MS` bounds each plugin `scan_host` runs, not the call: the plugins run one after
+another, so the call takes roughly the sum of their times and fits inside Claude Desktop's ~60 s
+tool-call limit only when most of them finish quickly.
+
 > ⚠️ **`NSA_MCP_AUTH_KEY` is REQUIRED — the server refuses to start without it.** Generate one with
 > `nsauditor-ai mcp install-key`, then put the SAME value in the `env` block above. Without it the MCP
 > server exits at startup and the client shows the tools as unavailable. (`NSA_MCP_AUTH_DISABLE=1`
@@ -607,7 +616,7 @@ Add to your MCP configuration with the same command/args pattern.
 |-------|-------|-----------|
 | SSRF block | Target is loopback/metadata/private | Set `NSA_ALLOW_ALL_HOSTS=1` for local scanning |
 | License gate (`🔒`) | Pro/Enterprise tool on CE | Upgrade license or use CE alternative |
-| Plugin timeout | Network unreachable / slow target | Increase `timeout` param or `PLUGIN_TIMEOUT_MS` |
+| Plugin timeout (`timeout` in `manifest`) | Network unreachable / slow target | Not measured, never clean. Raise `PLUGIN_TIMEOUT_MS` in the server env, or scan from the CLI, where a plugin that declares its own budget gets it |
 | No DNS banner | Provider blocks CHAOS/TXT queries | Expected; not all DNS servers expose version |
 | CPE format error | Malformed CPE string | Use `cpe:2.3:a:vendor:product:version:*:*:*:*:*:*:*` |
 | No services found | Host down or heavily firewalled | Try `NSA_VERBOSE=true` to debug; check connectivity |
