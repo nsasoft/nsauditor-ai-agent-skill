@@ -131,7 +131,7 @@ Run:
 This rescans every 15 minutes, detects changes (new/removed services, version
 changes, new findings), and sends webhook alerts for high+ severity changes.
 
-Scan history is stored in .scan_history/ as JSONL for trend analysis."
+Each scan appends one line per host to scan_history.jsonl in the output directory (--out, default out/)."
 ```
 
 ---

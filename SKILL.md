@@ -479,7 +479,7 @@ See `references/schemas.md` for complete structures:
 
 - **Scan Result** (`scan_host`) — `{ host, conclusion{ result{ summary, host, services[], evidence[] } }, manifest[], pluginsRan, markdown }`
 - **ServiceRecord** — `{ port, protocol, service, program, version, status, banner, evidence[] }`
-- **Finding** — `{ id, category, severity, title, evidence, remediation, cwe, mitre_attack[] }`
+- **Finding** (Pro/Enterprise queue) — `{ id, category, status, title, severity, cvss, target, evidence{ source, cve[], mitre[], raw }, remediation{ summary, effort, references[] }, riskScore }`
 - **CVE Response** (`get_vulnerabilities`) — `{ cpe, totalResults, cves[]{ cveId, cvssScore, severity, vectorString } }`
 - **Plugin Interface** — `{ id, name, priority, run(), conclude(), requirements }`
 - **SARIF Output** — 2.1.0 format for CI/CD consumers

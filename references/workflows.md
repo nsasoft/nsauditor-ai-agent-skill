@@ -170,8 +170,8 @@ nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
 - Rescans on configurable interval (minutes)
 - Delta detection: new services, removed services, version changes
 - Fires JSON POST webhook on changes exceeding severity threshold
-- Scan history stored in `.scan_history/` (JSONL format)
-- CE: 7-day retention; Pro/Enterprise: configurable
+- Scan history appended to `scan_history.jsonl` in the output directory (`--out`, default `out/`), one line per host
+- CE: 7-day retention; Pro/Enterprise: every line kept (neither is configurable)
 
 **Webhook Payload:**
 

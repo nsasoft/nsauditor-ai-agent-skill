@@ -195,71 +195,104 @@ export default {
 
 ---
 
-## Finding Schema
+## Finding Schema (the Pro / Enterprise finding queue)
 
-Structured finding format used across all tiers:
+Pro and Enterprise write a network host's findings to `scan_finding_queue.json` in that host's scan
+directory: the CVE engine's rows, the analysis agents' rows, and their coverage-gap records. Community
+never writes a queue. A CVE row, which carries every field:
 
 ```json
 {
-  "id": "F-<uuid-v4>",
-  "category": "AUTH | CRYPTO | CONFIG | SERVICE | EXPOSURE | CVE",
-  "severity": "CRITICAL | HIGH | MEDIUM | LOW | INFO",
-  "status": "UNVERIFIED | VERIFIED | POTENTIAL | FALSE_POSITIVE",
-  "title": "Short descriptive title",
-  "description": "Detailed explanation of the finding",
+  "id": "F-e36aa296-e81d-4986-a5ed-66cc36897c06",
+  "category": "CVE",
+  "status": "UNVERIFIED",
+  "title": "CVE-2020-25681 — udp/dns",
+  "description": "A flaw was found in dnsmasq before version 2.83. A heap-based buffer overflow …",
+  "severity": "HIGH",
+  "cvss": 8.1,
   "target": {
     "host": "192.168.1.1",
-    "port": 22,
-    "protocol": "tcp"
+    "port": 53,
+    "protocol": "udp",
+    "service": "dns",
+    "program": "dnsmasq",
+    "version": "2.78"
   },
   "evidence": {
-    "banner": "OpenSSH_7.4",
-    "version": "7.4p1 Debian",
-    "detectionMethod": "SSH banner grabbing",
-    "verification": {
-      "probeType": "safe-connect",
-      "timestamp": "2026-04-11T12:00:00Z",
-      "result": "confirmed"
+    "source": "intelligence_engine",
+    "cve": [
+      "CVE-2020-25681"
+    ],
+    "mitre": [
+      "T1590.002 — Gather Victim Network Information: DNS"
+    ],
+    "raw": {
+      "cpe": "cpe:2.3:a:thekelleys:dnsmasq:2.78:*:*:*:*:*:*:*",
+      "cvssVector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "published": "2021-01-20T17:15:00.000"
     }
   },
   "remediation": {
-    "action": "Upgrade OpenSSH to 9.x+",
-    "priority": "HIGH",
-    "timeline": "Immediate"
+    "summary": "Update dnsmasq 2.78 to a patched version. See CVE-2020-25681.",
+    "effort": "MEDIUM",
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2020-25681"
+    ]
   },
-  "cwe": "CWE-326",
-  "mitre_attack": ["T1021.004"],
-  "cves": ["CVE-2023-38408"],
-  "verified": false,
-  "confidence": "high | medium | low"
+  "riskScore": 0.49,
+  "kev": false,
+  "knownRansomwareCampaignUse": null,
+  "kevMatchedCve": null,
+  "kevAsOf": "2026-09-18T19:00:05.0974Z",
+  "kevStoreState": "fresh",
+  "epssScore": 0.81191,
+  "epssPercentile": 0.99616,
+  "epssMatchedCve": "CVE-2020-25681",
+  "epssAsOf": "2026-09-20T12:00:23Z",
+  "epssModelVersion": "v2026.06.15",
+  "epssStoreState": "fresh",
+  "exploitPriority": "ELEVATED",
+  "exploitPriorityReason": null
 }
 ```
 
+**Every row:** `id` · `category` · `status` · `title` · `severity` · `cvss` · `target` · `evidence` · `remediation` · `riskScore`
+
+**Most rows:** `description` — the analysis agents' own findings omit it: `auth_agent` · `config_agent` · `crypto_agent` · `exposure_agent` · `service_agent`. The CVE engine's rows and every coverage-gap record carry it.
+
+**CVE-bearing rows, once KEV / EPSS data is loaded:** `kev` · `knownRansomwareCampaignUse` · `kevMatchedCve` · `kevAsOf` · `kevStoreState` · `epssScore` · `epssPercentile` · `epssMatchedCve` · `epssAsOf` · `epssModelVersion` · `epssStoreState` · `exploitPriority` · `exploitPriorityReason`
+
+- `id` is `F-<uuid-v4>`, assigned when the row is queued.
+- `target` is `{ host, port, protocol, service, program, version }`; `evidence` is `{ source, cve[], mitre[], raw }`,
+  where `raw` belongs to the producer (a CVE row's `cpe`, `cvssVector`, `published`; a coverage-gap row's
+  `evidenceGap`, `gapClass`, …); `remediation` is `{ summary, effort, references[] }` on every row.
+- `evidence.cwe[]` and `evidence.owasp[]` are accepted by the validator, but no shipped producer emits them.
+
+**Severities:** `CRITICAL` · `HIGH` · `MEDIUM` · `LOW` · `INFO`
+
 ### Finding Categories
 
-| Category | Description | Examples |
-|----------|-------------|---------|
-| `AUTH` | Authentication weaknesses | Default credentials, anonymous login, weak auth |
-| `CRYPTO` | Encryption / TLS issues | Weak ciphers, deprecated TLS, expired certificates |
-| `CONFIG` | Misconfigurations | Debug mode, dangerous HTTP methods, CORS misconfig |
-| `SERVICE` | Service-level risks | Exposed management ports, known CVEs |
-| `EXPOSURE` | Network exposure | Internet-facing services, broadcast protocols |
-| `CVE` | Known CVE matches | NVD-confirmed vulnerabilities |
+| Category | What produces it |
+|----------|------------------|
+| `AUTH` | Authentication checks: anonymous access, default credentials, password and cleartext logins |
+| `CRYPTO` | Transport-encryption checks: TLS versions, cipher suites, certificates, cleartext protocols |
+| `CONFIG` | Configuration checks: version disclosure, directory listing, debug endpoints, exposed legacy services |
+| `SERVICE` | End-of-life software checks |
+| `EXPOSURE` | Exposure checks: database, management and lateral-movement ports |
+| `CVE` | CVE matches from NVD for a detected program and version, and the engine's coverage-gap notes |
 
 ### Finding Statuses
 
 | Status | Meaning |
 |--------|---------|
-| `UNVERIFIED` | Detected by a scanner. **This is the status every finding carries today** — see the WITHDRAWN note below. |
+| `UNVERIFIED` | Detected by a scanner. **Every row a scan writes carries this status.** |
 | `VERIFIED` | Reserved for the planned Verification Engine. No shipped code sets it. |
 | `POTENTIAL` | Reserved for the planned Verification Engine. No shipped code sets it. |
-| `FALSE_POSITIVE` | Set by an operator suppression, not by a probe. |
+| `FALSE_POSITIVE` | Reserved. No shipped code sets it on a queued row. (An operator suppression marks a compliance *violation* as a false positive — a different object, in the compliance pack.) |
 
 > **The Verification Engine is planned, not shipped** (withdrawn as a capability claim at EE
-> 0.32.7). The status field and its risk-weighting scaffolding exist — which is why the enum
-> is documented here — but the probe machinery that would populate `VERIFIED` / `POTENTIAL`
-> is WITHDRAWN and does not ship. Read `UNVERIFIED` as "this is what the scanner detected", never as
-> "this was tried and could not be confirmed".
+> 0.32.7). Read `UNVERIFIED` as "this is what the scanner detected", never as "this was tried and
+> could not be confirmed".
 
 ---
 
@@ -366,11 +399,17 @@ Keys dropped entirely: `IP6`, `deviceWebPage`, `hardwareVersion`, `firmwareVersi
 
 ## Scan History Schema (JSONL)
 
-Each line in `.scan_history/` is one scan record:
+Every scan appends one line per host to `scan_history.jsonl` in its output directory (`--out`, default `out/`):
 
 ```jsonl
-{"timestamp":"2026-04-11T12:00:00Z","host":"192.168.1.1","pluginsRan":25,"services":8,"findings":3,"conclusion":{...}}
-{"timestamp":"2026-04-11T13:00:00Z","host":"192.168.1.1","pluginsRan":25,"services":8,"findings":2,"conclusion":{...}}
+{"timestamp":"2026-09-24T01:32:08.915Z","host":"192.168.1.1","servicesCount":12,"openPorts":[21,22,53,80,443],"os":"Embedded Linux","findingsCount":64,"findingsCountBasis":"loader-shaped-v2","tier":"enterprise","cloudFindingsCount":0,"services":[{"port":22,"protocol":"tcp","service":"ssh","version":"8.2p1"}]}
+{"timestamp":"2026-09-24T01:20:45.180Z","host":"aws","servicesCount":0,"openPorts":[],"os":null,"findingsCount":139,"findingsCountBasis":"loader-shaped-v2","tier":"enterprise","cloudFindingsCount":159,"services":[]}
 ```
 
-Used for CTEM delta/trend analysis. CE retains 7 days; Pro/Enterprise configurable.
+- `findingsCountBasis` and `tier` say what `findingsCount` counted. The scan-to-scan diff refuses to compare
+  two lines whose basis or tier differs, or whose tier is unknown, rather than reading the change as new
+  or resolved findings.
+- `cloudFindingsCount` is the raw number of findings the plugins returned (evidence gaps and scope
+  statements included); `findingsCount` is the report loader's shaped count, so the raw figure can exceed it.
+- Retention: Community keeps **7 days** (older lines are pruned after each scan); Pro and Enterprise keep
+  every line. Neither is configurable.

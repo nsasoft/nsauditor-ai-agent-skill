@@ -54,6 +54,34 @@ against the real handlers.**
 example no longer includes ATT&CK `techniques`, which the CLI adds to its own report and this tool does
 not return. The schema summary, the workflow step and the ATT&CK note say the same.
 
+⚠️ **The Finding and Scan History schemas are rewritten from what the product writes, and eleven fields are
+WITHDRAWN.** The finding schema documented fields no shipped code emits:
+- top-level `mitre_attack`: the real field is `evidence.mitre[]`;
+- top-level `cwe`: the validator accepts `evidence.cwe[]` and `evidence.owasp[]`, but no producer emits
+  either;
+- top-level `cves`: the real field is `evidence.cve[]`;
+- `verified` and `confidence`;
+- `evidence.banner`, `evidence.version`, `evidence.detectionMethod` and `evidence.verification`;
+- `remediation.action`, `remediation.priority` and `remediation.timeline`.
+
+It is now the real Pro / Enterprise queue row, with three groups of fields:
+- the fields every row carries;
+- `description`, which the analysis agents' own findings omit;
+- the thirteen exploit-intelligence fields, which appear only on CVE-bearing rows once KEV / EPSS data is
+  loaded.
+
+Also corrected:
+- The categories table now says what produces each category.
+- `FALSE_POSITIVE` is not set on a queued row by an operator suppression. That marks a compliance
+  violation, which is a different object.
+- "used across all tiers" is corrected: Community never writes a queue.
+
+The scan-history line documented `pluginsRan`, `services` as a number, `findings` and `conclusion` under
+`.scan_history/`, with Pro/Enterprise retention "configurable". It is really `{ timestamp, host,
+servicesCount, openPorts, os, findingsCount, findingsCountBasis, tier, cloudFindingsCount, services[] }`,
+in `scan_history.jsonl` in the output directory. Community keeps 7 days, Pro and Enterprise keep every
+line, and neither is configurable.
+
 ## 0.2.52 (2026-09-15) — Enterprise 1.0.0: the contract is binding, the counts are corrected
 
 Paired with **Enterprise 1.0.0 / Community 0.2.54** (Community is a README-only release; no scanner change). **NOT a
