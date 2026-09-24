@@ -131,7 +131,7 @@ Claude Code auto-discovers skills in `.claude/skills/`.
 
 ### Claude Desktop
 
-Upload `SKILL.md` as project knowledge in your Claude Desktop project settings.
+Build the upload zip with `npx nsauditor-ai-agent-skill build-zip --out ~/Desktop`, then upload that `nsauditor-ai-skill-<version>.zip` in Claude Desktop's Settings (skills). Upload the zip, never `SKILL.md` alone: SKILL.md is under half of the skill, and its links to the reference files would point at nothing. Fully quit and relaunch Desktop after replacing a skill.
 
 ### Cursor
 
@@ -168,7 +168,7 @@ When an AI agent loads this skill, it gains:
 | **Security rules** | ZDE, SSRF protection, redaction, scan authorization requirements |
 | **Error handling** | License gates, SSRF blocks, timeout resolution, CPE format errors |
 | **Decision routing** | When to use scan_host vs probe_service vs CLI vs get_vulnerabilities |
-| **Cloud-region scoping** | The MCP `scan_cloud` `regions` argument — pass `["all"]` (or a region-code list like `["us-east-1","eu-west-1"]`) to audit every / specific AWS regions; **omit it to scan the server-configured `AWS_REGION`** (omitting does NOT fan out — pass `["all"]` explicitly for full coverage, mindful of the Desktop tool-call timeout). Mirrors the CE CLI `--aws-region <one\|csv\|all>` flag. |
+| **Cloud-region scoping** | The MCP `scan_cloud` `regions` argument — pass `["all"]` (or a region-code list like `["us-east-1","eu-west-1"]`) to audit every / specific AWS regions; **omit it** and the auditors that take their region from the client scan the server-configured `AWS_REGION` only, while the ones that enumerate their own region list (CloudTrail trail discovery, GuardDuty/Inspector, EC2 instances) still attempt every enabled region — pass `["all"]` explicitly to extend every region-scoped check, mindful of the Desktop tool-call timeout. Mirrors the CE CLI `--aws-region <one\|csv\|all>` flag. |
 
 ## Prerequisites
 

@@ -25,6 +25,14 @@ deliberately carry NO version, so they track the commit rather than needing a bu
 Desktop, and nothing does — Desktop accepts skills only as an uploaded zip, and skills do not sync
 between surfaces.
 
+**Region scope and the Desktop install are now taught correctly.** SKILL.md told the assistant that
+omitting `regions` scans only the server-default region, and to "say exactly that". With `regions` omitted,
+CloudTrail trail discovery (1040), GuardDuty/Inspector (1200) and EC2 instances (1210) still attempt every
+enabled region; the assistant now reports each of them as covering every region only where the run shows no
+region gap for it. SKILL.md also said `scan_cloud` maps findings to frameworks; it maps nothing.
+The README's Claude Desktop instruction said to upload SKILL.md as project knowledge, which delivers under
+half the skill; it now says to build the zip and upload that.
+
 **A frontmatter ceiling joins the builder's existing floors.** The skill description is 983 of the
 1024 characters the platform allows; one more trigger phrase would break the skill on Claude Code,
 Desktop and the API at once, silently, because the frontmatter is rejected and the skill stops
