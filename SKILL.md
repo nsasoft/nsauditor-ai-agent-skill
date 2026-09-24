@@ -171,7 +171,10 @@ declares a longer budget of its own; there is no per-call timeout. A plugin that
 reads `timeout` in the result's `manifest` — its surface was NOT measured, which is never a clean
 result.
 
-**Returns:** `{ summary, host, services[], findings[] }` — see `references/schemas.md`
+**Returns:** `{ host, conclusion, manifest[], pluginsRan, markdown }` — `conclusion.result` is the fused
+record (`summary` is a one-line string; `host`, `services[]`, `evidence[]`), and `manifest[]`
+is every plugin's `{ id, name, status, reason, duration_ms }`. There is no `findings` array. See
+`references/schemas.md`.
 
 **Example:**
 ```json
@@ -217,7 +220,7 @@ List all available scanner plugins with metadata.
 |-----------|------|----------|-------------|
 | *(none)* | — | — | — |
 
-**Returns:** Array of `{ id, name, description, priority, protocols[], ports[], requirements }`
+**Returns:** Array of `{ id, name, priority, requirements }`
 
 **When to use:** Before a scan to understand available plugins, or to help the user select
 specific plugins for a targeted probe.
@@ -260,8 +263,9 @@ Look up known CVEs for a CPE string via the NVD 2.0 API.
 | `cpe` | string | ✅ | CPE 2.3 format (see CPE guide below) |
 | `maxResults` | number | ❌ | Max CVE results to return |
 
-**Returns:** `{ cpe, totalResults, vulnerabilities[] }` — each CVE includes ID, description,
-CVSS v3.1 score, severity, vector string, publication date.
+**Returns:** `{ cpe, totalResults, cves[] }` — each CVE is `{ cveId, description, cvssScore, severity,
+vectorString, published, lastModified }`; the CVSS fields are NVD's v3.1 metric, else v3.0, else `null`.
+`totalResults` counts the CVEs returned, after `maxResults`.
 
 **CPE Construction Guide:**
 
@@ -473,10 +477,10 @@ User wants to...
 
 See `references/schemas.md` for complete structures:
 
-- **Scan Result** — `{ summary, host{os,mac,vendor,names}, services[], findings[] }`
+- **Scan Result** (`scan_host`) — `{ host, conclusion{ result{ summary, host, services[], evidence[] } }, manifest[], pluginsRan, markdown }`
 - **ServiceRecord** — `{ port, protocol, service, program, version, status, banner, evidence[] }`
 - **Finding** — `{ id, category, severity, title, evidence, remediation, cwe, mitre_attack[] }`
-- **CVE Response** — `{ cpe, totalResults, vulnerabilities[]{cve_id, cvss, severity} }`
+- **CVE Response** (`get_vulnerabilities`) — `{ cpe, totalResults, cves[]{ cveId, cvssScore, severity, vectorString } }`
 - **Plugin Interface** — `{ id, name, priority, run(), conclude(), requirements }`
 - **SARIF Output** — 2.1.0 format for CI/CD consumers
 
@@ -626,7 +630,7 @@ Add to your MCP configuration with the same command/args pattern.
 
 ## MITRE ATT&CK Mapping
 
-Findings are auto-tagged with MITRE techniques:
+The CLI's report tags what it finds with MITRE techniques (the `scan_host` tool does not return them):
 
 | Finding Type | Technique | ID |
 |-------------|-----------|-----|

@@ -13,13 +13,14 @@ Step 1: list_plugins()
         → Understand available scanners, confirm what will run
 
 Step 2: scan_host({ host: "<target>" })
-        → Returns fused results: summary, host{os}, services[], findings[]
+        → Returns the run: conclusion.result (summary, host, services[]) and manifest[]
+        → A `timeout` or `error` in manifest[] means that surface was NOT measured
 
 Step 3: For each service with a detected program + version:
         → Construct CPE: cpe:2.3:a:<vendor>:<product>:<version>:*:*:*:*:*:*:*
         → get_vulnerabilities({ cpe: "<constructed_cpe>" })
 
-Step 4: Correlate CVEs with scan findings
+Step 4: Correlate CVEs with the services they were built from
         → Present prioritized list: Critical → High → Medium → Low
         → Include remediation guidance for each finding
 ```

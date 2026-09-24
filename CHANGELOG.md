@@ -39,6 +39,21 @@ its own budget outranks it, and `PLUGIN_TIMEOUT_CEILING_MS` is what caps those. 
 each plugin, not the call, which is roughly their sum. A plugin that ran out of time reads `timeout`
 in the result's `manifest`, which means NOT measured, never clean.
 
+⚠️ **Three tools' documented RETURN shapes were ones the tools do not produce, and they are corrected
+against the real handlers.**
+- `scan_host` was documented as `{ summary, host, services[], findings[] }`. It returns `{ host,
+  conclusion, manifest[], pluginsRan, markdown }`. The fused record is `conclusion.result`, where
+  `summary` is a one-line string, not an object. There is no `findings` array. `manifest[]` is where a
+  timeout is disclosed.
+- `list_plugins` returns `{ id, name, priority, requirements }`, without `description`, `protocols` or
+  `ports`.
+- `get_vulnerabilities` returns `cves[]` of `{ cveId, description, cvssScore, severity, vectorString,
+  published, lastModified }`, not `vulnerabilities[]` of `{ cve_id, cvss{…}, cwe, references }`.
+
+`references/schemas.md`'s two tool-output sections are rewritten from the real shapes. The scan-result
+example no longer includes ATT&CK `techniques`, which the CLI adds to its own report and this tool does
+not return. The schema summary, the workflow step and the ATT&CK note say the same.
+
 ## 0.2.52 (2026-09-15) — Enterprise 1.0.0: the contract is binding, the counts are corrected
 
 Paired with **Enterprise 1.0.0 / Community 0.2.54** (Community is a README-only release; no scanner change). **NOT a

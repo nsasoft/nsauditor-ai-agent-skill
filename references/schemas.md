@@ -6,78 +6,85 @@ Complete data structures for all MCP tool inputs and outputs.
 
 ## Scan Result Schema (`scan_host` output)
 
-The Result Concluder (plugin 008) fuses all plugin outputs into a normalized structure:
+`scan_host` returns the plugin run itself, with the Result Concluder's fused record inside it:
 
 ```json
 {
-  "summary": {
-    "host": "192.168.1.1",
-    "scan_time": "2026-04-11T12:00:00.000Z",
-    "duration_ms": 15432,
-    "plugins_run": 16,
-    "plugins_succeeded": 14,
-    "plugins_failed": 2,
-    "services_found": 8,
-    "findings_count": 3
-  },
-  "host": {
-    "ip": "192.168.1.1",
-    "hostname": "router.local",
-    "os": {
-      "family": "Linux",
-      "distro": "Ubuntu",
-      "version": "22.04",
-      "confidence": "high",
-      "source": "os_detector"
-    },
-    "mac": "AA:BB:CC:DD:EE:FF",
-    "vendor": "Ubiquiti",
-    "names": {
-      "mdns": "router.local",
-      "netbios": "ROUTER",
-      "upnp": "Ubiquiti EdgeRouter",
-      "dns_reverse": "router.example.com"
-    }
-  },
-  "services": [
-    {
-      "port": 22,
-      "protocol": "tcp",
-      "service": "ssh",
-      "program": "OpenSSH",
-      "version": "8.9p1",
-      "status": "open",
-      "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4",
-      "info": null,
-      "source": "ssh_scanner",
-      "authoritative": true,
+  "host": "192.168.1.1",
+  "conclusion": {
+    "id": "008",
+    "name": "Result Concluder",
+    "result": {
+      "summary": "Host is UP — OS: Linux — Open: ssh/22, http/80",
+      "host": {
+        "up": true,
+        "os": "Linux",
+        "osVersion": null,
+        "name": null
+      },
+      "services": [
+        {
+          "port": 22,
+          "protocol": "tcp",
+          "service": "ssh",
+          "program": "OpenSSH",
+          "version": "8.9p1",
+          "status": "open",
+          "info": null,
+          "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4",
+          "source": "ssh",
+          "evidence": [
+            {
+              "probe_protocol": "tcp",
+              "probe_port": 22,
+              "probe_info": "banner grab",
+              "response_banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4"
+            }
+          ],
+          "cpe": "cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*"
+        }
+      ],
       "evidence": [
         {
-          "probe_protocol": "tcp",
-          "probe_port": 22,
-          "probe_info": "banner grab",
-          "response_banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4"
+          "from": "Ping Checker",
+          "protocol": "icmp",
+          "port": 0,
+          "status": null,
+          "info": "Ping did not confirm host up"
         }
-      ]
+      ],
+      "source_count": 26,
+      "os_source": "013"
+    }
+  },
+  "manifest": [
+    {
+      "id": "003",
+      "name": "Port Scanner",
+      "status": "ran",
+      "reason": null,
+      "duration_ms": 6016
+    },
+    {
+      "id": "070",
+      "name": "MCP Scanner",
+      "status": "timeout",
+      "reason": "Plugin \"MCP Scanner\" timed out after 30000ms",
+      "duration_ms": 30001
     }
   ],
-  "findings": [
-    {
-      "id": "FINDING-001",
-      "category": "CRYPTO",
-      "severity": "HIGH",
-      "title": "TLSv1.0 supported",
-      "description": "Port 443 accepts TLSv1.0 connections which are deprecated.",
-      "evidence": { "port": 443, "protocol": "tcp", "tls_version": "TLSv1" },
-      "remediation": "Disable TLSv1.0 in the server configuration.",
-      "cwe": "CWE-326",
-      "mitre_attack": ["T1557"],
-      "verified": false,
-      "confidence": "high"
-    }
-  ]
+  "pluginsRan": 55,
+  "markdown": "# NSAuditor AI Scan Report …"
 }
 ```
+
+- `conclusion.result.summary` is a **one-line string**, not an object.
+- `conclusion.result.services[]` has one record per discovered or probed service; each carries its own
+  `evidence[]` and, where one could be built, a `cpe` for `get_vulnerabilities`.
+- `manifest[]` is every plugin's run status: `ran`, `skipped` (with its `reason`), `timeout` or
+  `error`. A `timeout` or `error` means that surface was **NOT measured** — never read it as clean.
+- There is **no `findings` array** in a `scan_host` result, and no `techniques`: the CLI adds ATT&CK
+  techniques to its own report, and this tool does not.
 
 ---
 
@@ -261,27 +268,24 @@ Structured finding format used across all tiers:
 ```json
 {
   "cpe": "cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*",
-  "totalResults": 3,
-  "vulnerabilities": [
+  "totalResults": 1,
+  "cves": [
     {
-      "cve_id": "CVE-2023-38408",
+      "cveId": "CVE-2023-38408",
       "description": "PKCS#11 feature in ssh-agent allows remote code execution...",
-      "published": "2023-07-20T00:00:00.000Z",
-      "lastModified": "2023-08-01T00:00:00.000Z",
-      "cvss": {
-        "version": "3.1",
-        "baseScore": 9.8,
-        "severity": "CRITICAL",
-        "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
-      },
-      "cwe": ["CWE-428"],
-      "references": [
-        "https://nvd.nist.gov/vuln/detail/CVE-2023-38408"
-      ]
+      "cvssScore": 9.8,
+      "severity": "CRITICAL",
+      "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "published": "2023-07-20T03:15:10.170",
+      "lastModified": "2023-08-01T00:00:00.000"
     }
   ]
 }
 ```
+
+- The CVSS fields (`cvssScore`, `severity`, `vectorString`) are NVD's v3.1 metric, else v3.0; a CVE with
+  neither carries `null` in all three.
+- `totalResults` counts the CVEs **returned** — after `maxResults`, if one was passed.
 
 ---
 
