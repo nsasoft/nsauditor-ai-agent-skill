@@ -136,7 +136,7 @@ Each scan appends one line per host to scan_history.jsonl in the output director
 
 ---
 
-## Example 6: "Audit DNS security for example.com" (Pro)
+## Example 6: "Audit DNS security for example.com" — `probe_service` (Pro); `scan_host` runs 060 on every tier
 
 **Agent reasoning:** Use the DNS Security Auditor plugin for comprehensive DNS assessment.
 

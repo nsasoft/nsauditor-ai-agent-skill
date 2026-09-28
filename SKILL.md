@@ -227,6 +227,8 @@ specific plugins for a targeted probe.
 
 ---
 
+### Pro Tools (Pro license required)
+
 #### `probe_service` *(Pro license required)*
 Run a single plugin against a specific host:port for deep-dive investigation.
 
@@ -249,9 +251,9 @@ Run a single plugin against a specific host:port for deep-dive investigation.
 | 010 | Webapp Detector | Technology stack fingerprinting (Wappalyzer) |
 | 011 | TLS Scanner | TLS versions, cipher suites, deprecation |
 | 014 | NetBIOS Scanner | SMB/NetBIOS enumeration, null sessions |
-| 040 | TLS Cert & Cipher Auditor | Certificate chain, expiry, weak ciphers *(Pro)* |
-| 050 | TRIBE v2 Probe | Debug leaks, stack traces, CORS misconfig *(Pro)* |
-| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer *(Pro)* |
+| 040 | TLS Cert & Cipher Auditor | Certificate chain, expiry, weak ciphers |
+| 050 | TRIBE v2 Probe | Debug leaks, stack traces, CORS misconfig |
+| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer |
 
 ---
 
@@ -288,7 +290,7 @@ Format: `cpe:2.3:a:<vendor>:<product>:<version>:*:*:*:*:*:*:*`
 
 ---
 
-### Pro/Enterprise Tools (license gated)
+### Enterprise Tools (license gated)
 
 These tools return a license upgrade prompt on CE installations:
 
@@ -297,7 +299,7 @@ These tools return a license upgrade prompt on CE installations:
 | `scan_cloud` | Enterprise | Audit one or more cloud accounts (AWS / GCP / Azure) for security & compliance posture using the server-configured credentials. No network host needed. Input: `{ providers?: ("aws"\|"gcp"\|"azure")[], regions?: string[] }` — **pass only the cloud(s) the user names** (`providers:["aws"]` for "audit my AWS account"); omit `providers` only when the user asks to audit ALL clouds. Use this (not `scan_host`) when the user asks to "audit my AWS account", "audit my AWS and Azure accounts", or "check my cloud compliance". CE/Pro callers get an upgrade message. **`regions` (AWS only)** — AWS region codes (e.g. `["us-east-1","eu-west-1"]`) or `["all"]`. **Default — omit `regions` (MOST requests):** a plain "audit my AWS account", a "quick check", or any request that names no region AND does not explicitly ask for all/every/whole-account/complete/full coverage → **OMIT `regions`** (the auditors that take their region from the client audit the server-configured `AWS_REGION` and no other; the three that enumerate their own region list — CloudTrail trail discovery (1040), GuardDuty/Inspector (1200), EC2 instances (1210) — still attempt every enabled region; do NOT fan out or batch). Omitting does NOT scan all regions with every auditor. **Specific regions:** when the user names region(s), pass exactly those. **All regions — ONLY on an explicit "all regions / every region / whole account / full coverage" request:** use the discover-then-batch approach in the region-scope note below — do NOT pass a single `["all"]` call and rely on it (it fans every regional plugin across all enabled regions and usually EXCEEDS the host's MCP tool-call timeout, e.g. Claude Desktop's, returning nothing). Unknown region codes are rejected before the scan runs (the WHOLE call fails — fix the region and re-call; never silently drop it). |
 | `get_findings` | Enterprise | Drill into the findings of the MOST RECENT `scan_cloud` scan — a per-provider, **per-session** cache (NOT live state; cleared when the MCP server restarts). Input: `{ scanId?, provider?, plugin?, severity?, category?, cursor?, limit? }`. Use it AFTER `scan_cloud` when the summary's **category rollup** shows a category you want to expand to specific resources, or when you need the FULL untruncated text of a finding. Pass the **`scanId` from the `scan_cloud` summary footer** + the `provider`; filter by `category`/`severity`/`plugin`; paginate with `cursor`/`limit` (server-capped at 20 — follow `nextCursor`). If you get a **"re-run scan_cloud"** error the cache was cleared or superseded — **re-run `scan_cloud`, do NOT retry `get_findings`**. CE/Pro callers get the same upgrade message as `scan_cloud`. |
 
-> **Interpreting `scan_cloud` results — never report a false clean:** read **`findingsSummary`** for the findings — it maps each provider to `counts` (per-severity totals) and a `findings` list of the CRITICAL/HIGH items (`{severity, plugin, title}`); report those. A cloud was effectively audited only if it appears in `auditedProviders`. If the result has `audited: false`, any `notes` entries, or `pluginsRan: 0`, the cloud was **NOT** audited (no plugins, missing credentials, or skipped) — report the gap explicitly; an empty result is **not** a clean pass. Do not infer "clean" from an empty `findingsSummary` when the cloud is not in `auditedProviders`. **Beyond CRITICAL/HIGH, `findingsSummary[provider].rollup` groups the remaining findings by `category` with counts (count-descending) across **MEDIUM, LOW *and* INFO** — and the INFO tier is not optional reading, because that is where the evidence gaps and the deferred-scope boundaries live. ⚠️ This sentence said "MEDIUM + LOW" until EE 0.39.0, which was FALSE against the summariser's own three rollup buckets, and false in the direction that hides the tier a reader most needs. Report every tier that occurs; these are actionable too: a category like `sqs-age-alarm-missing` or `*-public` is a real gap, not noise, and reporting only CRITICAL/HIGH while the rollup is non-empty is itself a false clean. To enumerate the specific resources behind a rollup category, or to read a finding's full untruncated text, call `get_findings` with the `scanId` from the summary footer + the `category`.**
+> **Interpreting `scan_cloud` results — never report a false clean:** read **`findingsSummary`** for the findings — it maps each provider to `counts` (per-severity totals) and a `findings` list of the CRITICAL/HIGH items (`{severity, plugin, title}`); report those. A cloud was effectively audited only if it appears in `auditedProviders`. If the result has `audited: false`, any `notes` entries, or `pluginsRan: 0`, the cloud was **NOT** audited (no plugins, missing credentials, or skipped) — report the gap explicitly; an empty result is **not** a clean pass. Do not infer "clean" from an empty `findingsSummary` when the cloud is not in `auditedProviders`. **Beyond CRITICAL/HIGH, `findingsSummary[provider].rollup` groups the remaining findings by `category` with counts (count-descending) across **MEDIUM, LOW *and* INFO** — and the INFO tier is not optional reading: every deferred-scope boundary is INFO, and an evidence gap carries its own finding's severity, which can be any tier up to HIGH, so read every tier. ⚠️ This sentence said "MEDIUM + LOW" until EE 0.39.0, which was FALSE against the summariser's own three rollup buckets, and false in the direction that hides the tier a reader most needs. Report every tier that occurs; these are actionable too: a category like `sqs-age-alarm-missing` or `*-public` is a real gap, not noise, and reporting only CRITICAL/HIGH while the rollup is non-empty is itself a false clean. To enumerate the specific resources behind a rollup category, or to read a finding's full untruncated text, call `get_findings` with the `scanId` from the summary footer + the `category`.**
 
 > **Reporting `scan_cloud` region scope — never overstate coverage:** Report the regions you ACTUALLY scanned, derived from the `regions` you **passed** — NOT from the findings. If you OMITTED `regions`, the auditors that take their region from the client scanned only the server-default region (`AWS_REGION`) — say that, and that the account's OTHER enabled regions were NOT covered by them (offer to re-run for all regions). The three auditors that enumerate their own region list — CloudTrail trail discovery (1040), GuardDuty/Inspector (1200), EC2 instances (1210) — attempt every enabled region when `regions` is omitted. Say one of them covered every region ONLY if it `ran` and carries no multi-region evidence gap (a single-region fallback, or errored or denied regions); any region such a gap names was NOT audited, say so. 1040's CloudWatch-alarm and AWS Config checks cover the configured region only. Never call the whole scan single-region when these three ran. **Never escalate a single-region or "quick" request into a multi-region scan.** Do NOT claim "all regions" / "every region" / "across N regions" for the scan as a whole because those three list per-region findings: their coverage is NOT evidence the other auditors ran outside the region(s) you passed. When you DO pass `regions`, their region-scoped checks follow the list you passed.
 
@@ -413,16 +415,16 @@ Phase 3: INTELLIGENCE (Pro)    CPE generation → NVD CVE lookup → Parallel ve
                                   • Service Agent (CVE-specific targeted probes)
                                 Output: Structured finding queue
                                         ↓
-Phase 4: VERIFICATION          PLANNED — NOT SHIPPED. The finding-status field and its
-         (planned, not shipped) risk-weighting scaffolding exist; the active safe probes
-                                do not. Every finding today is emitted UNVERIFIED.
+Phase 4: VERIFICATION          WITHDRAWN — not shipped and not planned. The finding-status
+         (withdrawn)            field exists; no active probe sets it. Every finding is
+                                emitted UNVERIFIED.
                                         ↓
 Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance mapping
                                 Output: Risk report + compliance report (Markdown, HTML, JSON)
 ```
 
-> **Phase 4 is a roadmap entry, kept in the diagram so the pipeline's shape is legible.** The
-> Verification Engine was withdrawn as a capability claim at EE 0.32.7. Do not describe
+> **Phase 4 is WITHDRAWN and on no roadmap; it stays in the diagram only so the pipeline's shape is
+> legible.** The Verification Engine was withdrawn as a capability claim at EE 0.32.7 and is not planned. Do not describe
 > findings as probe-confirmed (it is WITHDRAWN, not merely unused), and do not tell an
 > operator a finding was "verified" — see
 > `references/schemas.md` § Finding Statuses.
@@ -436,8 +438,9 @@ shipped plugin files; verify any of them with `nsauditor-ai license --plugins`, 
 live total and marks each Enterprise plugin `✓ active` or `✗ requires: <tier>`.
 
 The Community set groups roughly as service probes, host/network discovery, and intelligence /
-meta plugins; three further plugins are Pro-gated (040 TLS Certificate & Cipher Auditor, 050
-TRIBE v2 Probe, 060 DNS Security Auditor).
+meta plugins, plus three deep-audit Community plugins (040 TLS Certificate & Cipher Auditor, 050
+TRIBE v2 Probe, 060 DNS Security Auditor): `scan_host` runs them on every tier, and only the
+single-plugin route to them, `probe_service`, needs Pro.
 
 > A per-plugin list used to be duplicated here and drifted: it claimed **18** Enterprise plugins
 > while enumerating **15**, against **28** on disk. One catalog, in `references/plugins.md`.
@@ -462,9 +465,9 @@ User wants to...
 ├── Check a specific service/port       → probe_service (Pro)
 ├── Look up CVEs for software version   → get_vulnerabilities (Pro)
 ├── See available plugins               → list_plugins
-├── Audit TLS certificates              → probe_service with plugin 040 (Pro)
-├── Check DNS security (SPF/DKIM/DMARC) → probe_service with plugin 060 (Pro)
-├── Detect debug leaks / CORS issues    → probe_service with plugin 050 (Pro)
+├── Audit TLS certificates              → scan_host, or probe_service (Pro) with plugin 040
+├── Check DNS security (SPF/DKIM/DMARC) → scan_host, or probe_service (Pro) with plugin 060
+├── Detect debug leaks / CORS issues    → scan_host, or probe_service (Pro) with plugin 050
 ├── Scan a subnet                       → CLI with --parallel (not MCP)
 ├── Set up continuous monitoring         → CLI with --watch (not MCP)
 ├── State framework COVERAGE            → compliance_matrix (any tier)
@@ -512,7 +515,7 @@ See `references/schemas.md` for complete structures:
 
 5. **Non-Destructive:** every scanner probe is a read-only query — NSAuditor AI never
    exploits vulnerabilities or modifies target systems. (Active *verification* probes are
-   Planned — not shipped; findings are emitted UNVERIFIED.)
+   WITHDRAWN — not shipped and not planned; findings are emitted UNVERIFIED.)
 
 ---
 
@@ -607,7 +610,7 @@ Add to your MCP configuration with the same command/args pattern.
 | Edition | Price | Key Features |
 |---------|-------|-------------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, CTEM, SARIF, scan history |
-| **Pro** | $49/mo | + CVE matching, risk scoring, analysis agents, Pro plugins (040 TLS / 050 TRIBE / 060 DNS) |
+| **Pro** | $49/mo | + CVE matching, risk scoring, analysis agents, the single-plugin and CVE-lookup MCP tools (`probe_service`, `get_vulnerabilities`) |
 | **Enterprise** | $2k+/yr | + 29 enterprise plugins (1020-1230 range) — 28 cloud-substrate auditors covering AWS / GCP / Azure plus `1023 Zero Trust Assessment` (which declares no cloud provider and scores zero-trust posture from a NETWORK-host scan — it never runs on a cloud pass, and selecting it by id on its own does not run it either) — against every shipped framework (SOC 2 10 covered + 4 partial; HIPAA; NIST CSF 2.0; PCI DSS v4.0.1; ISO/IEC 27001:2022; CIS Controls v8; GDPR Art. 32 infrastructure substrate; NIST SP 800-171 Rev 2 evidence substrate for CMMC Level 2 preparation); SOC 2 evidence-pack generation; SHA-256 chain-of-custody attestations (RFC 3161 timestamping is opt-in via the `NSAUDITOR_TSA_URL` environment variable — there is no CLI flag and no default, it makes an outbound call to the Time-Stamp Authority you name, and it was exercised against a live Time-Stamp Authority on BOTH delivery vehicles — the npm path and, from inside the pushed `:0.33.0` Marketplace image, on 2026-08-08; retained images `:0.32.11` and earlier carry no `openssl`); air-gapped operation (offline licensing + offline CVE matching under `NSAUDITOR_OFFLINE_ONLY=1`) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)

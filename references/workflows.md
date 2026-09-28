@@ -86,9 +86,9 @@ Step 3: Analyze evidence for specific weaknesses:
 | 012 | OpenSearch Scanner | Elasticsearch/OpenSearch detection |
 | 014 | NetBIOS Scanner | SMB/NetBIOS enumeration |
 | 015 | SUN RPC Scanner | NFS, portmapper services |
-| 040 | TLS Cert & Cipher Auditor | Full certificate chain audit *(Pro)* |
-| 050 | TRIBE v2 Probe | Debug leaks, CORS misconfig *(Pro)* |
-| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC *(Pro)* |
+| 040 | TLS Cert & Cipher Auditor | Full certificate chain audit |
+| 050 | TRIBE v2 Probe | Debug leaks, CORS misconfig |
+| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC |
 
 ---
 
@@ -267,9 +267,9 @@ User wants to...
 ├── Check a specific service/port       → probe_service (Pro)
 ├── Look up CVEs for software version   → get_vulnerabilities (Pro)
 ├── See available plugins               → list_plugins
-├── Audit TLS certificates              → probe_service with plugin 040 (Pro)
-├── Check DNS security (SPF/DKIM/DMARC) → probe_service with plugin 060 (Pro)
-├── Detect debug leaks / CORS issues    → probe_service with plugin 050 (Pro)
+├── Audit TLS certificates              → scan_host, or probe_service (Pro) with plugin 040
+├── Check DNS security (SPF/DKIM/DMARC) → scan_host, or probe_service (Pro) with plugin 060
+├── Detect debug leaks / CORS issues    → scan_host, or probe_service (Pro) with plugin 050
 ├── Scan a subnet                       → CLI: --host CIDR --parallel N
 ├── Set up continuous monitoring         → CLI: --watch --interval N
 ├── Compare two scans                   → CLI: diff the per-run out-dirs (no compare tool)
@@ -307,6 +307,13 @@ User wants to...
 2. Check vendor spelling matches NVD (e.g., `f5` not `nginx` for nginx vendor)
 3. NVD API rate limits apply — wait and retry if rate-limited
 4. Not all software has NVD entries; absence ≠ safety
+
+### "A CLI cloud scan says coverage UNVERIFIED and suggests checking credentials"
+
+1. Read `pluginStatus` in `scan_conclusion_raw.json` before the summary. If every cloud plugin there is `"status": "skipped"` with `"reason": "missing capabilities: cloudScanners"`, the cause is the licence tier: the cloud plugins require an Enterprise licence, and a Community or Pro install skips all of them.
+2. In that case the summary's advice ("Verify cloud credentials are configured and the CE platform is ≥ 0.1.30") names the wrong cause. This is a known limit of this release; the per-plugin skip reason is the true one. Do not tell the user to fix credentials.
+3. The run is still correctly NOT a clean verdict: nothing was measured.
+4. MCP `scan_cloud` does not reach this path; below Enterprise it refuses before scanning, with an upgrade message.
 
 ### "License gate (🔒) error"
 

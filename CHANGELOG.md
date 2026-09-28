@@ -30,6 +30,16 @@ omitting `regions` scans only the server-default region, and to "say exactly tha
 CloudTrail trail discovery (1040), GuardDuty/Inspector (1200) and EC2 instances (1210) still attempt every
 enabled region; the assistant now reports each of them as covering every region only where the run shows no
 region gap for it. SKILL.md also said `scan_cloud` maps findings to frameworks; it maps nothing.
+
+**Editions, the Community floor and a withdrawal are now taught correctly** (found by Gate 3-A on build 10,
+2026-09-28). SKILL.md and `references/workflows.md` called the deep-audit plugins 040, 050 and 060 Pro-gated
+and sold them on the Pro pricing row. They are Community plugins that `scan_host` runs on every tier; only
+`probe_service`, the single-plugin route to them, needs Pro. `probe_service` and `get_vulnerabilities` sat under
+a "Community Edition Tools (always available)" heading and now have a Pro heading of their own. The README
+said Community stays >= 0.2.49; Enterprise 1.1.0 requires >= 0.2.55. SKILL.md said the INFO tier is where
+evidence gaps live; an evidence gap carries its own finding's severity, which can be any tier up to HIGH, and
+only deferred-scope boundaries are always INFO. The Verification Engine, described as planned or on the roadmap
+in three places in SKILL.md and three in references/schemas.md, is described as WITHDRAWN and not planned.
 The README's Claude Desktop instruction said to upload SKILL.md as project knowledge, which delivers under
 half the skill; it now says to build the zip and upload that.
 

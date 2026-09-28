@@ -286,12 +286,12 @@ never writes a queue. A CVE row, which carries every field:
 | Status | Meaning |
 |--------|---------|
 | `UNVERIFIED` | Detected by a scanner. **Every row a scan writes carries this status.** |
-| `VERIFIED` | Reserved for the planned Verification Engine. No shipped code sets it. |
-| `POTENTIAL` | Reserved for the planned Verification Engine. No shipped code sets it. |
+| `VERIFIED` | Reserved. No shipped code sets it; the Verification Engine that would have is WITHDRAWN and not planned. |
+| `POTENTIAL` | Reserved. No shipped code sets it; the Verification Engine that would have is WITHDRAWN and not planned. |
 | `FALSE_POSITIVE` | Reserved. No shipped code sets it on a queued row. (An operator suppression marks a compliance *violation* as a false positive — a different object, in the compliance pack.) |
 
-> **The Verification Engine is planned, not shipped** (withdrawn as a capability claim at EE
-> 0.32.7). Read `UNVERIFIED` as "this is what the scanner detected", never as "this was tried and
+> **The Verification Engine is WITHDRAWN and not planned** (withdrawn as a capability claim at EE
+> 0.32.7; no release schedules it). Read `UNVERIFIED` as "this is what the scanner detected", never as "this was tried and
 > could not be confirmed".
 
 ---
