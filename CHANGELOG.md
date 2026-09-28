@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.53 (⏳ PRE-PUBLISH — opened 2026-09-18, NOT YET ON npm) — the skill installs itself now
+## 0.2.53 (2026-09-28) — the skill installs itself now
 
 **`npx nsauditor-ai-agent-skill install`** copies the skill into `~/.claude/skills/` for Claude Code.
 **`npx nsauditor-ai-agent-skill build-zip --out ~/Desktop`** builds the Claude Desktop upload zip.
