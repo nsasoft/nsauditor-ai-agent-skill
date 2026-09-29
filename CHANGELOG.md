@@ -9,11 +9,14 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things first, and carries the 0.2.53
 teaching forward:
 
-- **The NOT-COMPARABLE bucket catches three more cases** — a UDP-transport finding whose port did not answer in the
+- **The NOT-COMPARABLE bucket catches four more cases** — a UDP-transport finding whose port did not answer in the
   other run (`port-not-measured`, listed with `/udp`), a CVE row whose lookup failed there (`evidence-gap`; the mapper's
   own `[COVERAGE GAP] <gapClass> — …` record is a coverage gap, never an exposure), and a finding of an analysis agent
-  that did not run (`[COVERAGE GAP] AGENT NOT RUN — …`; `evidence-gap`, and that agent's controls fail closed). Details
-  name runs absolutely: "this run" and "the baseline run".
+  that did not run (`[COVERAGE GAP] AGENT NOT RUN — …`; `evidence-gap`, and that agent's controls fail closed), and a CVE
+  row present in one run only while the SAME program and version answered on its port in both
+  (`vulnerability-data-changed` — the vulnerability data moved, not the estate; in MTTR it is never a closed finding).
+  A CVE that appeared on an unchanged service stays NEW, with a note that the service is unchanged. Details name runs
+  absolutely: "this run" and "the baseline run".
 - **A compliance control can FAIL on a finding the PRIOR scan recorded** when this scan did not measure its port or probe,
   did not cover its region, or did not run what produced it — a record titled `<prior title> — [COVERAGE GAP] PORT NOT
   MEASURED — …` (or PROBE / SCOPE / PRODUCER), counted among "Evidence gaps (not findings)" and never to be presented
