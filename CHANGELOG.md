@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.54 (⏳ PRE-PUBLISH — opened 2026-09-29, NOT YET ON npm) — Enterprise 1.2.0: nothing a scan could not re-check is counted as fixed
+
+Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things first, and carries the 0.2.53
+teaching forward:
+
+- **The NOT-COMPARABLE bucket catches three more cases** — a UDP-transport finding whose port did not answer in the
+  other run (`port-not-measured`, listed with `/udp`), a CVE row whose lookup failed there (`evidence-gap`; the mapper's
+  own `[COVERAGE GAP] <gapClass> — …` record is a coverage gap, never an exposure), and a finding of an analysis agent
+  that did not run (`[COVERAGE GAP] AGENT NOT RUN — …`; `evidence-gap`, and that agent's controls fail closed). Details
+  name runs absolutely: "this run" and "the baseline run".
+- **A compliance control can FAIL on a finding the PRIOR scan recorded** when this scan did not measure its port or probe,
+  did not cover its region, or did not run what produced it — a record titled `<prior title> — [COVERAGE GAP] PORT NOT
+  MEASURED — …` (or PROBE / SCOPE / PRODUCER), counted among "Evidence gaps (not findings)" and never to be presented
+  as a current finding. It needs the compliance history (`--compliance-history` or `--sla-policy`).
+- ⚠️ **A floor bump, because Enterprise would not LOAD below it.** Enterprise 1.2.0 imports names that first ship in
+  Community 0.2.56, so `peerDependencies` moves to `nsauditor-ai >=0.2.56`, equal to Enterprise's. On Community 0.2.55
+  or older a failed Enterprise load is silent; from 0.2.56 it is named on stderr and the Pro delta refuses that host's
+  agent and CVE-mapper findings (`evidence-gap`).
+
 ## 0.2.53 (2026-09-28) — the skill installs itself now
 
 **`npx nsauditor-ai-agent-skill install`** copies the skill into `~/.claude/skills/` for Claude Code.
