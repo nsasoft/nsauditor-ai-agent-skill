@@ -1,22 +1,21 @@
 ---
 name: nsauditor-ai
 description: >
-  Use this skill whenever the user wants network security scanning, auditing, vulnerability
-  assessment, host reconnaissance, or cloud-account security/compliance auditing with NSAuditor
-  AI (via the nsauditor-ai MCP server: scan_host, scan_cloud, get_findings, probe_service, get_vulnerabilities,
-  list_plugins, compliance_matrix). Triggers include 'scan', 'audit', 'vulnerability', 'CVE', 'network security',
-  'port scan', 'service detection', 'OS fingerprinting', 'penetration test', 'TLS/cipher audit',
-  'certificate check', 'DNS security', 'SPF/DKIM/DMARC/DNSSEC', 'SNMP/SMB/NetBIOS', 'CTEM',
-  'continuous monitoring', or 'audit my AWS/GCP/Azure account' / 'cloud compliance'. Also use it
-  when the user asks to check if a host is up, enumerate services, find open ports, look up CVEs
-  for a version, audit DNS records, or audit a cloud account — even if they don't say NSAuditor,
-  as long as the nsauditor-ai MCP tools are available. Do NOT use for general coding, web
-  development, or non-security topics.
+  Use whenever the user wants network security scanning, host reconnaissance or cloud security/compliance
+  auditing with NSAuditor AI (MCP tools: scan_host, scan_cloud, get_findings, probe_service,
+  get_vulnerabilities, list_plugins, compliance_matrix), or asks about NSAuditor itself: installing or
+  upgrading it, Community/Enterprise version compatibility, Enterprise not loading or its output missing
+  after an upgrade, what changed in a release, licensing, or reading its reports. Triggers: 'scan',
+  'audit', 'vulnerability', 'CVE', 'port scan', 'service detection', 'OS fingerprinting', 'penetration test',
+  'TLS/cipher audit', 'certificate check', 'DNS security', 'SPF/DKIM/DMARC/DNSSEC', 'SNMP/SMB/NetBIOS',
+  'CTEM', 'continuous monitoring', 'audit my AWS/GCP/Azure account', 'cloud compliance'. Also use it to
+  check if a host is up, find open ports or get CVEs for a version, even without the word NSAuditor, when
+  its MCP tools are available. Do NOT use for general coding or web development.
 ---
 
 # NSAuditor AI — Agent Skill
 
-> **Version:** <!-- nsa:derived id="skill-version" -->0.2.54<!-- /nsa:derived --> (⏳ PRE-PUBLISH, NOT YET ON npm — knowledge current as of **EE <!-- nsa:derived id="ee-version" -->1.2.0<!-- /nsa:derived -->** · **requires CE ≥ <!-- nsa:derived id="ce-floor" -->0.2.56<!-- /nsa:derived -->**) — **1.2.0: nothing a scan could not re-check is counted as fixed, and no control it failed reads PASS.** Teach these first. (a) **The NOT-COMPARABLE bucket catches four more cases.** A UDP-transport finding whose port did not answer in the other run (for a CVE row, also one that answered without identifying its service) is `port-not-measured`, listed with a `/udp` suffix; a CVE row whose LOOKUP failed in the other run is `evidence-gap` — the mapper's own `[COVERAGE GAP] <gapClass> — <protocol>/<service>` record is a coverage gap that opened or cleared, never an exposure; and a finding of an analysis agent that DID NOT RUN (`[COVERAGE GAP] AGENT NOT RUN — <agent> did not run: <cause class>`) is `evidence-gap`, while that agent's controls fail closed in every framework; and a CVE row that VANISHED — present in the baseline, absent now — while the SAME program and version answered on its port in both runs is `vulnerability-data-changed` — the mapper attributes on program and version alone, so the vulnerability data moved (NVD's answer, a cached answer's age, an offline store), not the estate: never present it as a fix, and in MTTR it is never a closed finding. A CVE that APPEARED on an unchanged service stays NEW with the basis note "the service is unchanged, the vulnerability data is not" — new knowledge about an old service, not a new exposure on the estate. Every detail names its run absolutely: "this run" is the current one, "the baseline run" the earlier. (b) **A compliance control can FAIL on a finding the PRIOR scan recorded.** When this scan did not measure the port or the probe that finding was on, did not cover its region, or did not run what produced it, the COMPLIANCE report (`nsauditor-ai scan --host <target> --compliance <fw> --out <dir> --sla-policy sla-policy.json` — never `report --since`, which does not list these records) holds the control failed with a record titled `<prior title> — [COVERAGE GAP] PORT NOT MEASURED — …` (or `PROBE NOT MEASURED` / `SCOPE NOT SCANNED` / `PRODUCER NOT RUN`), counted among "Evidence gaps (not findings)". Never present it as a current finding: it says the surface was NOT measured, and it clears when a later scan measures it. It needs the compliance history (`--compliance-history <dir>`, or `--sla-policy <file>`, which reads the history kept under `--out`) and a prior `--compliance <fw>` scan of the SAME host in it (the history is read per framework and per host) — a first scan holds nothing, and neither does a prior scan run without `--compliance <fw>`; if the hold could not be evaluated, the report's warnings say so. (c) **A FLOOR BUMP to Community 0.2.56, because Enterprise would not LOAD below it.** Enterprise 1.2.0 imports names that first ship in Community 0.2.56. On Community 0.2.55 or older that load failure is SILENT — the scan runs as Community and says nothing; from 0.2.56 it is named on stderr (`[EE] Enterprise is installed but FAILED TO LOAD`) and the Pro delta refuses that host's agent and CVE-mapper findings as `evidence-gap`. If a user reports Enterprise behaviour missing, check their Community version first. The teaching that follows is 0.2.53's, carried forward and still current. — the delta release: the product can now answer *what changed since the last scan*. Teach five things: (1) **`nsauditor-ai report --from <dir> --format executive --since <runId|prior>`** (`--format` is REQUIRED; `report` refuses without it) (Pro/Enterprise) compares two runs and reports new / resolved / severity-changed findings. (2) **NEVER present a `resolved` count as remediation on its own** — the report carries a NOT-COMPARABLE bucket with a reason per finding (host not scanned · the producing plugin did not run, ERRORED or TIMED OUT on that host, or cannot be identified · an evidence gap such as AccessDenied · **a PORT that was not measured on that host — a check that could not complete its connection, or a port that STOPPED ANSWERING between the two runs (a port that went quiet is not a fix)** · **the two runs COVERED DIFFERENT SCOPES — a narrower `--aws-region`, a different Azure subscription or GCP project — so that surface was not looked at, which is NOT the same as clean** · framework enumeration moved · **the PRODUCER CHANGED WHAT IT NAMES between the two releases**), and a finding that vanished for any of those reasons was not fixed. ⚠️ **THE LAST ONE ARRIVED IN EE 1.1.0 AND IT FIRES ON AN UPGRADE ACROSS 1.1.0.** FOURTEEN producers changed what identifies a finding at EE 1.1.0 — thirteen plugins that had left the object empty, named the REGION, recorded no region the report reads, carried a HIGH sentence that had to be corrected (1110, the effective-decrypt auditor), or (1023, the Zero Trust checker) now name the port a finding is about and keep the open-port count out of its title, and one analysis AGENT whose findings are keyed on their TITLE because they carry no object field at all. A comparison that straddles that upgrade reports those rows NOT-COMPARABLE instead of differencing them, so one surface under two keys is never read as a fix plus a fresh exposure. **So the first `report --since` a user runs across the 1.1.0 upgrade will legitimately show a LARGE not-comparable bucket — that is the declaration working, not a broken report.** Derive the reason list from `NOT_COMPARABLE_REASONS` in Community's `utils/scan_delta.mjs` rather than from this sentence; it is held in equality with what the engine emits, and this sentence is prose that has disagreed with it before. If a user asks what got fixed, read the NOT-COMPARABLE list before answering. **Two conditions refuse the whole comparison rather than bucketing findings**: the two runs straddle a product boundary where a reported number changed meaning, and the two runs ran at DIFFERENT LICENCE TIERS — the set of producers that ran differs, so a whole producer's findings would read as remediation. ⚠️ **AND ONE OF THOSE REASONS IS DECLARED RATHER THAN CHECKED: framework-enumeration movement is NOT EVALUATED in this edition**, because a run record carries no framework enumeration. The report says so as a limit on every comparison and each row's basis reads `framework enumeration: not evaluated`. Never tell a user that framework movement was ruled out. (3) **Integrity is a hash chain, not a signature — and say WHAT is sealed.** At finalize the run record AND each written host's findings files are digested over their exact persisted bytes, with the per-file digests sealed inside the record, which is itself digested and chained through `prevDigest`. So an altered **findings file** — which is what the comparison actually reads — is detected and NAMED, not merely an altered index; a file that did not exist at seal time is sealed as an explicit absence, so adding one is detected too. **BOTH runs are verified, not only the baseline.** An altered or unmeasurable run on either side REFUSES the comparison outright, and the refusal names which side. A file that cannot be READ is reported as unmeasurable rather than as tampering, and a record written before per-host sealing keeps its verdict while its reason says the findings files were not covered. The guarantee is tamper-EVIDENT against corruption and unsophisticated edits, **NOT tamper-proof against host-level access and NOT non-repudiation**. Do not describe it as file-integrity monitoring or a change-detection mechanism: PCI DSS `11.5.1` / `11.5.2` / `11.6.1` are enumerated OUT OF SCOPE in the shipped matrix. The code ships in Community; the capability is licence-gated to Pro/Enterprise. ⚠️ **`--since` REQUIRES COMMUNITY 0.2.55 OR LATER — AND ENTERPRISE 1.2.0 REQUIRES 0.2.56 (item (c) above): on 0.2.55 Enterprise 1.2.0 does not load at all, silently.** The peer floor moved to 0.2.55 at EE 1.1.0 because **Enterprise CALLS the new Community code** — the per-plugin run statuses the Zero Trust checker reads before it will assert a posture, and the run-record fields `report --since` compares. The earlier floor said otherwise on the grounds that Enterprise did not call it; that stopped being true at EE 1.1.0. If a user reports the flag is unrecognised, check their Community version first. (4) **A `kms:Decrypt on Resource:*` HIGH from 1110 is NEVER downgraded on a live run.** 1110 reads KMS key policies and grants in the configured region only, and one region cannot show that NO key trusts a principal — a key in another region may — so the HIGH→INFO downgrade it used to apply is withheld on every shipped path. The reason is in that plugin's run summary as `summary.kmsDowngrade` (`reason` `single-region-enumeration` for a complete read; `access-denied` · `per-key-error` · `keys-truncated` · `grants-truncated` for an incomplete one, which also emits an evidence-gap row). Never tell a user a surviving HIGH was checked against every key, and never read a missing downgrade as a scanner fault. Its grant finding (`kms-grant-decrypt-no-identity-grant`, MEDIUM) likewise covers keys in the configured region only. (5) **The NVD store and response cache MOVED at EE 1.1.0 and every run records where they are.** They used to be a `.nvd-cache` folder in whatever directory the scan started from; they now resolve, from any directory, to `--cache-dir`, else `NVD_CACHE_DIR`, else `NSAUDITOR_NVD_CACHE_DIR`, else `~/.nsauditor/nvd_cache`. An old `.nvd-cache` folder is NOT read, and the scan says so. If a user reports that offline CVE matching stopped after upgrading, that is the cause: move the folder once or set `NVD_CACHE_DIR` to it. Never read the resulting coverage gaps as a clean host. Plugin count UNCHANGED at <!-- nsa:derived id="plugins:ee" -->29<!-- /nsa:derived -->; <!-- nsa:derived id="matrix-movement" -->all eight coverage matrices unchanged since EE 1.1.0<!-- /nsa:derived -->; Community <!-- nsa:derived id="ce-version" -->0.2.56<!-- /nsa:derived --> (published with this skill).
+> **Version:** <!-- nsa:derived id="skill-version" -->0.2.54<!-- /nsa:derived --> (⏳ PRE-PUBLISH, NOT YET ON npm — knowledge current as of **EE <!-- nsa:derived id="ee-version" -->1.2.0<!-- /nsa:derived -->** · **requires CE ≥ <!-- nsa:derived id="ce-floor" -->0.2.56<!-- /nsa:derived -->**) — **1.2.0: nothing a scan could not re-check is counted as fixed, and no control it failed reads PASS.** Teach these first. (a) **The NOT-COMPARABLE bucket catches four more cases.** A UDP-transport finding whose port did not answer in the other run (for a CVE row, also one that answered without identifying its service) is `port-not-measured`, listed with a `/udp` suffix; a CVE row whose LOOKUP failed in the other run is `evidence-gap` — the mapper's own `[COVERAGE GAP] <gapClass> — <protocol>/<service>` record is a coverage gap that opened or cleared, never an exposure; and a finding of an analysis agent that DID NOT RUN (`[COVERAGE GAP] AGENT NOT RUN — <agent> did not run: <cause class>`) is `evidence-gap`, while that agent's controls fail closed in every framework; and a CVE row that VANISHED — present in the baseline, absent now — while the SAME program and version answered on its port in both runs is `vulnerability-data-changed` — the mapper attributes on program and version alone, so the vulnerability data moved (NVD's answer, a cached answer's age, an offline store), not the estate: never present it as a fix, and in MTTR it is never a closed finding. A CVE that APPEARED on an unchanged service stays NEW with the basis note "the service is unchanged, the vulnerability data is not" — new knowledge about an old service, not a new exposure on the estate. Every detail names its run absolutely: "this run" is the current one, "the baseline run" the earlier. (b) **A compliance control can FAIL on a finding the PRIOR scan recorded.** When this scan did not measure the port or the probe that finding was on, did not cover its region, or did not run what produced it, the COMPLIANCE report (`nsauditor-ai scan --host <target> --compliance <fw> --out <dir> --sla-policy sla-policy.json` — never `report --since`, which does not list these records) holds the control failed with a record titled `<prior title> — [COVERAGE GAP] PORT NOT MEASURED — …` (or `PROBE NOT MEASURED` / `SCOPE NOT SCANNED` / `PRODUCER NOT RUN`), counted among "Evidence gaps (not findings)". Never present it as a current finding: it says the surface was NOT measured, and it clears when a later scan measures it. It needs the compliance history (`--compliance-history <dir>`, or `--sla-policy <file>`, which reads the history kept under `--out`) and a prior `--compliance <fw>` scan of the SAME host in it (the history is read per framework and per host) — a first scan holds nothing, and neither does a prior scan run without `--compliance <fw>`; if the hold could not be evaluated, the report's warnings say so. (c) **A FLOOR BUMP to Community 0.2.56, because Enterprise would not LOAD below it.** Enterprise 1.2.0 imports names that first ship in Community 0.2.56. On Community 0.2.55 or older that load failure is SILENT — the scan runs as Community and says nothing; from 0.2.56 it is named on stderr (`[EE] Enterprise is installed but FAILED TO LOAD`) and the Pro delta refuses that host's agent and CVE-mapper findings as `evidence-gap`. If a user reports Enterprise behaviour missing, check their Community version first — and answer from this skill even while npm or the public site does not list these versions yet: that is the staged state (THE MIRROR RULE below), not missing knowledge. The teaching that follows is 0.2.53's, carried forward and still current. — the delta release: the product can now answer *what changed since the last scan*. Teach five things: (1) **`nsauditor-ai report --from <dir> --format executive --since <runId|prior>`** (`--format` is REQUIRED; `report` refuses without it) (Pro/Enterprise) compares two runs and reports new / resolved / severity-changed findings. (2) **NEVER present a `resolved` count as remediation on its own** — the report carries a NOT-COMPARABLE bucket with a reason per finding (host not scanned · the producing plugin did not run, ERRORED or TIMED OUT on that host, or cannot be identified · an evidence gap such as AccessDenied · **a PORT that was not measured on that host — a check that could not complete its connection, or a port that STOPPED ANSWERING between the two runs (a port that went quiet is not a fix)** · **the two runs COVERED DIFFERENT SCOPES — a narrower `--aws-region`, a different Azure subscription or GCP project — so that surface was not looked at, which is NOT the same as clean** · framework enumeration moved · **the PRODUCER CHANGED WHAT IT NAMES between the two releases**), and a finding that vanished for any of those reasons was not fixed. ⚠️ **THE LAST ONE ARRIVED IN EE 1.1.0 AND IT FIRES ON AN UPGRADE ACROSS 1.1.0.** FOURTEEN producers changed what identifies a finding at EE 1.1.0 — thirteen plugins that had left the object empty, named the REGION, recorded no region the report reads, carried a HIGH sentence that had to be corrected (1110, the effective-decrypt auditor), or (1023, the Zero Trust checker) now name the port a finding is about and keep the open-port count out of its title, and one analysis AGENT whose findings are keyed on their TITLE because they carry no object field at all. A comparison that straddles that upgrade reports those rows NOT-COMPARABLE instead of differencing them, so one surface under two keys is never read as a fix plus a fresh exposure. **So the first `report --since` a user runs across the 1.1.0 upgrade will legitimately show a LARGE not-comparable bucket — that is the declaration working, not a broken report.** Derive the reason list from `NOT_COMPARABLE_REASONS` in Community's `utils/scan_delta.mjs` rather than from this sentence; it is held in equality with what the engine emits, and this sentence is prose that has disagreed with it before. If a user asks what got fixed, read the NOT-COMPARABLE list before answering. **Two conditions refuse the whole comparison rather than bucketing findings**: the two runs straddle a product boundary where a reported number changed meaning, and the two runs ran at DIFFERENT LICENCE TIERS — the set of producers that ran differs, so a whole producer's findings would read as remediation. ⚠️ **AND ONE OF THOSE REASONS IS DECLARED RATHER THAN CHECKED: framework-enumeration movement is NOT EVALUATED in this edition**, because a run record carries no framework enumeration. The report says so as a limit on every comparison and each row's basis reads `framework enumeration: not evaluated`. Never tell a user that framework movement was ruled out. (3) **Integrity is a hash chain, not a signature — and say WHAT is sealed.** At finalize the run record AND each written host's findings files are digested over their exact persisted bytes, with the per-file digests sealed inside the record, which is itself digested and chained through `prevDigest`. So an altered **findings file** — which is what the comparison actually reads — is detected and NAMED, not merely an altered index; a file that did not exist at seal time is sealed as an explicit absence, so adding one is detected too. **BOTH runs are verified, not only the baseline.** An altered or unmeasurable run on either side REFUSES the comparison outright, and the refusal names which side. A file that cannot be READ is reported as unmeasurable rather than as tampering, and a record written before per-host sealing keeps its verdict while its reason says the findings files were not covered. The guarantee is tamper-EVIDENT against corruption and unsophisticated edits, **NOT tamper-proof against host-level access and NOT non-repudiation**. Do not describe it as file-integrity monitoring or a change-detection mechanism: PCI DSS `11.5.1` / `11.5.2` / `11.6.1` are enumerated OUT OF SCOPE in the shipped matrix. The code ships in Community; the capability is licence-gated to Pro/Enterprise. ⚠️ **`--since` REQUIRES COMMUNITY 0.2.55 OR LATER — AND ENTERPRISE 1.2.0 REQUIRES 0.2.56 (item (c) above): on 0.2.55 Enterprise 1.2.0 does not load at all, silently.** The peer floor moved to 0.2.55 at EE 1.1.0 because **Enterprise CALLS the new Community code** — the per-plugin run statuses the Zero Trust checker reads before it will assert a posture, and the run-record fields `report --since` compares. The earlier floor said otherwise on the grounds that Enterprise did not call it; that stopped being true at EE 1.1.0. If a user reports the flag is unrecognised, check their Community version first. (4) **A `kms:Decrypt on Resource:*` HIGH from 1110 is NEVER downgraded on a live run.** 1110 reads KMS key policies and grants in the configured region only, and one region cannot show that NO key trusts a principal — a key in another region may — so the HIGH→INFO downgrade it used to apply is withheld on every shipped path. The reason is in that plugin's run summary as `summary.kmsDowngrade` (`reason` `single-region-enumeration` for a complete read; `access-denied` · `per-key-error` · `keys-truncated` · `grants-truncated` for an incomplete one, which also emits an evidence-gap row). Never tell a user a surviving HIGH was checked against every key, and never read a missing downgrade as a scanner fault. Its grant finding (`kms-grant-decrypt-no-identity-grant`, MEDIUM) likewise covers keys in the configured region only. (5) **The NVD store and response cache MOVED at EE 1.1.0 and every run records where they are.** They used to be a `.nvd-cache` folder in whatever directory the scan started from; they now resolve, from any directory, to `NVD_CACHE_DIR`, else `NSAUDITOR_NVD_CACHE_DIR`, else `~/.nsauditor/nvd_cache`. Only `feed import` (of a feed you downloaded yourself) takes `--cache-dir`; a scan does not read that flag, so it reads a store imported with `--cache-dir <d>` only when that chain resolves to `<d>` (e.g. `NVD_CACHE_DIR=<d>`). The MCP `get_vulnerabilities` cache reads `NSAUDITOR_NVD_CACHE_DIR`, never `NVD_CACHE_DIR`. An old `.nvd-cache` folder is NOT read, and the scan says so. If a user reports that offline CVE matching stopped after upgrading, that is the cause: move the folder once or set `NVD_CACHE_DIR` to it. Never read the resulting coverage gaps as a clean host. Plugin count UNCHANGED at <!-- nsa:derived id="plugins:ee" -->29<!-- /nsa:derived -->; <!-- nsa:derived id="matrix-movement" -->all eight coverage matrices unchanged since EE 1.1.0<!-- /nsa:derived -->; Community <!-- nsa:derived id="ce-version" -->0.2.56<!-- /nsa:derived --> (published with this skill).
 >
 > **Prior: 0.2.53** (post-EE-1.1.0 · **requires CE ≥ 0.2.55**) — the delta release: `report --since` compares two runs, the NOT-COMPARABLE bucket carries a reason per finding, and integrity is a hash chain over the run record and each host's findings files. Its teaching is carried forward in the header above.
 >
@@ -259,7 +258,7 @@ Run a single plugin against a specific host:port for deep-dive investigation.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `host` | string | ✅ | Target hostname or IP |
-| `pluginName` | string | ✅ | Plugin name or numeric ID (e.g. `"ssh_scanner"` or `"002"`) |
+| `pluginName` | string | ✅ | Plugin ID (e.g. `"002"`) or its full `name` as `list_plugins` returns it, in any case (e.g. `"SSH Scanner"`); `ssh_scanner` matches nothing (`Unknown plugin`) |
 | `port` | number | ✅ | Target port number |
 
 **Returns:** Raw plugin output with full evidence for that specific service.
@@ -268,15 +267,15 @@ Run a single plugin against a specific host:port for deep-dive investigation.
 | ID | Name | Best For |
 |----|------|----------|
 | 002 | SSH Scanner | Banner, version, weak algorithms/ciphers |
-| 004 | FTP Banner | FTP daemon identification, anonymous login (only with `FTP_CHECK_ANON=true`) |
+| 004 | FTP Banner Check | FTP daemon identification, anonymous login (only with `FTP_CHECK_ANON=true`) |
 | 006 | HTTP Probe | Server headers, tokens, vendor hints |
 | 007 | SNMP Scanner | Device info via sysDescr, hardware/firmware |
-| 009 | DNS Scanner | DNS server version (CHAOS query) |
-| 010 | Webapp Detector | Technology stack fingerprinting (Wappalyzer) |
-| 011 | TLS Scanner | TLS versions, cipher suites, deprecation |
-| 014 | NetBIOS Scanner | SMB/NetBIOS enumeration, null sessions |
-| 040 | TLS Cert & Cipher Auditor | Certificate chain, expiry, weak ciphers |
-| 050 | TRIBE v2 Probe | Debug leaks, stack traces, CORS misconfig |
+| 009 | dns_scanner | DNS server version (CHAOS query) |
+| 010 | Webapp Detector | Technology fingerprinting from a fixed in-house signature table |
+| 011 | TLS Scanner | TLS versions, the cipher negotiated per version, deprecation |
+| 014 | NetBIOS/SMB Scanner | SMB/NetBIOS enumeration, null sessions |
+| 040 | TLS Certificate & Cipher Auditor | Certificate chain, expiry, weak ciphers |
+| 050 | TRIBE v2 Neural API Security Probe | Debug leaks, stack traces, CORS misconfig on a TRIBE v2 API |
 | 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer |
 
 ---
@@ -301,7 +300,7 @@ Format: `cpe:2.3:a:<vendor>:<product>:<version>:*:*:*:*:*:*:*`
 |------------------|------------------|------------|
 | OpenSSH | 8.9p1 | `cpe:2.3:a:openbsd:openssh:8.9:p1:*:*:*:*:*:*` (the suffix is the `update` field) |
 | Apache httpd | 2.4.54 | `cpe:2.3:a:apache:http_server:2.4.54:*:*:*:*:*:*:*` |
-| nginx | 1.24.0 | `cpe:2.3:a:f5:nginx:1.24.0:*:*:*:*:*:*:*` |
+| nginx | 1.24.0 | `cpe:2.3:a:f5:nginx:1.24.0:*:*:*:*:*:*:*` (a `cpe` the scanner returns spells it `nginx:nginx`: if one spelling returns no CVEs, retry with the other; an empty result is not a clean service) |
 | OpenSSL | 3.0.8 | `cpe:2.3:a:openssl:openssl:3.0.8:*:*:*:*:*:*:*` |
 | ISC BIND | 9.18.12 | `cpe:2.3:a:isc:bind:9.18.12:*:*:*:*:*:*:*` |
 | vsftpd | 3.0.5 | `cpe:2.3:a:beasts:vsftpd:3.0.5:*:*:*:*:*:*:*` |
@@ -332,7 +331,7 @@ These tools return a license upgrade prompt on CE installations:
 >
 > The framework detail below is accurate and worth keeping — it was attached to a tool name that does not exist:
 >
-> SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) + NIST CSF 2.0 Core + PCI DSS v4.0.1 (sub-requirement-level for QSA RoC; PCI SSC June 2024 errata) + ISO/IEC 27001:2022 (per-Annex-A-code-level for ISO/IEC 17021-1 certification body assessors; ISO + IEC October 2022; 2013 edition retired October 31, 2025) + **CIS Critical Security Controls v8** (per-Safeguard-level; Center for Internet Security May 2021, v8.1 errata June 2024) + **GDPR Article 32 (Security of Processing)** (sub-measure-level; Regulation (EU) 2016/679; **Art. 32 infrastructure substrate only, NOT GDPR compliance**) gap analysis — all seven shipped (SOC 2 EE 0.3.x; HIPAA EE 0.9.0; NIST CSF 2.0 EE 0.10.0; PCI DSS v4.0.1 EE 0.11.0; ISO/IEC 27001:2022 EE 0.12.0; CIS Controls v8 EE 0.13.0; **GDPR Article 32 EE 0.20.0**). Multi-framework via `--compliance all` (shorthand for every shipped framework; EE 0.31.4) or `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr,nist-800-171` (any CSV subset; aliases `nist`/`pci`/`iso`/`cis`, and `800-171` or `cmmc` for `nist-800-171` — ⚠️ `nist` stays NIST CSF, because two NIST publications now ship and the bare vendor name is ambiguous); an unknown token **fails fast** (no "Framework load failed" stub). One scan produces one complete auditor-ready evidence pack per framework requested. **NIST SP 800-171 Rev 2** (requirement-level `3.x.y` for the matrix, SP 800-171A determination-statement level `3.x.y[a]` for evidence; EE F2 cycle) is the eighth. ⚠️ **TEACH ITS SCOPING DOCTRINE VERBATIM AND NEVER PARAPHRASE IT: "NIST SP 800-171 evidence substrate for CMMC Level 2 preparation."** WITHDRAWN — deliberately not claimed, in these exact words: "CMMC certified / compliant / ready", "FedRAMP authorized", never a MET / NOT MET verdict, and never an SPRS score — a Level 2 certificate is issued to a CONTRACTOR by a C3PAO under the CMMC rule, and FedRAMP authorizes cloud service offerings, which this product is not. Only **2 of the 110** Rev 2 requirements are `covered`, and that is the design rather than a shortfall: one objective scored NOT MET fails its whole requirement, so a requirement is covered only when EVERY one of its determination statements is a statement of technical state the scan reads directly. Each mapped requirement carries `assessmentObjectives` and `objectivesEvidenced`; `partialBasis` names which of three shortfalls applies. CUI scope is the OPERATOR's assertion — the scanner cannot see CUI, cannot tell FCI from CUI, and cannot see an enclave boundary. The SSP (3.12.4) and POA&M (3.12.2) are operator artifacts this engine informs and never produces. ⚠️ Its requirement ids collide EXACTLY with PCI DSS sub-requirement ids (`3.5.1` is real in both), so ALWAYS qualify a citation. **CIS Controls v8**: 17 covered + 23 partial + 113 OOS across 153 Safeguards / 18 Controls. **Implementation Group cumulative discipline** — IG1=56 (cyber-insurance baseline; ~50-70% of mid-market policies require IG1 attestation), IG2 cumulative=130, IG3 cumulative=153; smallest-IG-membership tagging (NEVER report IG2 as 74-of-74 in isolation). **No-certification-body attestation discipline** — engine output is INPUT to CSAT / CIS-CAT Pro self-attestation OR a SOC 2 auditor cross-validating CIS scope, never "CIS certified." Cloud Companion Guide v8 shared-responsibility + CIS-Hardened-Image substrate-evidence credit (Safeguards 4.1/4.2/4.6) + 5 Security Functions (NOT 6 — no Govern) + 6 Asset Types + MS-ISAC/EI-ISAC/H-ISAC sector baselines + v7.1-to-v8 cross-reference. CIS Safeguard examples: `3.3` Data Access Control Lists, `5.4` Restrict Administrator Privileges, `6.3` MFA for Externally-Exposed Applications, `8.2` Collect Audit Logs, `11.4` Isolated Recovery Data Instance. ISO 27001 Annex A code examples: `A.5.15` Access control, `A.5.23` NEW 2022 Cloud services, `A.8.5` Secure authentication, `A.8.9` NEW 2022 Configuration management, `A.8.16` NEW 2022 Monitoring activities, `A.8.24` Use of cryptography. Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing (7 Major Nonconformity classes — absence of internal audit per Clause 9.2 or management review per Clause 9.3 = auto-fail Stage 2) + 5-attribute taxonomy NEW in 2022 (controlType / informationSecurityProperties / cybersecurityConcepts [5 categories, NOT 6 like NIST CSF 2.0] / operationalCapabilities / securityDomains) + 2013-to-2022 transition discipline. Pair with ISO-aware GRC (Drata ISO 27001 / Vanta ISO 27001 / AuditBoard / OneTrust ISMS / Secureframe ISO 27001) for SoA workflow + internal audit + management review. PCI DSS sub-requirement examples: `Req 1.2.1` NSC config standards, `Req 8.4.1` MFA on non-console admin, `Req 10.2.1` audit logs enabled, `Req 11.3.1` quarterly internal vuln scans. Defined-vs-Customized Approach discipline per Appendix E (15 Defined-only sub-requirements enforced at schema layer; CHD Scope operator-attested via CDE DFD per Req 1.2.4; card-brand AOC enforcement view — Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC). **NIST SP 800-171 Rev 2** (evidence substrate for **CMMC Level 2 preparation** — all 110 Rev 2 requirements enumerated, claimed at the SP 800-171A determination-statement level; Rev 2 is pinned because CMMC assesses Rev 2 by rule and Rev 3 is a different 97-requirement universe). ⚠️ **Never tell a user this produces a CMMC certification, FedRAMP authorization, MET/NOT MET verdict or SPRS score — it produces none of those, and each is a C3PAO determination.** **GRC push (Enterprise, opt-in):** set `COMPLIANCE_GRC_PROVIDER=vanta` (or `drata` / `secureframe`) + `COMPLIANCE_GRC_TOKEN` to map the findings to the platform's evidence/test records and push them at scan time (ZDE-redacted egress; token never serialized; the Vanta·Drata·Secureframe connector trio is complete — Secureframe records model, live tenant validation in progress).
+> SOC 2 (AICPA TSC 2017) + HIPAA (§164.312 Technical Safeguards) + NIST CSF 2.0 Core + PCI DSS v4.0.1 (sub-requirement-level for QSA RoC; PCI SSC June 2024 errata) + ISO/IEC 27001:2022 (per-Annex-A-code-level for ISO/IEC 17021-1 certification body assessors; ISO + IEC October 2022; 2013 edition retired October 31, 2025) + **CIS Critical Security Controls v8** (per-Safeguard-level; Center for Internet Security May 2021, v8.1 errata June 2024) + **GDPR Article 32 (Security of Processing)** (sub-measure-level; Regulation (EU) 2016/679; **Art. 32 infrastructure substrate only, NOT GDPR compliance**) gap analysis — these and **NIST SP 800-171 Rev 2** (below) have all shipped (SOC 2 EE 0.3.x; HIPAA EE 0.9.0; NIST CSF 2.0 EE 0.10.0; PCI DSS v4.0.1 EE 0.11.0; ISO/IEC 27001:2022 EE 0.12.0; CIS Controls v8 EE 0.13.0; **GDPR Article 32 EE 0.20.0**; NIST SP 800-171 Rev 2 EE 0.40.0). Multi-framework via `--compliance all` (shorthand for every shipped framework; EE 0.31.4) or `--compliance soc2,hipaa,nist-csf,pci-dss,iso-27001,cis-v8,gdpr,nist-800-171` (any CSV subset; aliases `nist`/`pci`/`iso`/`cis`, and `800-171` or `cmmc` for `nist-800-171` — ⚠️ `nist` stays NIST CSF, because two NIST publications now ship and the bare vendor name is ambiguous); an unknown token **fails fast** (no "Framework load failed" stub). One scan produces one complete auditor-ready evidence pack per framework requested. **NIST SP 800-171 Rev 2** (requirement-level `3.x.y` for the matrix, SP 800-171A determination-statement level `3.x.y[a]` for evidence; EE F2 cycle) is the eighth. ⚠️ **TEACH ITS SCOPING DOCTRINE VERBATIM AND NEVER PARAPHRASE IT: "NIST SP 800-171 evidence substrate for CMMC Level 2 preparation."** WITHDRAWN — deliberately not claimed, in these exact words: "CMMC certified / compliant / ready", "FedRAMP authorized", never a MET / NOT MET verdict, and never an SPRS score — a Level 2 certificate is issued to a CONTRACTOR by a C3PAO under the CMMC rule, and FedRAMP authorizes cloud service offerings, which this product is not. Only **2 of the 110** Rev 2 requirements are `covered`, and that is the design rather than a shortfall: one objective scored NOT MET fails its whole requirement, so a requirement is covered only when EVERY one of its determination statements is a statement of technical state the scan reads directly. Each mapped requirement carries `assessmentObjectives` and `objectivesEvidenced`; `partialBasis` names which of three shortfalls applies. CUI scope is the OPERATOR's assertion — the scanner cannot see CUI, cannot tell FCI from CUI, and cannot see an enclave boundary. The SSP (3.12.4) and POA&M (3.12.2) are operator artifacts this engine informs and never produces. ⚠️ Its requirement ids collide EXACTLY with PCI DSS sub-requirement ids (`3.5.1` is real in both), so ALWAYS qualify a citation. **CIS Controls v8**: 17 covered + 23 partial + 113 OOS across 153 Safeguards / 18 Controls. **Implementation Group cumulative discipline** — IG1=56 (cyber-insurance baseline; ~50-70% of mid-market policies require IG1 attestation), IG2 cumulative=130, IG3 cumulative=153; smallest-IG-membership tagging (NEVER report IG2 as 74-of-74 in isolation). **No-certification-body attestation discipline** — engine output is INPUT to CSAT / CIS-CAT Pro self-attestation OR a SOC 2 auditor cross-validating CIS scope, never "CIS certified." Cloud Companion Guide v8 shared-responsibility + CIS-Hardened-Image substrate-evidence credit (Safeguards 4.1/4.2/4.6) + 5 Security Functions (NOT 6 — no Govern) + 6 Asset Types + MS-ISAC/EI-ISAC/H-ISAC sector baselines + v7.1-to-v8 cross-reference. CIS Safeguard examples: `3.3` Data Access Control Lists, `5.4` Restrict Administrator Privileges, `6.3` MFA for Externally-Exposed Applications, `8.2` Collect Audit Logs, `11.4` Isolated Recovery Data Instance. ISO 27001 Annex A code examples: `A.5.15` Access control, `A.5.23` NEW 2022 Cloud services, `A.8.5` Secure authentication, `A.8.9` NEW 2022 Configuration management, `A.8.16` NEW 2022 Monitoring activities, `A.8.24` Use of cryptography. Statement of Applicability per Clause 6.1.3.d discipline + ISMS Clauses 4-10 OOS-by-design framing (7 Major Nonconformity classes — absence of internal audit per Clause 9.2 or management review per Clause 9.3 = auto-fail Stage 2) + 5-attribute taxonomy NEW in 2022 (controlType / informationSecurityProperties / cybersecurityConcepts [5 categories, NOT 6 like NIST CSF 2.0] / operationalCapabilities / securityDomains) + 2013-to-2022 transition discipline. Pair with ISO-aware GRC (Drata ISO 27001 / Vanta ISO 27001 / AuditBoard / OneTrust ISMS / Secureframe ISO 27001) for SoA workflow + internal audit + management review. PCI DSS sub-requirement examples: `Req 1.2.1` NSC config standards, `Req 8.4.1` MFA on non-console admin, `Req 10.2.1` audit logs enabled, `Req 11.3.1` quarterly internal vuln scans. Defined-vs-Customized Approach discipline (PCI DSS v4.0.1 states Customized-Approach ineligibility in each requirement's own Customized Approach Objective cell, not in any appendix; EE ships the derived set in `data/standards/pci-dss-v4_0_1-ids.json`; none of the mapped sub-requirements is Defined-only today, every main-body ineligible id sits in an out-of-scope group, the Appendix A2 / A3 ineligible ids are enumerated in no framework file, and `Req 12.3.2` is a third state — part of the Customized Approach and required of those who use it, neither eligible nor ineligible; CHD Scope operator-attested via CDE DFD per Req 1.2.4; card-brand AOC enforcement view — Visa CISP / Mastercard SDP / Amex DSOP / Discover DISC). **NIST SP 800-171 Rev 2** (evidence substrate for **CMMC Level 2 preparation** — all 110 Rev 2 requirements enumerated, claimed at the SP 800-171A determination-statement level; Rev 2 is pinned because CMMC assesses Rev 2 by rule and Rev 3 is a different 97-requirement universe). ⚠️ **Never tell a user this produces a CMMC certification, FedRAMP authorization, MET/NOT MET verdict or SPRS score — it produces none of those, and each is a C3PAO determination.** **GRC push (Enterprise, opt-in):** set `COMPLIANCE_GRC_PROVIDER=vanta` (or `drata` / `secureframe`) + `COMPLIANCE_GRC_TOKEN` to map the findings to the platform's evidence/test records and push them at scan time (outbound to the vendor you configure; finding content is **NOT redacted by default** — `COMPLIANCE_GRC_REDACTION` unset means `off`, and a Vanta push then carries finding text and `host:port` targets in the clear; set it to `hash` or `remove` to scrub them; token never serialized; the Vanta·Drata·Secureframe connector trio is complete — Secureframe records model; all three are early-access and live-tenant validation is not yet complete).
 
 ### Evidence gaps — never read one as a pass (post EE 0.32.9)
 
@@ -389,33 +388,39 @@ a mapping from general security knowledge.** The engine deliberately routes some
 *narrowly*, and a plausible-looking freehand mapping will overclaim. The non-obvious
 dispositions to know:
 
-- **Missing HSTS header → SOC 2 CC6.7 ONLY.** It is deliberately **not** mapped to HIPAA
-  §164.312(e)(1), ISO A.8.9, CIS 3.10, NIST CSF, PCI DSS, or GDPR. The finding fires only
-  on an endpoint whose transport **is** encrypted (the header governs a *future* client's
-  downgrade, not the observed session), so failing a transmission-security or
-  secure-configuration control in the other six on one absent response header would
-  overclaim — a Required HIPAA standard or an IG1 CIS Safeguard flipped on a single-header
-  inference. (EE 0.32.7 §4B; routes to CC6.7 only, mutation-proven.)
+- **Missing HSTS header → SOC 2 CC6.7 and NIST SP 800-171 3.13.15.** It is deliberately
+  **not** mapped to HIPAA §164.312(e)(1), ISO A.8.9, CIS 3.10, NIST CSF 2.0, PCI DSS, or GDPR.
+  The finding fires only on an endpoint whose transport **is** encrypted (the header governs
+  a *future* client's downgrade, not the observed session), so failing a transmission-security
+  or secure-configuration control in those frameworks on one absent response header would
+  overclaim — a Required HIPAA standard or a CIS Safeguard flipped on a single-header
+  inference. The 800-171 rule routes it to 3.13.15 (authenticity of communications sessions),
+  a **partial** requirement; its rationale reads the finding as corroborating substrate that
+  applies where the operator asserts the endpoint serves CUI-bearing sessions. (EE 0.32.7 cut
+  the routing to SOC 2 alone; the 800-171 rule arrived with that framework in EE 0.40.0.)
+  **In this release it does not fire:** the check reads a `headers` field that no shipped plugin sets on a
+  service record, so the absence of this finding says nothing about whether HSTS is set.
 - **Aggregate open-port count** and the **opportunistic-STARTTLS / port-inferred cleartext**
-  variants also route to **SOC 2 only** — each is a breadth heuristic or a self-declared
+  variants route to **SOC 2 only** — each is a breadth heuristic or a self-declared
   *unverifiable* observation, not a per-transmission determination.
-- Otherwise, network-scan analysis-agent findings (`crypto_agent` / `exposure_agent`) now
-  route across **every shipped** framework where the control subject matches (EE 0.32.7): a
-  **confirmed** cleartext channel fails HIPAA §164.312(e)(1), ISO A.8.24, NIST PR.DS-02,
-  CIS 3.10, PCI 4.2.1 and GDPR Art. 32(1)(a) as well as SOC 2 CC6.7.
+- Otherwise, network-scan analysis-agent findings (`crypto_agent` / `exposure_agent`) route
+  across **every shipped** framework where the control subject matches: a **confirmed**
+  cleartext channel fails HIPAA §164.312(e)(1), ISO A.8.24, NIST CSF PR.DS-02, CIS 3.10,
+  PCI DSS 4.2.1, GDPR Art.32(1)(a)-encryption-in-transit, NIST SP 800-171 3.13.8 and
+  SOC 2 CC6.7, among other controls — read the full list from the pack.
 
 If unsure, say the pack is what decides it and offer to run the CLI — never assert a control
 mapping the engine did not emit, and never claim an MCP call produced a pack.
 
 ---
 
-### Suppressions — the workflow SHIPS, the signature does NOT (post EE 0.33.1)
+### Suppressions — the workflow SHIPS; signing an approval is opt-in (proven at EE 0.36.0)
 
-An operator can mark a finding as accepted-risk or false-positive. That suppression workflow **ships and is reachable**: a suppressed finding renders with status `FALSE_POSITIVE`, set by an operator rather than by a probe, and the suppression is applied before the pack is written — so it sits **inside** the hashed artifact rather than being independently attested.
+An operator can suppress a compliance violation as accepted-risk or false-positive (`nsauditor-ai compliance suppress … --status <accepted_risk|false_positive>`, Enterprise). That suppression workflow **ships and is reachable** from the CLI; it is not an MCP tool. The report lists each suppressed finding with its OWN suppression's status — ACCEPTED RISK or FALSE POSITIVE — and its approver. A control whose violations are ALL suppressed reads FALSE POSITIVE when every one of those suppressions is a false positive and ACCEPTED RISK otherwise; one unsuppressed violation keeps the control FAIL. (The finding-queue status `FALSE_POSITIVE` in `references/schemas.md` is a different field.) The suppression is applied before the pack is written, so it sits **inside** the hashed artifact.
 
-⚠️ **Ed25519 SIGNING of suppressions became reachable in EE 0.35.0 via `compliance suppress` and was PROVEN at EE 0.36.0, verified for approvers whose registry entry carries key material** — the verification gate ran against the published bytes and passed, tamper negative control included. Present a produced signature as verified evidence only **for approvers whose registry entry carries key material**; a fingerprint-only registry entry makes a report read `not checked by this report`, which records that no check ran and must never be reported as a failure. The signer backends and the frozen `algorithm` / `backend` record fields are groundwork, deliberately landed before reachability because retrofitting algorithm agility once signatures exist in customer archives would break every auditor holding one. Setting `NSAUDITOR_SIGNING_KEY` changes nothing today, because nothing calls the signer.
+⚠️ **Ed25519 SIGNING of suppressions became reachable in EE 0.35.0 via `compliance suppress` and was PROVEN at EE 0.36.0, verified for approvers whose registry entry carries key material** — the verification gate ran against the published bytes and passed, tamper negative control included. Present a produced signature as verified evidence only **for approvers whose registry entry carries key material**; a fingerprint-only registry entry makes a report read `not checked by this report`, which records that no check ran and must never be reported as a failure. The signer backends and the frozen `algorithm` / `backend` record fields are groundwork, deliberately landed before reachability because retrofitting algorithm agility once signatures exist in customer archives would break every auditor holding one. How it is produced: `nsauditor-ai compliance keygen --key <path>` writes an Ed25519 keypair (private half `0600`) and prints the identity-registry member to paste, including the public key material a report needs to verify; while `NSAUDITOR_SIGNING_KEY` names that local key file, `compliance suppress` signs the approval it writes, and without it the approval is recorded unsigned and the report says `unsigned — documentation-only approval` (a KMS or keychain reference is refused at the command). Where the approver's registry entry carries that key material, a signature that verifies renders `signed (approver)`, `signed (deployment)` or `signed, identity model not declared`, and a one-character edit to the approval's signed content renders `🔴 signature FAILED verification`, with the attestation at `not_authenticated`. Even verified, `approver` is the operator's DECLARATION — the signature proves the registered key signed the record, not who holds that key; corroborate against the identity registry. Setting the key later does not sign approvals already recorded, and `compliance renew` on a signed approval invalidates its signature (re-approve with the key configured instead).
 
-**Never tell an operator their suppressions are cryptographically signed** — not even in the softer form "signed once you configure a key". If asked what the SHA-256 chain-of-custody covers: it proves the pack was not altered after generation. It does **not** attest who suppressed a finding, when, or with what justification, and an assessor asking about suppressions usually wants the second thing.
+**Call an approval's signature verified only where the report's attestation for it reads `signed (…)` or `signed, identity model not declared`.** `unsigned` is a documentation-only approval. `signature NOT authenticated` — in an Appendix B cell, `🔴 signature FAILED verification` or a `signed — …` qualifier such as `not checked by this report` — means nothing may lean on that signature; only `FAILED verification` says the record and its signature disagree (tampering, or a `renew` after signing). If asked what the SHA-256 chain-of-custody covers: each framework's `scan_chain_of_custody_<fw>.json` lists the artifacts it covers with their digests, beside a `.sha256` sidecar per file. On its own a digest detects corruption, or an edit by something that did not recompute it; it cannot prove the pack was unaltered, because whoever edits an artifact can recompute its digest. If the operator signed that envelope with `compliance sign-pack`, `compliance verify-pack` exposes an edit by anyone who cannot re-sign — for that one framework's envelope and the artifacts it enumerates, under an operator-held key. An opt-in RFC 3161 `.tsr` (`NSAUDITOR_TSA_URL`) fixes each timestamped artifact's digest at the Time-Stamp Authority's time, so a later edit cannot be backdated. None of these says who suppressed a finding or why — the suppression record does (approver, rationale, dates), and only a signature the report verifies ties it to a registered key; an assessor asking about suppressions usually wants that.
 
 ⚠️ **Disambiguation:** "suppression" also appears in this package in the unrelated **AWS SES email suppression list** sense (plugin 1190). They are different subjects; check which one is being asked about.
 
@@ -432,16 +437,21 @@ Phase 2: BASIC ANALYSIS (CE)   Redaction → MITRE mapping → AI analysis (any 
                                         ↓
                                    [ License Gate: Pro required ]
                                         ↓
-Phase 3: INTELLIGENCE (Pro)    CPE generation → NVD CVE lookup → Parallel verification agents:
-                                  • Auth Agent (weak auth, default credentials)
+Phase 3: INTELLIGENCE (Pro)    CPE generation → NVD CVE lookup → parallel ANALYSIS agents, which
+                                read the collected scan evidence and send no probes of their own:
+                                  • Auth Agent (Telnet, default SNMP community; anonymous FTP only
+                                    with FTP_CHECK_ANON=true)
                                   • Crypto Agent (TLS, ciphers, certificates)
-                                  • Config Agent (misconfigs, debug exposure, CORS)
-                                  • Service Agent (CVE-specific targeted probes)
+                                  • Config Agent (default SNMP community; RPC / NetBIOS open on a Linux host)
+                                  • Service Agent (end-of-life versions, from an offline table)
+                                  • Exposure Agent, Enterprise only (open database, management and
+                                    lateral-movement ports)
                                 Output: Structured finding queue
                                         ↓
 Phase 4: VERIFICATION          WITHDRAWN — not shipped and not planned. The finding-status
          (withdrawn)            field exists; no active probe sets it. Every finding is
-                                emitted UNVERIFIED.
+                                emitted UNVERIFIED, which never means "tried and could not be
+                                confirmed" (see Security Constraints, item 5).
                                         ↓
 Phase 5: SCORING (Pro/Ent)     Risk scoring → Pro AI prompts → Compliance mapping
                                 Output: Risk report + compliance report (Markdown, HTML, JSON)
@@ -463,8 +473,9 @@ live total and marks each Enterprise plugin `✓ active` or `✗ requires: <tier
 
 The Community set groups roughly as service probes, host/network discovery, and intelligence /
 meta plugins, plus three deep-audit Community plugins (040 TLS Certificate & Cipher Auditor, 050
-TRIBE v2 Probe, 060 DNS Security Auditor): `scan_host` RUNS them on every tier but does NOT return their
-findings, so over MCP the only route to their results is `probe_service`, which needs Pro.
+TRIBE v2 Neural API Security Probe, 060 DNS Security Auditor): `scan_host` RUNS them on every tier (050 only when
+TCP 8080 is open) but does NOT return their findings, so over MCP the only route to their results is
+`probe_service`, which needs Pro.
 
 > A per-plugin list used to be duplicated here and drifted: it claimed **18** Enterprise plugins
 > while enumerating **15**, against **28** on disk. One catalog, in `references/plugins.md`.
@@ -478,7 +489,9 @@ See `references/workflows.md` for detailed multi-step patterns:
 2. **Targeted Service Investigation** — probe_service(pluginId) → get_vulnerabilities
 3. **Subnet Discovery** — CLI: `nsauditor-ai scan --host <CIDR> --parallel 10`
 4. **CI/CD Pipeline** — SARIF output with `--fail-on` severity gating
-5. **Continuous Monitoring (CTEM)** — `--watch --interval <min> --webhook-url <url>`
+5. **Continuous Monitoring (CTEM)** — `--watch --interval <min> --webhook-url <url>` (its webhook does NOT fire
+   on a service, version or finding change in this release; read changes from the `[ScanHistory]` lines —
+   `references/workflows.md` §5)
 6. **AI-Powered Report** — Scan with AI provider (OpenAI/Claude/Ollama) + redaction
 
 ### Decision Tree: Which Tool to Use
@@ -496,6 +509,7 @@ User wants to...
 ├── Detect debug leaks / CORS issues    → probe_service (Pro) with plugin 050 (scan_host RUNS it but does not return its findings)
 ├── Scan a subnet                       → CLI with --parallel (not MCP)
 ├── Set up continuous monitoring         → CLI with --watch (not MCP)
+│                                         (its webhook does NOT fire on a service change in this release — workflows.md §5)
 ├── Compare two scans                   → CLI (Pro): report --from <dir> --format executive --since prior
 │                                         (not MCP; NEVER by hand — a by-hand diff reads a finding that
 │                                         vanished unmeasured as fixed)
@@ -522,29 +536,47 @@ See `references/schemas.md` for complete structures:
 
 **CRITICAL — Always observe these constraints:**
 
-1. **Zero Data Exfiltration (ZDE):** NSAuditor AI NEVER sends scan data externally unless
-   the user explicitly opts in to AI analysis with their own API keys. Nsasoft infrastructure
-   never sees scan data. Never suggest workflows that violate this boundary.
+1. **Zero Data Exfiltration (ZDE)** is a claim about a PARTY, not about the host:
+   No customer data is collected, transmitted, or stored by Nsasoft US LLC. Scan-derived data can
+   reach third parties. ON BY DEFAULT at Pro and above: CVE matching queries NIST's NVD with the CPE
+   (vendor, product, exact version) of each detected service that local NVD data does not already
+   answer; `NSAUDITOR_OFFLINE_ONLY=1` turns that off (CVE matching then needs a populated local NVD
+   store). OPT-IN: AI analysis (redaction below); GRC push (finding text plus host:port identifiers,
+   sent as they are unless `COMPLIANCE_GRC_REDACTION` is `hash` or `remove`, which fingerprints or
+   removes both); `--webhook-url` alerts (findings in the clear); and `get_vulnerabilities` (the CPE
+   it is given, to NVD; `NSAUDITOR_OFFLINE_ONLY` does not stop it). EE's egress register
+   (`utils/egress_register.mjs`) lists the outbound paths, each with its trigger and whether it is on
+   by default. Never tell a user "nothing leaves", and never suggest enabling an opt-in path without
+   the user's decision.
 
 2. **SSRF Protection:** The MCP server blocks loopback (127.x, ::1), link-local (169.254.x,
    fe80:), and cloud metadata endpoints. Set `NSA_ALLOW_ALL_HOSTS=1` **only** for legitimate
    local network auditing. DNS rebinding is also blocked via pre-resolution.
 
-3. **AI Redaction:** When AI analysis is enabled, the redaction pipeline scrubs:
-   - Private IPv4 addresses → `[REDACTED]`
-   - MAC addresses → `[MAC]`
-   - Serial numbers → `[REDACTED_HIDDEN]`
-   - Email addresses → `[REDACTED_EMAIL]`
-   - Bearer tokens → `[REDACTED_BEARER]`
-   - AWS keys → `[REDACTED_AWS_KEY]`
-   - Configurable via `CONFIDENTIAL_KEYWORDS` env var
+3. **AI Redaction:** with AI analysis on and `OPENAI_REDACT` at its default (on), the scan payload
+   (host, summary, services, evidence) is scrubbed at every tier: the host field becomes
+   `[REDACTED_HOST]`; private IPv4 becomes `[REDACTED_HOST]` in the summary and `[REDACTED_IP]` in
+   services and evidence; public IPv4 becomes `[IP]`; link-local and full-form IPv6 and colon-form
+   MACs (`[MAC]`) are masked; serial numbers become `[REDACTED_HIDDEN]`, as do values under keys
+   containing a word listed in `CONFIDENTIAL_KEYWORDS` (empty by default). **That payload is NOT
+   scrubbed of** email addresses, internal hostnames, SNMP community strings, Bearer tokens, AWS keys,
+   file paths or compressed IPv6 (`2001:db8::1`); ports, service names, versions and other evidence
+   text go as they are. At Pro and above, the findings block added to the prompt is also masked by
+   default: target hosts, private IPv4, emails, MACs, internal hostnames and `community=<value>`
+   strings (a community quoted in a finding title is not); AWS keys, Bearer tokens and file paths
+   only with `NSA_AI_REDACT_LEVEL=strict`. With Ollama at its default localhost URL, the AI call
+   stays on the host.
 
 4. **Scan Authorization:** ALWAYS confirm the user has authorization to scan the target.
    Never scan hosts without explicit user instruction. Unauthorized scanning is illegal.
 
 5. **Non-Destructive:** every scanner probe is a read-only query — NSAuditor AI never
    exploits vulnerabilities or modifies target systems. (Active *verification* probes are
-   WITHDRAWN — not shipped and not planned; findings are emitted UNVERIFIED.)
+   WITHDRAWN — not shipped and not planned; findings are emitted UNVERIFIED.) Every row of the
+   finding queue carries `UNVERIFIED`, `[COVERAGE GAP]` rows included, so the status says nothing
+   about a row: report a finding as what the scanner detected, never as "tried and could not be
+   confirmed". What says a check did NOT measure is a `[COVERAGE GAP]` title, an
+   `evidenceGap: true` marker or a `coverage UNVERIFIED` summary line.
 
 ---
 
@@ -562,11 +594,11 @@ See `references/schemas.md` for complete structures:
 | `OPENAI_API_KEY` | — | OpenAI API key (or `keychain:OPENAI_API_KEY`) |
 | `ANTHROPIC_API_KEY` | — | Claude/Anthropic API key |
 | `OPENAI_MODEL` | gpt-4o-mini | OpenAI model name |
-| `ANTHROPIC_MODEL` | claude-sonnet-4-20250514 | Anthropic model name |
-| `OPENAI_REDACT` | true | Redact PII before AI submission |
-| `CONFIDENTIAL_KEYWORDS` | serial,password,token,secret | Comma-separated keys to scrub |
+| `ANTHROPIC_MODEL` | claude-sonnet-4-6 | Anthropic model name (used when `AI_PROVIDER=claude`) |
+| `OPENAI_REDACT` | true | On the CLI, masks the host, most IP addresses, colon-form MACs and serials in the AI scan payload — NOT emails, internal hostnames, Bearer tokens or AWS keys (see **AI Redaction** above) |
+| `CONFIDENTIAL_KEYWORDS` | unset — no keyword scrub | Comma-separated substrings, e.g. `password,token,secret`: on the CLI, while `OPENAI_REDACT` is on, any AI-payload key containing one (any case) has its value replaced with `[REDACTED_HIDDEN]`. Unset, a key such as `password` is not masked for its name (serial-number keys — `serial`, `serialNumber`, `sn` — are masked either way) |
 | `NSAUDITOR_LICENSE_KEY` | — | Pro/Enterprise JWT license key |
-| `COMPLIANCE_GRC_PROVIDER` | — | **Enterprise** — opt-in scan-time GRC push: `vanta`, `drata`, or `secureframe`. Needs `COMPLIANCE_GRC_TOKEN`; optional `COMPLIANCE_GRC_BASE_URL` / `COMPLIANCE_GRC_CONTROL_MAP` / `COMPLIANCE_GRC_REDACTION` (`off`/`hash`/`remove`). Egress is ZDE-redacted; token never serialized. Live tenant validation in progress. |
+| `COMPLIANCE_GRC_PROVIDER` | — | **Enterprise** — opt-in scan-time GRC push: `vanta`, `drata`, or `secureframe`. Needs `COMPLIANCE_GRC_TOKEN`; optional `COMPLIANCE_GRC_BASE_URL` / `COMPLIANCE_GRC_CONTROL_MAP` / `COMPLIANCE_GRC_REDACTION` (`off`/`hash`/`remove`, default `off`). Finding content is **NOT redacted by default**: with `off`, a Vanta push carries finding text and `host:port` targets in the clear; `hash` or `remove` scrubs them. Token never serialized. Early-access; live-tenant validation not yet complete. |
 | `SCAN_OUT_PATH` | out/ | Output directory for scan results |
 | `SMB_NULL_SESSION` | false | Allow SMB null session probe |
 | `FTP_CHECK_ANON` | false | Let the FTP check try an anonymous login — without it no scan reports anonymous FTP |
@@ -578,9 +610,9 @@ See `references/schemas.md` for complete structures:
 | Variable | Default | Plugin |
 |----------|---------|--------|
 | `TLS_SCANNER_TIMEOUT_MS` | 8000 | TLS Scanner |
-| `HTTP_PROBE_TIMEOUT_MS` | 6000 | HTTP Probe |
-| `WEBAPP_DETECTOR_TIMEOUT_MS` | 6000 | Webapp Detector |
-| `DNS_TIMEOUT_MS` | 800 | DNS Scanner |
+| `HTTP_TIMEOUT_MS` | 6000 | HTTP Probe |
+| `WAPPALYZER_TIMEOUT_MS` | 15000 | Webapp Detector |
+| `DNS_TIMEOUT_MS`, else `DNS_SCANNER_TIMEOUT_MS` | 2000 | DNS Scanner |
 | `OPENSEARCH_SCANNER_TIMEOUT_MS` | 6000 | OpenSearch Scanner |
 
 ---
@@ -591,7 +623,8 @@ See `references/schemas.md` for complete structures:
 # Install globally
 npm install -g nsauditor-ai
 
-# Start MCP server (stdio transport)
+# Start MCP server (stdio transport). Your MCP client starts it itself (configs below); run by hand, it
+# exits at startup unless NSA_MCP_AUTH_KEY holds the value `nsauditor-ai mcp install-key` prints (⚠️ below)
 nsauditor-ai-mcp
 
 # Or via npx (no global install)
@@ -602,8 +635,11 @@ npx nsauditor-ai-mcp
 
 **Claude Code:**
 ```bash
-claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
+nsauditor-ai mcp install-key
+claude mcp add nsauditor-ai --env NSA_MCP_AUTH_KEY=<from: nsauditor-ai mcp install-key> -- npx nsauditor-ai-mcp
 ```
+Run `install-key` once per machine, and use the `NSA_MCP_AUTH_KEY` value in the snippet it prints:
+`keychain:NSA_MCP_AUTH_KEY` when it stored the key in the macOS Keychain, otherwise the literal key.
 
 **Claude Desktop** (`claude_desktop_config.json`):
 ```json
@@ -623,8 +659,9 @@ claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
 ```
 
 `PLUGIN_TIMEOUT_MS` bounds each plugin `scan_host` runs, not the call: the plugins run one after
-another, so the call takes roughly the sum of their times and fits inside Claude Desktop's ~60 s
-tool-call limit only when most of them finish quickly.
+another, so the call takes roughly the sum of their times. On one router, a `scan_host` call timed out
+in Claude Desktop on 2026-08-10 and one returned within 138 s on 2026-09-30, so do not promise either
+outcome: a call that times out returned no result — say so, and never report the host as clean.
 
 > ⚠️ **`NSA_MCP_AUTH_KEY` is REQUIRED — the server refuses to start without it.** Generate one with
 > `nsauditor-ai mcp install-key`, then put the SAME value in the `env` block above. Without it the MCP
@@ -652,7 +689,7 @@ Add to your MCP configuration with the same command/args pattern.
 
 | Error | Cause | Resolution |
 |-------|-------|-----------|
-| SSRF block | Target is loopback/metadata/private | Set `NSA_ALLOW_ALL_HOSTS=1` for local scanning |
+| SSRF block (`… is not allowed via MCP`) | One message, several causes: the target, or what its name resolves to, is private (RFC 1918, CGNAT `100.64/10`, IPv6 `fc00::/7`), loopback, `0.x`, link-local or metadata; or, while `NSA_ALLOW_ALL_HOSTS` is unset, the name does not resolve | Unresolvable name: check its spelling. Private target: set `NSA_ALLOW_ALL_HOSTS=1` in the MCP server env, then fully quit and relaunch the client. Targets written as `localhost`, `127.x`, `::1`, `0.x`, `169.254.x`, `fe80:` or `metadata.google…` are refused over MCP with or without it; scan those from the CLI, where `NSA_ALLOW_ALL_HOSTS=1` lifts the whole guard |
 | License gate (`🔒`) | Pro/Enterprise tool on CE | Upgrade license or use CE alternative |
 | Plugin timeout (`timeout` in `manifest`) | Network unreachable / slow target | Not measured, never clean. Raise `PLUGIN_TIMEOUT_MS` in the server env, or scan from the CLI, where a plugin that declares its own budget gets it |
 | No DNS banner | Provider blocks CHAOS/TXT queries | Expected; not all DNS servers expose version |

@@ -43,6 +43,23 @@ teaching forward:
   `certSelfSigned`; Example 1 lists the SNMP finding once, Example 6 uses 060's real result shape and no longer claims a
   STARTTLS check 060 does not make (nor does `references/plugins.md`), and Example 9 routes the plugin results to
   `probe_service`, not to the CLI scan.
+- **Build 4 — the skill's claims checked against the shipped code, 53 corrections (the operator's ruling after the
+  Desktop gate).** Gate 3-A on EE 1.2.0 build 3 found a skill that could not reach its own knowledge (a Community-floor
+  question answered from the public site, because the description triggered only on scanning words) and a routing bullet
+  false since the eighth framework; a read-only sweep then confirmed 49 more, each re-verified against the code or data.
+  Corrected: "Zero Data Exfiltration" now states the egress register's party-scoped sentence and names the default-on NVD
+  lookup (the old text promised nothing leaves the host); GRC push is NOT redacted by default; the AI-redaction tables
+  list only what the redactors write; suppression signing (verified where the registry entry carries key material)
+  is taught as it ships — keygen → suppress → `signed (approver)`, a tamper → `signature FAILED verification` — not as
+  absent; `UNVERIFIED` carries its reading rule; the pipeline shows
+  analysis agents over collected evidence, never verification agents; the withdrawn PCI "Appendix E / 15 Defined-only"
+  enumeration is gone from SKILL.md and `references/plugins.md`; "Missing HSTS header" routes to SOC 2 CC6.7 and NIST SP
+  800-171 3.13.15; the EE plugin table's SOC 2 column and the Community priorities, ports and requirements are the shipped
+  values; the port scanner's default set is 50 ports, not ~1000; the watch-mode webhook and its payload are described as
+  they ship; a Desktop per-call limit is no longer stated as a fact; the frontmatter triggers on install, upgrade and
+  version questions and the mirror rule is restated where the Community floor is taught. The facts that are data are held
+  by Enterprise's `tests/skill_teaching_matches_shipped_data.test.mjs`, which reads this skill beside the data; the
+  capability wordings by `tests/teaching_honesty.test.mjs`.
 - **A compliance control can FAIL on a finding the PRIOR scan recorded** when this scan did not measure its port or probe,
   did not cover its region, or did not run what produced it — a record titled `<prior title> — [COVERAGE GAP] PORT NOT
   MEASURED — …` (or PROBE / SCOPE / PRODUCER), counted among "Evidence gaps (not findings)" and never to be presented

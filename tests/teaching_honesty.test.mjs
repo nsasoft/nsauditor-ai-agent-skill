@@ -153,3 +153,69 @@ test('Example 1 reports the SNMP community finding once, and Example 6 claims no
   assert.doesNotMatch(ex, /✅[^\n]*STARTTLS|starttls:/, '060 has no STARTTLS check — a negation of it is fine, a claim is not');
   assert.doesNotMatch(read('references/plugins.md'), /mail exchange records and TLS support/);
 });
+
+// ── BUILD 4: Gate 3-A on EE 1.2.0 build 3 and the skill-claims audit (audit-evidence-samples/ee-1.2.0-gate3/) ─────────
+// Capability wordings the shipped code refutes. The facts that are DATA (HSTS routing, the default port set, the egress
+// register, the redaction tokens, PCI eligibility, the EE table's SOC 2 column, CE priorities) are derived on the EE side:
+// tests/skill_teaching_matches_shipped_data.test.mjs reads this skill beside the data.
+const frontmatter = () => { const s = read('SKILL.md'); return s.slice(4, s.indexOf('\n---\n', 4)); };
+
+test('the suppression section teaches the signed / FAILED renders the smoke drove', () => {
+  const s = read('SKILL.md');
+  assert.match(s, /### Suppressions/);
+  assert.match(s, /`signed \(approver\)`/); assert.match(s, /signature FAILED verification/);
+});
+
+test('suppression signing is not taught as absent — Gate 2 drove keygen, suppress, signed, tamper, FAILED', () => {
+  const hits = TEACHING.filter((f) => /nothing calls the signer|the signature does NOT|Never tell an operator their suppressions are cryptographically signed/.test(read(f)));
+  assert.deepEqual(hits, [], `signing taught as absent in: ${hits.join(', ')}`);
+});
+
+test('no teaching file promises GRC egress is redacted — it is off by default', () => {
+  const hits = TEACHING.filter((f) => /ZDE-redacted/i.test(read(f)));
+  assert.deepEqual(hits, [], `"ZDE-redacted" in: ${hits.join(', ')}`);
+  assert.match(read('SKILL.md'), /NOT redacted by default/);
+});
+
+test('the pipeline diagram shows analysis agents over collected evidence, never verification agents that probe', () => {
+  const s = read('SKILL.md');
+  assert.doesNotMatch(s, /Phase 3: INTELLIGENCE[^\n]*verification agents/i);
+  assert.match(s, /Phase 3: INTELLIGENCE[^\n]*ANALYSIS agents/);
+});
+
+test('the watch-mode webhook payload is the one the CLI posts, not an invented delta shape', () => {
+  const hits = TEACHING.filter((f) => /"event":\s*"scan_delta"|"new_services":/.test(read(f)));
+  assert.deepEqual(hits, [], `the invented payload in: ${hits.join(', ')}`);
+});
+
+test('no teaching file states a Desktop per-call limit as a fact — a call returned after ~138 s on 2026-09-30', () => {
+  // \s+ spans the hard wrap: the defect read "~60 s\ntool-call limit", and a single-space pattern passed over it.
+  const hits = TEACHING.filter((f) => /~\s?60\s?s\s+tool-call\s+limit|Desktop's\s+~\s?60/i.test(read(f)));
+  assert.deepEqual(hits, [], `a ~60 s limit taught in: ${hits.join(', ')}`);
+});
+
+test('the frontmatter triggers on install / upgrade / version questions, and no longer excludes "non-security topics"', () => {
+  const d = frontmatter();
+  for (const re of [/install/i, /upgrad/i, /version compatibility/i, /not loading/i]) assert.match(d, re);
+  assert.doesNotMatch(d, /non-security topics/);
+});
+
+test('the mirror rule is restated where the Community floor is taught', () => {
+  const s = read('SKILL.md');
+  const i = s.indexOf('check their Community version first');
+  assert.ok(i >= 0, 'the floor sentence is present');
+  assert.match(s.slice(i, i + 400), /answer from this skill even while npm or the public site does not list/);
+});
+
+test('UNVERIFIED is taught with its reading rule beside it, in SKILL.md', () => {
+  assert.match(read('SKILL.md'), /UNVERIFIED[\s\S]{0,120}never means "tried and could not be\s+confirmed"/);
+});
+
+test('probe_service is not taught with a plugin name that matches nothing', () => {
+  assert.doesNotMatch(read('SKILL.md'), /e\.g\. `"ssh_scanner"`/);
+});
+
+test('the framework list is not counted as seven', () => {
+  const hits = TEACHING.filter((f) => /all seven shipped/.test(read(f)));
+  assert.deepEqual(hits, [], `"all seven shipped" in: ${hits.join(', ')}`);
+});

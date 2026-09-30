@@ -8,6 +8,7 @@ Reasoning chains showing how an AI agent should use NSAuditor AI tools.
 
 **Agent reasoning:** User wants a vulnerability check. `scan_host` finds the services and the service checks' flags;
 it does NOT look up CVEs, so follow with `get_vulnerabilities` for each service whose `cpe` names a version.
+192.168.1.1 is private: `scan_host` refuses it unless the MCP server's environment sets `NSA_ALLOW_ALL_HOSTS=1`.
 
 ```
 1. scan_host({ host: "192.168.1.1" })
@@ -44,7 +45,7 @@ it does NOT look up CVEs, so follow with `get_vulnerabilities` for each service 
    INFO: SNMP on port 161 has no version — manual investigation recommended
    Scope: scan_host's service checks plus an NVD lookup per service whose cpe names a version. Anonymous FTP and zone
    transfer were not tested; the analysis agents and exploit intelligence run only in the CLI scan
-   (`nsauditor-ai scan --host 192.168.1.1`, Enterprise package + Pro/Enterprise licence).
+   (`NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.1`, Enterprise package + Pro/Enterprise licence).
 ```
 
 ---
@@ -60,11 +61,11 @@ it does NOT look up CVEs, so follow with `get_vulnerabilities` for each service 
    Core Scanners (17):
    • 001 Ping Checker — ICMP/ARP reachability + TTL OS hints
    • 002 SSH Scanner — SSH banner, version, weak algorithms
-   • 003 Port Scanner — TCP/UDP bulk scan (~1000 ports)
+   • 003 Port Scanner — TCP connect + UDP probe of the default port set (config/services.json; --ports adds more)
    [... full list ...]
 
    Discovery (6):
-   • 025 DB Scanner — MySQL, PostgreSQL, Redis detection
+   • 025 DB Scanner — MySQL/MariaDB, MSSQL, PostgreSQL, Oracle TNS, MongoDB handshakes (no Redis probe)
    [... etc ...]
 ```
 
@@ -72,25 +73,27 @@ it does NOT look up CVEs, so follow with `get_vulnerabilities` for each service 
 
 ## Example 3: "Check if port 443 on example.com has weak TLS"
 
-**Agent reasoning:** Targeted single-service probe — use `probe_service` with TLS scanner.
+**Agent reasoning:** Targeted TLS probe — `probe_service` (Pro) with the TLS Scanner. It returns 011's raw result;
+`weakProtocols` / `weakCiphers` are computed only when a scan concludes and sit on its service records
+(`scan_host`), so read the negotiated versions and ciphers here.
 
 ```
 1. probe_service({ host: "example.com", pluginName: "011", port: 443 })
-   → Result: {
-       program: "nginx",
-       version: "1.24.0",
-       data: [{
-         probe_info: "TLS handshake",
-         tls_versions: ["TLSv1.2", "TLSv1.3"],
-         ciphers: ["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"],
-         weakProtocols: [],
-         weakCiphers: []
-       }]
-     }
+   → { id: "011", name: "TLS Scanner", result: {
+         up: true, program: "TLS", version: null,
+         data: [
+           { probe_port: 443, probe_service: "https", probe_info: "TLS: TLSv1.2, TLSv1.3", …,
+             tlsEvidence: { tls: true, supportedVersions: ["TLSv1.2", "TLSv1.3"],
+               ciphers: { "TLSv1.2": "ECDHE-RSA-AES256-GCM-SHA384", "TLSv1.3": "TLS_AES_256_GCM_SHA384" },
+               certExpiry: "…", certSelfSigned: false } },
+           …  one row per port of TLS_SCANNER_PORTS (default 443, 465, 563, 993, 995): 011 ignores the port argument
+         ] } }
+   A result of { up: false, timedOut: true, … } means 011 ran out of the MCP server's PLUGIN_TIMEOUT_MS (default 30000)
+   before finishing its ports: no result, not "no TLS". TLS_SCANNER_PORTS=443 in the server env limits it to 443.
 
-2. Analysis: No deprecated TLS versions found. TLSv1.0 and TLSv1.1 are NOT
-   supported. All cipher suites are strong (AES-256-GCM, ChaCha20).
-   Verdict: TLS configuration is secure.
+2. Analysis: no deprecated version negotiated (no TLSv1 / TLSv1.1 in supportedVersions; SSLv3 is not probed);
+   cipher acceptance was not enumerated (one negotiated cipher per version), so this is not a statement that no
+   weak cipher is accepted.
 ```
 
 ---
@@ -127,14 +130,19 @@ correct CLI command.
 Agent response:
 "Continuous monitoring uses the CLI's watch mode (not available via MCP tools).
 
-Run:
-  nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
+Run it with NSA_ALLOW_ALL_HOSTS=1 (the range is private) and your own public webhook URL: the CLI exits 2 at
+start-up if the URL does not resolve or resolves to a private, loopback or link-local address.
+  NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
     --watch --interval 15 \
     --webhook-url https://your-webhook.example.com/alerts \
     --alert-severity high
 
-This rescans every 15 minutes, detects changes (new/removed services, version
-changes, new findings), and sends webhook alerts for high+ severity changes.
+This rescans every 15 minutes; a [ScanHistory] line per host compares its scan with the previous one (counts of
+new, removed and changed services; the findings delta). In this release the webhook does NOT fire on a service,
+version or finding change: only after a cycle that scanned a different set of hosts from the one before (in
+practice, one cut short by stopping the loop), and at --alert-severity high only for a host where anonymous FTP
+login or a DNS zone transfer succeeded (both checks are off unless FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true +
+DNS_AXFR_DOMAIN are set). Read the [ScanHistory] lines for changes.
 
 Each scan appends one line per host to scan_history.jsonl in the output directory (--out, default out/)."
 ```
@@ -180,18 +188,18 @@ Each scan appends one line per host to scan_history.jsonl in the output director
 
 ```
 1. scan_host({ host: "127.0.0.1" })
-   → Error: "SSRF protection: loopback addresses are blocked"
+   → isError reply: {"error":"Scanning loopback, link-local, or metadata addresses is not allowed via MCP"}
 
 2. Agent response:
-   "NSAuditor AI blocks scanning of loopback addresses (127.x.x.x) as a security
-   measure. This prevents SSRF attacks when the scanner is exposed as an MCP tool.
+   "NSAuditor AI's MCP server refuses targets written as localhost, 127.x, ::1, 0.x, 169.254.x, fe80: or
+   metadata.google…, with or without NSA_ALLOW_ALL_HOSTS in its environment. This prevents SSRF when the
+   scanner is exposed as an MCP tool.
 
-   If you need to scan your local machine, you have two options:
-   1. Use the CLI directly: nsauditor-ai scan --host 127.0.0.1
-   2. Set NSA_ALLOW_ALL_HOSTS=1 in the MCP server's environment
+   To scan your own machine, use the CLI with the guard lifted (without the variable the CLI refuses it too:
+   'Scanning blocked address range is not allowed: 127.0.0.1'):
+     NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 127.0.0.1
 
-   Note: Only enable this for legitimate local auditing, never in production
-   MCP deployments."
+   Only set it for legitimate local auditing."
 ```
 
 ---
@@ -221,7 +229,9 @@ Each scan appends one line per host to scan_history.jsonl in the output director
 
 ## Example 9: Host audit over MCP, then the CLI for the agents and the CVE mapper
 
-**Agent reasoning:** User wants a comprehensive security assessment with AI analysis.
+**Agent reasoning:** User wants a comprehensive security assessment with AI analysis. 192.168.1.1 is private:
+`scan_host` refuses it unless the MCP server's environment sets `NSA_ALLOW_ALL_HOSTS=1`; the CLI commands below
+carry it.
 
 ```
 1. Confirm: "I'll scan 192.168.1.1. Do you have authorization to audit this host?"
@@ -240,11 +250,11 @@ Each scan appends one line per host to scan_history.jsonl in the output director
    ═══════════════════════════════════════
 
    Scope: scan_host's service checks + an NVD lookup per service whose cpe names a version. No analysis agents, no
-   exploit intelligence — for those, run `nsauditor-ai scan --host 192.168.1.1` with the Enterprise package and a
-   Pro/Enterprise licence. No TLS-certificate / DNS-security / debug-endpoint / HTTP-method results — for those, run
-   probe_service (Pro) with 040 / 060 / 050 / 006; the CLI scan's reports do not carry them either (only its raw
-   per-plugin results in scan_conclusion_raw.json do). Anonymous FTP and
-   zone transfer were not tested (FTP_CHECK_ANON / DNS_CHECK_AXFR were not set).
+   exploit intelligence — for those, run `NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.1` with the
+   Enterprise package and a Pro/Enterprise licence. No TLS-certificate / DNS-security / debug-endpoint / HTTP-method
+   results — for those, run probe_service (Pro) with 040 / 060 / 050 / 006; the CLI scan's reports do not carry them
+   either (only its raw per-plugin results in scan_conclusion_raw.json do). Anonymous FTP and zone transfer were not
+   tested (FTP_CHECK_ANON / DNS_CHECK_AXFR were not set).
 
    Host: Linux (Ubuntu 22.04)
    Services: 4 (SSH, DNS, HTTPS, SNMP)
@@ -261,5 +271,5 @@ Each scan appends one line per host to scan_history.jsonl in the output director
    [... continued ...]
 
    For AI-enhanced analysis with remediation priorities, enable AI:
-     AI_ENABLED=true AI_PROVIDER=ollama nsauditor-ai scan --host 192.168.1.1
+     AI_ENABLED=true AI_PROVIDER=ollama NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.1
 ```

@@ -110,9 +110,9 @@ interface ServiceRecord {
   // Optional fields (populated by specific plugins)
   anonymousLogin?: boolean;     // FTP anonymous login detected — tested only with FTP_CHECK_ANON=true; absent = NOT TESTED
   axfrAllowed?: boolean | null; // DNS zone transfer allowed — tested only with DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN; null = NOT TESTED
-  community?: string;           // SNMP community string detected ("public"|"private")
+  community?: string;           // SNMP community accepted, as-is: "public", "private" or a custom SNMP_COMMUNITY value
   dangerousMethods?: string[];  // NOT carried onto a scan_host record in this release — the HTTP probe (006) records it, and probe_service with 006 returns it
-  weakAlgorithms?: string[];    // SSH weak key exchange algorithms
+  weakAlgorithms?: string[];    // SSH weak key-exchange, cipher and MAC names, together in one array (002)
   weakCiphers?: string[];       // TLS weak ciphers (the negotiated cipher per version)
   certSelfSigned?: boolean;     // TLS certificate is self-signed (011)
   weakProtocols?: string[];     // Deprecated TLS versions ("TLSv1", "TLSv1.1")
@@ -150,19 +150,27 @@ export default {
   ports: [443, 8443],                  // Default ports to check
 
   requirements: {                      // All optional; unmet = plugin skips
-    host: "up",                        // "up" = skip if host unreachable
-    tcp_open: [443],                   // Skip if any listed port is closed
-    udp_open: [161],                   // UDP port requirement
+    host: "up",                        // "up" = skip unless an earlier plugin marked the host up;
+                                       //   "down" = skip if one did
+    tcp_open: [443],                   // Skip only if NONE of these is in context.tcpOpen; run() is then
+                                       //   called once per listed port that is open
+    udp_open: [161],                   // Same rule on context.udpOpen; if both are declared, each needs one open
     only_if_os_unknown: true           // Skip if OS already detected
   },
 
   // Main probe function
   async run(host, port, opts = {}) {
-    // opts.context = {
+    // opts.context = {                 // in a network scan (CLI scan / scan_host); a probe_service call
+    //                                  //   gets only the two helpers + effectiveTimeoutMs, so guard
+    //                                  //   each read: opts.context?.tcpOpen instanceof Set
     //   lookupVendor(mac),             // OUI vendor lookup helper
     //   probableOsFromVendor(vendor),  // OS hint from vendor name
-    //   openTcpPorts: Set<number>,     // Ports found open by Port Scanner
-    //   openUdpPorts: Set<number>,
+    //   host, hostUp: boolean,         // hostUp: an earlier plugin marked the host up
+    //   tcpOpen: Set<number>,          // TCP ports found open by the plugins that ran before this one
+    //   udpOpen: Set<number>,          // UDP ports, likewise
+    //   pluginRunStatus: Map,          // id -> "ran" | "timeout" | "error" | "skipped" for each earlier plugin
+    //                                  //   dispatched; one skipped on its requirements has no entry
+    //   effectiveTimeoutMs: number,    // the budget the manager races this run() against
     // }
     return {
       up: true,                        // Host reachability (for ping/host-up plugins)
@@ -194,12 +202,15 @@ export default {
 
 | Range | Category | Examples |
 |-------|----------|---------|
-| 100–110 | Discovery | Ping Checker (100), Host Up (110) |
-| 140–150 | Port Scanning | TCP SYN (140), Port Scanner (150) |
-| 200 | Targeted Service | SSH (200), FTP (200) |
-| 300–400 | Deep Probes | HTTP (300), SNMP (300), TLS (350), Webapp (400) |
-| 99000 | OS Detection | OS Detector (meta — fuses all hints) |
+| 10–25 | Discovery | Ping Checker (10), TCP SYN (12), Host Up (20, only if the host is not yet up), ARP (25) |
+| 30 | Port Scanning | Port Scanner (30) |
+| 40–70 | Targeted Service | FTP (40), SSH (50), Webapp (55), HTTP (60), DB (62), SNMP (70), MCP (70) |
+| 220–360 | Deep Probes | DNS Security (220), TRIBE (300), DNS (340), NetBIOS / mDNS (345), LLMNR / UPnP (346), DNS-SD (347), SUN RPC (350), TLS (350), OpenSearch (360) |
+| 365 | OS Detection | OS Detector (reads only the outputs of plugins that ran before it) |
+| 400–450 | After OS Detection | WS-Discovery (400), TLS Certificate & Cipher Auditor (450) |
 | 100000 | Conclusion | Result Concluder (always last — fuses all into final output) |
+
+These are the priorities CE's plugins export; `list_plugins` returns each plugin's live priority.
 
 ---
 
@@ -282,9 +293,9 @@ never writes a queue. A CVE row, which carries every field:
 
 | Category | What produces it |
 |----------|------------------|
-| `AUTH` | Authentication checks: anonymous access, default credentials, password and cleartext logins |
+| `AUTH` | Authentication checks: Telnet open (cleartext logins), default SNMP community (`public` / `private`); anonymous FTP only with `FTP_CHECK_ANON=true` |
 | `CRYPTO` | Transport-encryption checks: TLS versions, cipher suites, certificates, cleartext protocols |
-| `CONFIG` | Configuration checks: version disclosure, directory listing, debug endpoints, exposed legacy services |
+| `CONFIG` | Configuration checks: default SNMP community (`public` / `private`); RPC / NetBIOS open on a Linux host |
 | `SERVICE` | End-of-life software checks |
 | `EXPOSURE` | Exposure checks: database, management and lateral-movement ports |
 | `CVE` | CVE matches from NVD for a detected program and version, and the engine's coverage-gap notes |
@@ -293,7 +304,7 @@ never writes a queue. A CVE row, which carries every field:
 
 | Status | Meaning |
 |--------|---------|
-| `UNVERIFIED` | Detected by a scanner. **Every row a scan writes carries this status.** |
+| `UNVERIFIED` | **Every row of the finding queue carries this status**, `[COVERAGE GAP]` rows included, so it says nothing about a row. |
 | `VERIFIED` | Reserved. No shipped code sets it; the Verification Engine that would have is WITHDRAWN and not planned. |
 | `POTENTIAL` | Reserved. No shipped code sets it; the Verification Engine that would have is WITHDRAWN and not planned. |
 | `FALSE_POSITIVE` | Reserved. No shipped code sets it on a queued row. (An operator suppression marks a compliance *violation* as a false positive — a different object, in the compliance pack.) |
@@ -386,24 +397,37 @@ Compatible with: GitHub Advanced Security, Azure DevOps, SonarQube, and other SA
 
 ## Redaction Pipeline Schema
 
-When `OPENAI_REDACT=true` (default), data is sanitized before AI submission:
+When `OPENAI_REDACT=true` (default), the CLI's AI stage (`AI_ENABLED=true`) redacts the scan payload it sends —
+`host`, `host_os_hint`, `summary`, `services`, `evidence` — with Community's built-in redactor, at every tier
+(the Pro-tier external-redactor hook is installed by neither package):
 
-| Data Type | Redaction | Level |
-|-----------|-----------|-------|
-| Private IPv4 (10.x, 172.16-31.x, 192.168.x) | `[REDACTED]` | Standard |
-| Public IPv4 | `[IP]` | Standard |
-| IPv6 link-local (fe80::) | `[FE80::/64]` | Standard |
-| MAC addresses | `[MAC]` | Standard |
-| Email addresses | `[REDACTED_EMAIL]` | Standard |
-| Internal hostnames (.local, .corp, .internal) | `[REDACTED_HOST]` | Standard |
-| SNMP community strings | `[REDACTED_HIDDEN]` | Standard |
-| Serial numbers | `[REDACTED_HIDDEN]` | Standard |
-| Bearer tokens | `[REDACTED_BEARER]` | Strict |
-| AWS access keys (AKIA/ASIA) | `[REDACTED_AWS_KEY]` | Strict |
-| File paths (.conf, .pem, .key) | `[REDACTED_PATH]` | Strict |
-| Keys matching CONFIDENTIAL_KEYWORDS | `[REDACTED_HIDDEN]` | Standard |
+| Data | Becomes |
+|------|---------|
+| The scanned host (the `host` field) | `[REDACTED_HOST]` |
+| Private IPv4 (10.x, 172.16-31.x, 192.168.x) in `summary` | `[REDACTED_HOST]` |
+| Private IPv4 in `services` / `evidence` | `[REDACTED_IP]` |
+| Any other IPv4 (public, loopback, …) | `[IP]` |
+| IPv6 link-local (`fe80::…`) | `[FE80::/64]` |
+| Other IPv6 — runs of three or more groups only; a short `::` form such as `2001:db8::1` passes unchanged | `[IPv6]` |
+| MAC addresses written with colons (`aa:bb:cc:dd:ee:ff`); hyphen and dotted forms pass unchanged | `[MAC]` |
+| Serial numbers (text `Serial:` / `Serial=`; keys `serial`, `serialNumber`, `sn`, in any case) | `[REDACTED_HIDDEN]` |
+| Values under keys containing a `CONFIDENTIAL_KEYWORDS` entry (unset by default: no key scrub) | `[REDACTED_HIDDEN]` |
 
-Keys dropped entirely: `IP6`, `deviceWebPage`, `hardwareVersion`, `firmwareVersion`.
+Keys dropped entirely: `ip6`, `deviceWebPage`, `deviceWebPageInstruction`, `hardwareVersion`, `firmwareVersion`.
+
+⚠️ **NOT redacted in that payload:** email addresses, internal hostnames (`.local`, `.corp`, `.internal`), the SNMP
+`community` field, Bearer tokens, AWS access keys and file paths — nor ports, service names, versions, or banner and
+evidence prose beyond the rows above. `OPENAI_REDACT` has no strict level. `CONFIDENTIAL_KEYWORDS` works by KEY
+(`community` blanks the `community` field, not the same value inside banner or evidence text). With Ollama at its
+default localhost URL the payload does not leave the host.
+
+With the Enterprise package and a Pro or Enterprise licence, a run with findings also prepends a findings block to
+the prompt. That block alone is scrubbed by pattern, whatever `OPENAI_REDACT` says: emails → `[REDACTED_EMAIL]`,
+`name.internal` / `.local` / `.corp` / `.lan` / `.intra` / `.priv` → `[REDACTED_HOSTNAME]`, private-address URLs →
+`[REDACTED_URL]`, `community=…` → `community=[REDACTED]`, colon-form MACs → `[REDACTED_MAC]`, private and loopback
+IPv4 → `[host-N]` (unless `REDACT_INTERNAL_IPS=false`), the host on each finding's Target line → `[target-N]`; with
+`NSA_AI_REDACT_LEVEL=strict`, also `/dir/file` paths ending `.conf`, `.log`, `.ini`, `.cfg`, `.env`, `.key`, `.pem`
+or `.crt` → `[REDACTED_PATH]`, AWS keys → `[REDACTED_AWS_KEY]` and Bearer tokens → `[REDACTED_BEARER]`.
 
 ---
 

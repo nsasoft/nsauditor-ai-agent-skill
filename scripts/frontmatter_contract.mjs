@@ -2,7 +2,8 @@
 // REQUIRED set, a byte minimum — because the failure it was built for was shipping too little.
 // This is the opposite edge, and it has no alarm anywhere else:
 //
-// ⚠️ THE DESCRIPTION IS 983 OF 1024 CHARACTERS. Forty-one characters of headroom. Adding ONE more
+// ⚠️ THE DESCRIPTION SITS CLOSE TO THE 1024-CHARACTER CAP — measure it with `parseFrontmatter`
+// below; a figure written here goes stale. Adding ONE more
 // trigger phrase breaks the skill on EVERY surface at once — Claude Code, Desktop and the API —
 // and it breaks silently: the frontmatter is simply rejected, so the skill stops loading rather
 // than loading wrong. Nothing in this repo measured it before this file existed.

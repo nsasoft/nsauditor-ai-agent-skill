@@ -177,11 +177,13 @@ When an AI agent loads this skill, it gains:
 This package provides **knowledge about** NSAuditor AI. To actually **run** scans:
 
 1. **Install NSAuditor AI:** `npm install -g nsauditor-ai`
-2. **Start MCP server:** `nsauditor-ai-mcp` (or configure in your agent's MCP settings)
+2. **Start MCP server:** your agent starts `nsauditor-ai-mcp` (a stdio server) itself, from the settings in step 3;
+   run it by hand only with `NSA_MCP_AUTH_KEY` set (see the warning below)
 3. **Add MCP to your agent:**
    ```bash
    # Claude Code
-   claude mcp add nsauditor-ai -- npx nsauditor-ai-mcp
+   nsauditor-ai mcp install-key
+   claude mcp add nsauditor-ai --env NSA_MCP_AUTH_KEY=<from: nsauditor-ai mcp install-key> -- npx nsauditor-ai-mcp
 
    # Claude Desktop (claude_desktop_config.json)
    {

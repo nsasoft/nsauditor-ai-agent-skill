@@ -1,6 +1,7 @@
 // The frontmatter CEILING — the cheapest guard in this lane and the one with the least warning.
 //
-// ⚠️ THE LIVE DESCRIPTION IS 983 OF 1024. Forty-one characters of headroom. One more trigger
+// ⚠️ THE LIVE DESCRIPTION SITS CLOSE TO THE 1024 CAP (the headroom leg below measures it; a figure
+// written here goes stale). One more trigger
 // phrase — the exact edit anyone tuning discoverability would make — breaks the skill on Claude
 // Code, Desktop AND the API at once, and breaks it SILENTLY: the frontmatter is rejected, so the
 // skill stops loading rather than loading wrong. The builder already refuses on a member FLOOR and
