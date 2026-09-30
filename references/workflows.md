@@ -297,11 +297,12 @@ Step 4: CLI  nsauditor-ai report --from <dir> --format executive --since prior
         → new · resolved · changed · NOT COMPARABLE, each not-comparable row with its reason
 
 There is no compare TOOL on the MCP surface, and the comparison is NEVER done by hand: a by-hand diff of
-two outputs reads a finding that vanished for any reason other than a fix — a host or plugin not run, a
+two outputs reads a finding that vanished for any reason other than a fix — a host or the finding's own plugin not run, a
 port or probe not measured, a CVE lookup that failed, an agent that did not run, the vulnerability data
 changing under the same program and version — as RESOLVED. `report --since` reads each of those as
 NOT COMPARABLE with its reason, refuses the comparison outright when either run's chain is altered or cannot be
 measured (naming which side), and says what it did not evaluate.
+A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on the control it failed is held FAILED. Two measured limits in this release: after a CVE lookup that failed, the prior CVE rows are not counted as fixed, but the controls they failed are not held FAILED and can read PASS; and when two compared scans ran different `--plugins` sets, a row an analysis agent or the CVE mapper derived from a plugin only one of them requested can read RESOLVED or NEW. When the later scan left the plugin out, the row also counts as closed in MTTR and its control can read PASS. Keep `--plugins` identical between compared scans.
 
 Read from its output:
   - New findings (unexpected exposure) — it compares FINDINGS, not services: a newly exposed service appears only if

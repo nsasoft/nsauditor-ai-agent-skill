@@ -4,10 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.54 (⏳ PRE-PUBLISH — opened 2026-09-29, NOT YET ON npm) — Enterprise 1.2.0: nothing a scan could not re-check is counted as fixed
+## 0.2.54 (⏳ PRE-PUBLISH — opened 2026-09-29, NOT YET ON npm) — Enterprise 1.2.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
 
-Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things first, and carries the 0.2.53
-teaching forward:
+Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things and two measured
+limits first, and carries the 0.2.53 teaching forward:
 
 - **The NOT-COMPARABLE bucket catches four more cases** — a UDP-transport finding whose port did not answer in the
   other run (`port-not-measured`, listed with `/udp`), a CVE row whose lookup failed there (`evidence-gap`; the mapper's
@@ -19,7 +19,8 @@ teaching forward:
   absolutely: "this run" and "the baseline run".
 - **Build 3 — seven teaching defects folded, found preparing the Desktop gate (the audit seat's ruling).** The skill no
   longer teaches comparing runs BY HAND (`references/workflows.md` said to diff two outputs for "new/resolved findings" —
-  the false clean 1.2.0 closes): both decision trees route "compare two scans" to `report --since`, never by hand.
+  a by-hand diff reads every finding that vanished unmeasured as fixed): both decision trees route "compare two scans"
+  to `report --since`, never by hand.
   `scan_host`'s section says it returns services and the service checks' findings only — no CVE lookup, no analysis
   agents — so "Security findings: 0" is not a clean verdict. `vulnerability-data-changed` is stated for a VANISHED row
   only; the compliance hold names its report (the `--compliance` scan, never `report --since`) and needs a prior scan;
@@ -70,6 +71,10 @@ teaching forward:
   Community 0.2.56, so `peerDependencies` moves to `nsauditor-ai >=0.2.56`, equal to Enterprise's. On Community 0.2.55
   or older a failed Enterprise load is silent; from 0.2.56 it is named on stderr and the Pro delta refuses that host's
   agent and CVE-mapper findings (`evidence-gap`).
+- **Two measured limits of 1.2.0, stated in the header's headline.** After a CVE lookup that failed, its CVE rows are not
+  counted fixed but the control they failed can read PASS; and when a later scan left out a plugin the earlier one
+  requested, a row an analysis agent or the CVE mapper derived from it can read RESOLVED in `report --since`, closed in
+  MTTR, and its control PASS. The headline states both.
 
 ## 0.2.53 (2026-09-28) — the skill installs itself now
 

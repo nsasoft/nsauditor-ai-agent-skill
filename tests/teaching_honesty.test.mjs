@@ -219,3 +219,73 @@ test('the framework list is not counted as seven', () => {
   const hits = TEACHING.filter((f) => /all seven shipped/.test(read(f)));
   assert.deepEqual(hits, [], `"all seven shipped" in: ${hits.join(', ')}`);
 });
+
+// ── 0.2.54 BUILD 6: THE HEADLINE IS ONE REGISTER, AND IT STATES TWO MEASURED LIMITS (EE 1.2.0 build 6, text) ────────────
+// "Nothing a scan could not re-check is counted as fixed, and no control it failed reads PASS" was false on the installed
+// binary twice: after a CVE lookup that FAILED the control its rows failed stays unheld and can read PASS (the rows
+// themselves are withheld), and when compared scans ran different `--plugins`, a row an analysis agent or the CVE mapper
+// derived from a plugin only one of them requested reads RESOLVED or NEW — and, when the later scan left it out, closes in
+// MTTR with its control reading PASS. The release now says so in ONE register, `R` below, verbatim in SKILL.md's header
+// and in references/workflows.md (and on three Enterprise surfaces). PINNED, NOT ENDORSED: Enterprise's
+// tests/headline_scope_matches_behaviour.test.mjs DRIVES the shipped entry point, Community's delta and the compliance
+// phase, holds every copy of R equal and ties R to the behaviour, so it goes red the day a limit stops being true. This
+// block holds the skill's own copy and scopes it to the Enterprise version the header RENDERS: the release that moves
+// `ee-version` must re-adjudicate R against those legs, never carry it forward.
+const R = 'A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on '
+  + 'the control it failed is held FAILED. Two measured limits in this release: after a CVE lookup that failed, the prior '
+  + 'CVE rows are not counted as fixed, but the controls they failed are not held FAILED and can read PASS; and when two '
+  + 'compared scans ran different `--plugins` sets, a row an analysis agent or the CVE mapper derived from a plugin only '
+  + 'one of them requested can read RESOLVED or NEW. When the later scan left the plugin out, the row also counts as closed '
+  + 'in MTTR and its control can read PASS. Keep `--plugins` identical between compared scans.';
+const T = 'a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated';
+const R_EE = '1.2.0'; // the Enterprise release R was measured against
+const occurrences = (hay, needle) => hay.split(needle).length - 1;
+const renderedEeVersion = () => /<!-- nsa:derived id="ee-version" -->([^<]+)<!-- \/nsa:derived -->/.exec(read('SKILL.md'))?.[1];
+const currentHeader = () => { const s = read('SKILL.md'); return s.slice(s.indexOf('> **Version:**'), s.indexOf('\n>\n> **Prior:')); };
+
+test('(q) the true 1.2.0 teaching stays: the four not-comparable cases (a), the hold (b), an agent that did not run', () => {
+  const s = read('SKILL.md');
+  assert.match(s, /\(a\) \*\*The NOT-COMPARABLE bucket catches four more cases\.\*\*/);
+  assert.match(s, /\(b\) \*\*A compliance control can FAIL on a finding the PRIOR scan recorded\.\*\*/);
+  assert.match(s, /analysis agent that DID NOT RUN[^\n]*?while that agent's controls fail closed in every framework/);
+});
+
+test('the headline carries the register R verbatim, once, scoped to the Enterprise version the header renders', () => {
+  assert.equal(renderedEeVersion(), R_EE, `the header now renders EE ${renderedEeVersion()}: re-adjudicate R against Enterprise's `
+    + 'headline_scope_matches_behaviour legs, then restate or remove it and move R_EE here');
+  const h = currentHeader();
+  assert.equal(occurrences(h, R), 1, 'SKILL.md\'s current header must carry R verbatim, exactly once');
+  assert.ok(h.includes(`— **${R_EE}: ${R}** Teach these first`), 'R is the headline itself, in bold, before "Teach these first"');
+  assert.equal(occurrences(read('SKILL.md'), R), 1, 'R is written once in SKILL.md, history included');
+});
+
+test('references/workflows.md states R once, at the "never by hand" comparison paragraph', () => {
+  const wf = read('references/workflows.md');
+  assert.equal(occurrences(wf, R), 1, 'workflows.md must carry R verbatim, exactly once');
+  const i = wf.indexOf('the comparison is NEVER done by hand');
+  const j = wf.indexOf(R);
+  assert.ok(i >= 0 && j > i && j - i < 1200, 'R sits in the paragraph that routes the comparison to report --since');
+});
+
+test('the CHANGELOG 0.2.54 heading carries the short form T', () => {
+  const v = JSON.parse(read('package.json')).version;
+  const head = new RegExp(`^## ${v.replace(/\./g, '\\.')} \\([^)]*\\) — (.+)$`, 'm').exec(read('CHANGELOG.md'))?.[1];
+  assert.ok(head, `the CHANGELOG has a ## ${v} heading`);
+  assert.equal(occurrences(head, T), 1, `the ${v} heading must carry T verbatim: "${head}"`);
+});
+
+test('no teaching file or the changelog carries a 1.2.0 absolute the shipped code refutes', () => {
+  for (const re of [/nothing a scan could not re-check is counted as fixed/i, /no control it failed reads PASS/i,
+    /(?<!Those refusals' )compliance verdicts always failed closed/i, /the false clean 1\.2\.0 closes/i, /did not measure its surface/i,
+    /a host or plugin not run/i, /Two limits remain/i, /only one (?:of them|run) requested[^.]{0,40}\bRESOLVED\b(?! or NEW)/]) {
+    const hits = [...TEACHING, 'CHANGELOG.md'].filter((f) => re.test(read(f).replace(/`/g, '')));
+    assert.deepEqual(hits, [], `${re} in: ${hits.join(', ')}`);
+  }
+  // …and the 0.43.0 sentence is SCOPED, not deleted: it is true of the up:false refusals it is about (EE CHANGELOG 0.43.0 (1)).
+  assert.match(read('SKILL.md'), /Those refusals' compliance verdicts always failed closed/);
+});
+
+test('the comparison is taught with the case report --since does not catch — the decision tree and README.md', () => {
+  assert.match(read('SKILL.md'), /report --since does too for an\s*\n│\s+agent or CVE row derived from a plugin the later run left out/);
+  assert.match(read('README.md'), /two measured limits — after a CVE lookup that failed, the control its CVE rows failed can still read PASS/);
+});
