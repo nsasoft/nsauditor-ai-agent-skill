@@ -39,7 +39,7 @@ Detects weak key exchange algorithms (`diffie-hellman-group1-sha1`) and weak cip
 **003 — Port Scanner:** Bulk TCP connect scan (~1000 common ports) with optional
 UDP probing. Banner sniffing on open ports. Results feed into port-gated plugins.
 
-**004 — FTP Banner Check:** FTP daemon enumeration. Detects anonymous login,
+**004 — FTP Banner Check:** FTP daemon enumeration. Detects anonymous login (only with `FTP_CHECK_ANON=true`),
 extracts program/version from FTP banner (220 response).
 
 **005 — Host Up Check:** Multi-probe reachability: ICMP echo → TCP SYN (80, 443) →
@@ -160,7 +160,7 @@ listings, and default pages.
 - **DMARC:** Validates DMARC policy (reject/quarantine/none)
 - **DNSSEC:** Checks for DNSSEC signing and validation chain
 - **Zone Transfer (AXFR):** Tests if zone transfer is allowed (security risk)
-- **MX Security:** Validates mail exchange records and TLS support
+- **MX:** Flags a missing MX, a null MX, and an MX that points at a CNAME or an IP address — no STARTTLS / TLS check
 - **CAA Records:** Checks Certificate Authority Authorization records
 
 ---

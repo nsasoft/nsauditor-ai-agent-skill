@@ -13,14 +13,42 @@ teaching forward:
   other run (`port-not-measured`, listed with `/udp`), a CVE row whose lookup failed there (`evidence-gap`; the mapper's
   own `[COVERAGE GAP] <gapClass> — …` record is a coverage gap, never an exposure), and a finding of an analysis agent
   that did not run (`[COVERAGE GAP] AGENT NOT RUN — …`; `evidence-gap`, and that agent's controls fail closed), and a CVE
-  row present in one run only while the SAME program and version answered on its port in both
-  (`vulnerability-data-changed` — the vulnerability data moved, not the estate; in MTTR it is never a closed finding).
+  row that VANISHED — present in the baseline, absent now — while the SAME program and version answered on its port
+  in both runs (`vulnerability-data-changed` — the vulnerability data moved, not the estate; in MTTR it is never a closed finding).
   A CVE that appeared on an unchanged service stays NEW, with a note that the service is unchanged. Details name runs
   absolutely: "this run" and "the baseline run".
+- **Build 3 — seven teaching defects folded, found preparing the Desktop gate (the audit seat's ruling).** The skill no
+  longer teaches comparing runs BY HAND (`references/workflows.md` said to diff two outputs for "new/resolved findings" —
+  the false clean 1.2.0 closes): both decision trees route "compare two scans" to `report --since`, never by hand.
+  `scan_host`'s section says it returns services and the service checks' findings only — no CVE lookup, no analysis
+  agents — so "Security findings: 0" is not a clean verdict. `vulnerability-data-changed` is stated for a VANISHED row
+  only; the compliance hold names its report (the `--compliance` scan, never `report --since`) and needs a prior scan;
+  the carried-forward 0.2.53 "this release" sentences now say EE 1.1.0; the `--since` 0.2.55 sentence names the 0.2.56
+  floor beside it; "Community on npm" became "published with this skill"; and the frontmatter names all seven tools
+  (`compliance_matrix` was missing). The build-3 review widened it: `scan_host` also RUNS the TLS-certificate,
+  DNS-security and debug-endpoint auditors (040 / 060 / 050) without returning their findings, so the decision trees
+  route those audits to `probe_service`; `schemas.md` loses a phantom `cves` field; `examples/agent-interactions.md`,
+  which ships, no longer shows a `scan_host` `findings[]` array; the CI exit codes are corrected (1 over the threshold,
+  not 2), and the CI section names the four flags `--fail-on` gates on, says `--fail-on info` fails every concluded
+  scan and that the gate is not computed from the SARIF file, and stops redirecting stdout into `results.sarif` — the
+  CLI writes `scan_results.sarif.json` into `--out` and stdout is the log — or calling INFO "never blocks"; and the
+  teaching guard reads README.md and examples/ too. A second review round measured what a `scan_host` service record can
+  carry and the skill now teaches exactly that: the HTTP probe's dangerous methods (006), SMB null sessions (014) and
+  Enterprise's zero-trust assessment (1023) never reach it either, so a missing flag means NOT MEASURED; anonymous FTP
+  and zone transfer are tested only with `FTP_CHECK_ANON` / `DNS_CHECK_AXFR` + `DNS_AXFR_DOMAIN` (now in the
+  environment table), both off by default, so a default scan never trips `--fail-on high` (the CI examples set them); the
+  Markdown's count excludes the MCP flags; a service whose `cpe` is null gets no lookup and its CVE coverage is unknown;
+  the OpenSSH CPE is the scanner's split form (`8.9:p1`) everywhere; the SARIF example is captured from the writer
+  (it carried a TLS rule the writer never emits); the ServiceRecord schema gains the five MCP flags and
+  `certSelfSigned`; Example 1 lists the SNMP finding once, Example 6 uses 060's real result shape and no longer claims a
+  STARTTLS check 060 does not make (nor does `references/plugins.md`), and Example 9 routes the plugin results to
+  `probe_service`, not to the CLI scan.
 - **A compliance control can FAIL on a finding the PRIOR scan recorded** when this scan did not measure its port or probe,
   did not cover its region, or did not run what produced it — a record titled `<prior title> — [COVERAGE GAP] PORT NOT
   MEASURED — …` (or PROBE / SCOPE / PRODUCER), counted among "Evidence gaps (not findings)" and never to be presented
-  as a current finding. It needs the compliance history (`--compliance-history` or `--sla-policy`).
+  as a current finding — in the COMPLIANCE report (`scan --compliance <fw>`), never in `report --since`. It needs the
+  compliance history (`--compliance-history <dir>`, or `--sla-policy <file>`, which reads the history under `--out`) with a
+  prior `--compliance` scan of the same host in it.
 - ⚠️ **A floor bump, because Enterprise would not LOAD below it.** Enterprise 1.2.0 imports names that first ship in
   Community 0.2.56, so `peerDependencies` moves to `nsauditor-ai >=0.2.56`, equal to Enterprise's. On Community 0.2.55
   or older a failed Enterprise load is silent; from 0.2.56 it is named on stderr and the Pro delta refuses that host's

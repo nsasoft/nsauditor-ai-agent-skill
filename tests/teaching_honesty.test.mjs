@@ -1,0 +1,155 @@
+// WHAT THE SKILL TEACHES ABOUT COMPARING RUNS AND ABOUT scan_host (0.2.54 build 3 — the audit seat's ruling on the
+// Gate 3-A preparation: fold all seven teaching defects, plus the decision-tree row and the scan_host scope).
+//
+// (1) references/workflows.md taught comparing runs BY HAND — "scan_host twice … compare the two scan outputs yourself …
+//     diff the per-run out-dirs … New/resolved findings". Done by hand, that is the false clean 1.2.0 exists to close:
+//     a finding that vanished because its port went unmeasured, its lookup failed, its agent did not run, or the
+//     vulnerability data changed reads RESOLVED. The comparison is `report --since`, which states what it could not
+//     compare. (2) scan_host returns services and the service checks' findings only — no CVE lookup, no analysis agents —
+//     and a Desktop reply that relayed "Security findings: 0" called a router with 16 CVEs clean.
+//
+// FOURTH QUADRANT FIRST: the teaching that must stay is pinned before the teaching that must go.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+// Every teaching surface that SHIPS: SKILL.md, README.md, and every .md under references/ and examples/ (the build-3 review:
+// examples/agent-interactions.md ships and taught a scan_host `findings[]` array that does not exist).
+const TEACHING = ['SKILL.md', 'README.md', ...['references', 'examples'].flatMap((d) => fs.readdirSync(path.join(ROOT, d))
+  .filter((f) => f.endsWith('.md')).map((f) => `${d}/${f}`))];
+const scanHostSection = () => {
+  const s = read('SKILL.md');
+  const i = s.indexOf('#### `scan_host`');
+  assert.ok(i >= 0, 'SKILL.md has its scan_host section');
+  const j = s.indexOf('\n#### ', i + 10);
+  return s.slice(i, j > i ? j : undefined);
+};
+
+// ── FOURTH QUADRANT ──────────────────────────────────────────────────────────────────────────────
+test('(q) the scan_host section still says what it DOES: a full plugin scan', () => {
+  assert.match(scanHostSection(), /Run a full plugin scan/);
+});
+
+test('(q) the Full Security Audit recipe still pairs scan_host with get_vulnerabilities per service', () => {
+  assert.match(read('SKILL.md'), /Full Security Audit\*\* — list_plugins → scan_host → get_vulnerabilities per service/);
+});
+
+// ── THE DEFECTS ──────────────────────────────────────────────────────────────────────────────────
+test('no teaching file tells a user to compare runs BY HAND', () => {
+  const byHand = /compare the two scan outputs yourself|diff the per-run out-dirs|diff the `scan_compliance_<fw>\.json`/i;
+  const hits = TEACHING.filter((f) => byHand.test(read(f)));
+  assert.deepEqual(hits, [], `a by-hand comparison is still taught in: ${hits.join(', ')}`);
+});
+
+test('both decision trees route "compare two scans" to report --since', () => {
+  for (const f of ['SKILL.md', 'references/workflows.md']) {
+    assert.match(read(f), /Compare two scans[^\n]*report --from <dir> --format executive --since/, `${f}'s decision tree`);
+  }
+});
+
+test('the scan_host section says it does NOT look up CVEs, and that zero findings is not a clean verdict', () => {
+  const s = scanHostSection();
+  assert.match(s, /040/); assert.match(s, /probe_service/, 'the 040 / 050 / 060 findings are named as NOT returned, with their route');
+  assert.match(s, /does NOT look up CVEs/);
+  assert.match(s, /analysis agents/);
+  assert.match(s, /NOT a clean verdict|not a statement that the host has no known vulnerabilities/i);
+  assert.match(s, /get_vulnerabilities/);
+});
+
+test('both decision trees qualify "scan a host comprehensively" — NO CVE lookup', () => {
+  for (const f of ['SKILL.md', 'references/workflows.md']) {
+    assert.match(read(f), /Scan a host comprehensively[^\n]*NO CVE lookup/, `${f}'s decision tree`);
+  }
+});
+
+test('both decision trees route TLS / DNS / debug audits to probe_service — scan_host does not return their findings', () => {
+  for (const f of ['SKILL.md', 'references/workflows.md']) {
+    for (const row of ['Audit TLS certificates', 'Check DNS security', 'Detect debug leaks']) {
+      assert.match(read(f), new RegExp(`${row}[^\\n]*→ probe_service`), `${f}: "${row}"`);
+    }
+  }
+});
+
+test('no teaching file shows a scan_host result carrying a findings[] array (the tool returns none)', () => {
+  // The window must reach past a realistic result block: Example 1's services list alone runs ~900 characters, so a
+  // findings array placed after it would slip a 700-character window (found writing this guard's own mutant).
+  const shape = /scan_host\(\{[^)]*\}\)[\s\S]{0,2000}?\bfindings:\s*\[/;
+  const hits = TEACHING.filter((f) => shape.test(read(f)));
+  assert.deepEqual(hits, [], `a phantom scan_host findings[] is taught in: ${hits.join(', ')}`);
+});
+
+test('the ServiceRecord schema carries no phantom cves field — nothing on the scan path fills one', () => {
+  assert.doesNotMatch(read('references/schemas.md'), /^\s*cves\?:/m);
+});
+
+// ── THE CI SECTION (architect seat's review of build 3: `--fail-on` exits 1, and it reads four flags) ──────────────
+const ciSection = () => {
+  const s = read('references/workflows.md');
+  const i = s.indexOf('## 4. CI/CD Pipeline Integration');
+  assert.ok(i >= 0, 'workflows.md has its CI section');
+  return s.slice(i, s.indexOf('\n## 5.', i));
+};
+
+test('no teaching file redirects stdout into a SARIF file — the CLI writes SARIF into the output directory', () => {
+  // A shell redirect: `>` at a line start or after whitespace (`scan_<host>.sarif.json` carries a `>` inside a placeholder).
+  const hits = TEACHING.filter((f) => /(?:^|\s)>\s*[\w./$-]*\.sarif\b/m.test(read(f)));
+  assert.deepEqual(hits, [], `stdout redirected into a .sarif file in: ${hits.join(', ')}`);
+  assert.match(ciSection(), /scan_results\.sarif\.json/);
+});
+
+test('the CI section names the four flags --fail-on reads, says what it does not, and that info fails every host', () => {
+  const s = ciSection();
+  for (const re of [/anonymous FTP/, /zone transfer/, /SSH/, /dangerous HTTP methods/, /`--fail-on info` fails every/,
+    /SNMP/, /MCP/, /not computed from the SARIF/i, /NOT a clean host/]) assert.match(s, re);
+  assert.doesNotMatch(s, /Never blocks/, 'INFO blocks `--fail-on info` on every concluded scan');
+  assert.doesNotMatch(s, /Blocks on `--fail-on \w+` and above/, 'the gate column had the direction inverted');
+});
+
+// ── SECOND REVIEW ROUND (build 3): what a scan_host service record can actually carry ──────────────────────────────
+// Measured in CE: the HTTP probe (006) has no concluder adapter, so no service record carries dangerousMethods; the
+// adapters of 014 / 024 / 040 / 050 / 060 and Enterprise's 1023 are never reached; the anonymous-FTP and zone-transfer
+// checks run only with FTP_CHECK_ANON / DNS_CHECK_AXFR set. CE pins the behaviour (tests/concluder_drops_honesty).
+test('the scan_host section lists only what a record can carry, names what it drops, and says two checks are opt-in', () => {
+  const s = scanHostSection();
+  const p = s.slice(s.indexOf('What `scan_host` returns'));
+  const returned = p.slice(0, p.search(/does NOT return|It RUNS/));
+  assert.doesNotMatch(returned, /dangerous HTTP methods/, 'no scan_host service record carries dangerousMethods');
+  for (const f of ['mcpAnonymousAccess', 'mcpAnonymousToolList', 'mcpCleartextTransport', 'mcpDeprecatedProtocol',
+    'mcpInspectorExposed']) assert.match(returned, new RegExp(f));
+  for (const re of [/FTP_CHECK_ANON/, /DNS_CHECK_AXFR/, /006/, /014/, /1023/, /MCP server flags/, /`cpe: null`/]) assert.match(p, re);
+});
+
+test('no teaching file carries the OpenSSH cpe with an unsplit version — the scanner returns 8.9:p1', () => {
+  const hits = TEACHING.filter((f) => /openssh:8\.9p1:/.test(read(f)));
+  assert.deepEqual(hits, [], `unsplit OpenSSH cpe in: ${hits.join(', ')}`);
+});
+
+// (probe_service returns the RAW plugin result, where 006's dangerousMethods IS present — workflows.md §2 is right to
+// list it; only the scan_host ServiceRecord must not.)
+test('the ServiceRecord schema says dangerousMethods is NOT carried onto a scan_host record', () => {
+  assert.match(read('references/schemas.md'), /dangerousMethods\?: string\[\];[^\n]*NOT carried/);
+});
+
+test('the SARIF example shows only rules the writer emits', () => {
+  const s = read('references/schemas.md');
+  assert.doesNotMatch(s, /tls-deprecated-protocol|defaultConfiguration/);
+  assert.match(s, /"ruleId": "ftp-anonymous-login"/);
+});
+
+test('the CI section says dangerous HTTP methods never arrive and the critical checks are opt-in', () => {
+  const s = ciSection();
+  assert.match(s, /FTP_CHECK_ANON/); assert.match(s, /never reach/);
+  assert.doesNotMatch(s, /the Markdown report counts the first three/, 'the Markdown does not count the MCP checks');
+});
+
+test('Example 1 reports the SNMP community finding once, and Example 6 claims no STARTTLS check 060 does not make', () => {
+  const ex = read('examples/agent-interactions.md');
+  const one = ex.slice(ex.indexOf('## Example 1'), ex.indexOf('## Example 2'));
+  assert.equal((one.match(/: SNMP default community string/g) || []).length, 1);
+  assert.doesNotMatch(ex, /✅[^\n]*STARTTLS|starttls:/, '060 has no STARTTLS check — a negation of it is fine, a claim is not');
+  assert.doesNotMatch(read('references/plugins.md'), /mail exchange records and TLS support/);
+});

@@ -41,7 +41,7 @@ Complete data structures for all MCP tool inputs and outputs.
               "response_banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.4"
             }
           ],
-          "cpe": "cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*"
+          "cpe": "cpe:2.3:a:openbsd:openssh:8.9:p1:*:*:*:*:*:*"
         }
       ],
       "evidence": [
@@ -108,14 +108,22 @@ interface ServiceRecord {
   authoritative: boolean;       // Takes precedence over other sources for this port
 
   // Optional fields (populated by specific plugins)
-  anonymousLogin?: boolean;     // FTP anonymous login detected
-  axfrAllowed?: boolean;        // DNS zone transfer allowed
+  anonymousLogin?: boolean;     // FTP anonymous login detected — tested only with FTP_CHECK_ANON=true; absent = NOT TESTED
+  axfrAllowed?: boolean | null; // DNS zone transfer allowed — tested only with DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN; null = NOT TESTED
   community?: string;           // SNMP community string detected ("public"|"private")
-  dangerousMethods?: string[];  // HTTP methods like "PUT", "DELETE", "TRACE"
+  dangerousMethods?: string[];  // NOT carried onto a scan_host record in this release — the HTTP probe (006) records it, and probe_service with 006 returns it
   weakAlgorithms?: string[];    // SSH weak key exchange algorithms
-  weakCiphers?: string[];       // TLS/SSH weak ciphers
+  weakCiphers?: string[];       // TLS weak ciphers (the negotiated cipher per version)
+  certSelfSigned?: boolean;     // TLS certificate is self-signed (011)
   weakProtocols?: string[];     // Deprecated TLS versions ("TLSv1", "TLSv1.1")
-  cves?: string[];              // CVEs directly detected by plugin
+  cpe: string | null;           // built from program + version — pass to get_vulnerabilities when it names a concrete version
+  mcpAnonymousAccess?: boolean; // MCP server answers without auth (070)
+  mcpCleartextTransport?: boolean; // MCP over HTTP, not HTTPS (070)
+  mcpDeprecatedProtocol?: string;  // MCP protocol version older than current (070)
+  mcpAnonymousToolList?: string[]; // tools/list answered without auth — up to 20 tool names (070)
+  mcpInspectorExposed?: boolean;   // MCP Inspector reachable on a non-loopback address (070)
+  // There is NO `cves` field on a service record: scan_host looks no CVEs up, and the CLI scan's CVE mapper (Enterprise
+  // package + Pro licence) writes its rows to scan_finding_queue.json, never onto a service. Use get_vulnerabilities on `cpe`.
 }
 
 interface Evidence {
@@ -300,7 +308,7 @@ never writes a queue. A CVE row, which carries every field:
 
 ```json
 {
-  "cpe": "cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*",
+  "cpe": "cpe:2.3:a:openbsd:openssh:8.9:p1:*:*:*:*:*:*",
   "totalResults": 1,
   "cves": [
     {
@@ -324,40 +332,42 @@ never writes a queue. A CVE row, which carries every field:
 
 ## SARIF Output Schema (CI/CD Integration)
 
+Captured from the Community writer (`utils/sarif.mjs`) over one open FTP service with anonymous login; the version is
+the installed Community's. The file is written to the output directory as `scan_results.sarif.json`.
+
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
   "version": "2.1.0",
   "runs": [{
     "tool": {
       "driver": {
-        "name": "nsauditor-ai",
-        "version": "0.1.10",
+        "name": "nsauditor",
+        "version": "<Community version>",
+        "informationUri": "https://github.com/nsasoft/nsauditor-ai",
         "rules": [
-          {
-            "id": "tls-deprecated-protocol",
-            "shortDescription": { "text": "Deprecated TLS protocol version supported" },
-            "defaultConfiguration": { "level": "error" }
-          }
+          { "id": "vsftpd:3.0.5", "shortDescription": { "text": "ftp service detected" },
+            "helpUri": "https://github.com/nsasoft/nsauditor-ai", "properties": { "severity": "Medium" } },
+          { "id": "ftp-anonymous-login", "shortDescription": { "text": "FTP anonymous login enabled" },
+            "helpUri": "https://github.com/nsasoft/nsauditor-ai", "properties": { "severity": "Critical" } }
         ]
       }
     },
     "results": [
-      {
-        "ruleId": "tls-deprecated-protocol",
-        "level": "error",
-        "message": { "text": "Port 443 accepts TLSv1.0 connections" },
-        "locations": [{
-          "physicalLocation": {
-            "artifactLocation": { "uri": "192.168.1.1" },
-            "region": { "startLine": 443 }
-          }
-        }]
-      }
+      { "ruleId": "vsftpd:3.0.5", "level": "warning",
+        "message": { "text": "Service ftp detected on 192.168.1.1:21/tcp. Program: vsftpd. Version: 3.0.5. Status: open" },
+        "locations": [{ "physicalLocation": { "artifactLocation": { "uri": "192.168.1.1" } } }] },
+      { "ruleId": "ftp-anonymous-login", "level": "error",
+        "message": { "text": "FTP anonymous login is enabled on 192.168.1.1:21. This allows unauthenticated access to the FTP server." },
+        "locations": [{ "physicalLocation": { "artifactLocation": { "uri": "192.168.1.1" } } }] }
     ]
   }]
 }
 ```
+
+The file carries one result per service (`warning` when open, `note` otherwise) plus anonymous FTP login, zone transfer
+and weak SSH algorithm results — no TLS, SNMP, MCP, CVE or analysis-agent results. Anonymous FTP and zone transfer
+appear only when `FTP_CHECK_ANON` / `DNS_CHECK_AXFR` enabled those checks.
 
 #### SARIF Severity Mapping
 

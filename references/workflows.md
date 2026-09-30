@@ -6,7 +6,9 @@ Multi-step patterns for common security audit scenarios.
 
 ## 1. Full Security Audit
 
-The most common workflow: comprehensive scan followed by vulnerability lookup.
+The most common MCP workflow: a scan followed by a CVE lookup per service. It is NOT the CLI's full analysis: the
+Enterprise analysis agents and exploit intelligence run only in `nsauditor-ai scan --host <target>` (Enterprise package +
+Pro/Enterprise licence), and `scan_host` does not return the 040 / 050 / 060 auditors' findings (use `probe_service`).
 
 ```
 Step 1: list_plugins()
@@ -16,8 +18,11 @@ Step 2: scan_host({ host: "<target>" })
         → Returns the run: conclusion.result (summary, host, services[]) and manifest[]
         → A `timeout` or `error` in manifest[] means that surface was NOT measured
 
-Step 3: For each service with a detected program + version:
-        → Construct CPE: cpe:2.3:a:<vendor>:<product>:<version>:*:*:*:*:*:*:*
+Step 3: For each service with a `cpe` naming a concrete version (or a program + version to build one from):
+        → Use its `cpe` as returned, or construct: cpe:2.3:a:<vendor>:<product>:<version>:<update>:*:*:*:*:*:*
+          (a suffixed version splits into version and update: OpenSSH 8.9p1 → 8.9:p1; otherwise update is *)
+        → A service with a version but `cpe: null` is outside the scanner's CPE table: construct one, or report
+          its CVE coverage as unknown — never as clean
         → get_vulnerabilities({ cpe: "<constructed_cpe>" })
 
 Step 4: Correlate CVEs with the services they were built from
@@ -31,7 +36,7 @@ Map detected program names to CPE vendor:product notation:
 
 | Detected Program | Detected Version | CPE String |
 |------------------|------------------|------------|
-| OpenSSH | 8.9p1 | `cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*` |
+| OpenSSH | 8.9p1 | `cpe:2.3:a:openbsd:openssh:8.9:p1:*:*:*:*:*:*` (the suffix is the `update` field) |
 | Apache httpd | 2.4.54 | `cpe:2.3:a:apache:http_server:2.4.54:*:*:*:*:*:*:*` |
 | nginx | 1.24.0 | `cpe:2.3:a:f5:nginx:1.24.0:*:*:*:*:*:*:*` |
 | OpenSSL | 3.0.8 | `cpe:2.3:a:openssl:openssl:3.0.8:*:*:*:*:*:*:*` |
@@ -65,9 +70,9 @@ Step 2: From the probe result, extract program + version
         → get_vulnerabilities({ cpe: "<constructed_cpe>" })
 
 Step 3: Analyze evidence for specific weaknesses:
-        - SSH: weak algorithms (weakAlgorithms[]), weak ciphers (weakCiphers[])
+        - SSH: weak algorithms (weakAlgorithms[])
         - TLS: deprecated protocols (weakProtocols[]), cipher strength
-        - FTP: anonymous login (anonymousLogin)
+        - FTP: anonymous login (anonymousLogin — tested only with FTP_CHECK_ANON=true on the server)
         - SNMP: default community strings (community)
         - HTTP: dangerous methods (dangerousMethods[])
 ```
@@ -77,7 +82,7 @@ Step 3: Analyze evidence for specific weaknesses:
 | Plugin ID | Name | Best For |
 |-----------|------|----------|
 | 002 | SSH Scanner | SSH banner, version, key exchange, weak algorithms |
-| 004 | FTP Banner | FTP daemon identification, anonymous login check |
+| 004 | FTP Banner | FTP daemon identification, anonymous login check (only with `FTP_CHECK_ANON=true`) |
 | 006 | HTTP Probe | Web server headers, tokens, redirects |
 | 007 | SNMP Scanner | Device info, hardware, firmware via SNMP |
 | 009 | DNS Scanner | DNS server version (CHAOS query) |
@@ -112,45 +117,61 @@ and avoid network congestion. The MCP server processes one scan at a time.
 
 ## 4. CI/CD Pipeline Integration
 
-Gate deployments on security findings using SARIF output.
+`--fail-on <severity>` reads FOUR service flags, and it is **not computed from the SARIF file** — the two read the same
+flags but grade them differently:
+
+| Flag in the scan's conclusion | `--fail-on` grade | SARIF level |
+|---|---|---|
+| anonymous FTP login · DNS zone transfer — tested only with `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN`, both off by default | critical | error |
+| weak SSH algorithms | medium | warning |
+| dangerous HTTP methods — read, but they never reach the conclusion in this release (the HTTP probe's result is not carried onto a service record) | medium | warning |
+| any service in a concluded scan | info — so `--fail-on info` fails every scan that concludes | `warning` when open, `note` otherwise |
+
+So on a default scan `--fail-on high` and `--fail-on critical` never exit 1, and `--fail-on medium` fires only on weak
+SSH algorithms. Neither the gate nor the SARIF file reads the SNMP default community, weak TLS protocols / ciphers, a
+self-signed certificate, the MCP server checks, the TLS-certificate / DNS-security / debug-endpoint auditors,
+Enterprise's CVE rows or analysis-agent findings (the Markdown report counts the SNMP community and weak TLS protocols /
+ciphers, but not the MCP server checks; none of them gates). Exit 0 is NOT a clean host.
 
 ```bash
-# Scan with SARIF output and severity gating
+# Scan with SARIF output and severity gating. --fail-on high fires only on anonymous FTP / zone transfer:
+# set FTP_CHECK_ANON=true and DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN=<zone> first, or it never exits 1.
 nsauditor-ai scan --host $TARGET \
   --plugins all \
   --output-format sarif \
-  --fail-on high
+  --fail-on high \
+  --out ./nsauditor-out
 
 # Exit codes:
-#   0 = all clear (below threshold)
-#   2 = findings at or above severity threshold
+#   0 = no gated flag at or above the threshold — NOT a clean host
+#   1 = a gated flag at or above the threshold
+#   2 = unknown severity, or no scan produced a conclusion
 ```
+
+The SARIF file is written into the output directory as `scan_results.sarif.json` (`scan_<host>.sarif.json` per host
+when several hosts are scanned). Standard output carries the run's log, not SARIF, so redirecting it does not produce a
+SARIF file.
 
 ### GitHub Actions Example
 
 ```yaml
 - name: Security Scan
+  env:   # without these, --fail-on high can never exit 1 (both checks are off by default)
+    FTP_CHECK_ANON: "true"
+    DNS_CHECK_AXFR: "true"
+    DNS_AXFR_DOMAIN: example.com   # the zone to try transferring
   run: |
     npx nsauditor-ai scan --host ${{ env.TARGET_HOST }} \
       --output-format sarif \
       --fail-on high \
-      > results.sarif
+      --out nsauditor-out
 
 - name: Upload SARIF
+  if: always()   # the scan step exits 1 when the gate fires; upload the SARIF anyway
   uses: github/codeql-action/upload-sarif@v3
   with:
-    sarif_file: results.sarif
+    sarif_file: nsauditor-out/scan_results.sarif.json
 ```
-
-### SARIF Severity Mapping
-
-| NSAuditor Severity | SARIF Level | Gate Behavior |
-|-------------------|-------------|---------------|
-| CRITICAL | error | Blocks on `--fail-on critical` and above |
-| HIGH | error | Blocks on `--fail-on high` and above |
-| MEDIUM | warning | Blocks on `--fail-on medium` and above |
-| LOW | note | Blocks on `--fail-on low` and above |
-| INFO | note | Never blocks |
 
 ---
 
@@ -243,18 +264,26 @@ AI_ENABLED=true AI_PROVIDER=openai OPENAI_API_KEY=sk-... OPENAI_REDACT=true \
 Track security posture changes over time.
 
 ```
-Step 1: scan_host({ host: "<target>" })  → baseline scan
+Step 1: CLI, the baseline run (sealed run record):
+        nsauditor-ai scan --host <target> --out <dir>
 Step 2: (time passes, changes made)
-Step 3: scan_host({ host: "<target>" })  → follow-up scan
-Step 4: compare the two scan outputs yourself — there is no compare TOOL. The CLI writes
-        each run to its own timestamped out-dir; diff the `scan_compliance_<fw>.json`
-        (or `scan_conclusion_raw.json`) files across runs.
+Step 3: CLI, the follow-up run, same --out:
+        nsauditor-ai scan --host <target> --out <dir>
+Step 4: CLI  nsauditor-ai report --from <dir> --format executive --since prior
+        → new · resolved · changed · NOT COMPARABLE, each not-comparable row with its reason
 
-Look for:
-  - New services (unexpected exposure)
-  - Removed services (decommissioning verified)
-  - Version changes (patches applied or regressed)
-  - New/resolved findings
+There is no compare TOOL on the MCP surface, and the comparison is NEVER done by hand: a by-hand diff of
+two outputs reads a finding that vanished for any reason other than a fix — a host or plugin not run, a
+port or probe not measured, a CVE lookup that failed, an agent that did not run, the vulnerability data
+changing under the same program and version — as RESOLVED. `report --since` reads each of those as
+NOT COMPARABLE with its reason, refuses the comparison outright when either run's chain is altered or cannot be
+measured (naming which side), and says what it did not evaluate.
+
+Read from its output:
+  - New findings (unexpected exposure) — it compares FINDINGS, not services: a newly exposed service appears only if
+    a check or agent recorded a finding on it
+  - Resolved findings — only what it counts as resolved, each with its basis
+  - The NOT-COMPARABLE list, before telling anyone what got fixed
 ```
 
 ---
@@ -263,16 +292,18 @@ Look for:
 
 ```
 User wants to...
-├── Scan a host comprehensively         → scan_host
+├── Scan a host comprehensively         → scan_host (services + service checks; NO CVE lookup —
+│                                         follow with get_vulnerabilities (Pro) per service `cpe`, or the CLI scan)
 ├── Check a specific service/port       → probe_service (Pro)
 ├── Look up CVEs for software version   → get_vulnerabilities (Pro)
 ├── See available plugins               → list_plugins
-├── Audit TLS certificates              → scan_host, or probe_service (Pro) with plugin 040
-├── Check DNS security (SPF/DKIM/DMARC) → scan_host, or probe_service (Pro) with plugin 060
-├── Detect debug leaks / CORS issues    → scan_host, or probe_service (Pro) with plugin 050
+├── Audit TLS certificates              → probe_service (Pro) with plugin 040 (scan_host RUNS it but does not return its findings)
+├── Check DNS security (SPF/DKIM/DMARC) → probe_service (Pro) with plugin 060 (scan_host RUNS it but does not return its findings)
+├── Detect debug leaks / CORS issues    → probe_service (Pro) with plugin 050 (scan_host RUNS it but does not return its findings)
 ├── Scan a subnet                       → CLI: --host CIDR --parallel N
 ├── Set up continuous monitoring         → CLI: --watch --interval N
-├── Compare two scans                   → CLI: diff the per-run out-dirs (no compare tool)
+├── Compare two scans                   → CLI (Pro): nsauditor-ai report --from <dir> --format executive --since prior
+│                                         (not MCP; NEVER by hand)
 ├── State framework COVERAGE            → compliance_matrix (any tier)
 ├── Produce a compliance EVIDENCE PACK  → CLI: --compliance <fw> --out <dir> (not MCP)
 ├── Generate a formatted report         → CLI: --output-format sarif|csv|md (not MCP)
