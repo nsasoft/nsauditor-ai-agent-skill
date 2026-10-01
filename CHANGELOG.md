@@ -14,7 +14,7 @@ limits first, and carries the 0.2.53 teaching forward:
   own `[COVERAGE GAP] <gapClass> — …` record is a coverage gap, never an exposure), and a finding of an analysis agent
   that did not run (`[COVERAGE GAP] AGENT NOT RUN — …`; `evidence-gap`, and that agent's controls fail closed), and a CVE
   row that VANISHED — present in the baseline, absent now — while the SAME program and version answered on its port
-  in both runs (`vulnerability-data-changed` — the vulnerability data moved, not the estate; in MTTR it is never a closed finding).
+  in both runs (`vulnerability-data-changed` — the vulnerability data moved, not the estate; in MTTR it is not a closed finding; neither the delta's rule nor MTTR's reaches a port that answers with two different identified programs or versions, and MTTR's does not reach a prior row that recorded no program or version).
   A CVE that appeared on an unchanged service stays NEW, with a note that the service is unchanged. Details name runs
   absolutely: "this run" and "the baseline run".
 - **Build 3 — seven teaching defects folded, found preparing the Desktop gate (the audit seat's ruling).** The skill no
@@ -67,14 +67,25 @@ limits first, and carries the 0.2.53 teaching forward:
   as a current finding — in the COMPLIANCE report (`scan --compliance <fw>`), never in `report --since`. It needs the
   compliance history (`--compliance-history <dir>`, or `--sla-policy <file>`, which reads the history under `--out`) with a
   prior `--compliance` scan of the same host in it.
-- ⚠️ **A floor bump, because Enterprise would not LOAD below it.** Enterprise 1.2.0 imports names that first ship in
-  Community 0.2.56, so `peerDependencies` moves to `nsauditor-ai >=0.2.56`, equal to Enterprise's. On Community 0.2.55
-  or older a failed Enterprise load is silent; from 0.2.56 it is named on stderr and the Pro delta refuses that host's
+- ⚠️ **A floor bump, because Enterprise's index would not LOAD below it.** Enterprise 1.2.0 imports names that first
+  ship in Community 0.2.56, so `peerDependencies` moves to `nsauditor-ai >=0.2.56`, equal to Enterprise's. On Community
+  0.2.55 or older that failed load is silent — Community still loads the Enterprise plugins, but the scan skips
+  its intelligence, analysis-agent and compliance stages; from 0.2.56 it is named on stderr and the Pro delta refuses that host's
   agent and CVE-mapper findings (`evidence-gap`).
 - **Two measured limits of 1.2.0, stated in the header's headline.** After a CVE lookup that failed, its CVE rows are not
   counted fixed but the control they failed can read PASS; and when a later scan left out a plugin the earlier one
   requested, a row an analysis agent or the CVE mapper derived from it can read RESOLVED in `report --since`, closed in
   MTTR, and its control PASS. The headline states both.
+- **The release-doc fold (2026-09-30; text only).** `npx nsauditor-ai-mcp` is no longer taught, nor a Desktop block
+  whose command is `npx -y` (which suppressed npx's own prompt): the server is a bin inside `nsauditor-ai`, and when npx
+  does not find the bin it asks the npm registry for a PACKAGE of that name, which this project did not hold — it is
+  reserved with this release by an inert placeholder. Claude Code runs the installed bin; Claude Desktop takes the block
+  `nsauditor-ai mcp install-key` prints. `NSA_ALLOW_ALL_HOSTS` is taught with what it opens over MCP — a name resolving
+  to a loopback or cloud-metadata address gets through — and "DNS rebinding is also blocked via pre-resolution" is
+  withdrawn (with the variable set no resolution check runs). The below-floor symptom is the measured one (Enterprise's
+  plugins load and `license --plugins` reads `(loaded)`; its intelligence, analysis-agent and compliance stages are
+  skipped), `vulnerability-data-changed` is taught with its scope, and the README's copy-install and `build-zip` steps
+  are corrected where a re-install or an older installed copy changed the result.
 
 ## 0.2.53 (2026-09-28) — the skill installs itself now
 

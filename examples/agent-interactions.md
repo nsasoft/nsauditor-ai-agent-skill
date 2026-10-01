@@ -192,8 +192,9 @@ Each scan appends one line per host to scan_history.jsonl in the output director
 
 2. Agent response:
    "NSAuditor AI's MCP server refuses targets written as localhost, 127.x, ::1, 0.x, 169.254.x, fe80: or
-   metadata.google…, with or without NSA_ALLOW_ALL_HOSTS in its environment. This prevents SSRF when the
-   scanner is exposed as an MCP tool.
+   metadata.google…, with or without NSA_ALLOW_ALL_HOSTS in its environment; without the variable it also
+   checks the address a host name resolves to. That limits what an agent can reach when the scanner is
+   exposed as an MCP tool.
 
    To scan your own machine, use the CLI with the guard lifted (without the variable the CLI refuses it too:
    'Scanning blocked address range is not allowed: 127.0.0.1'):

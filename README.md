@@ -13,7 +13,7 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **Windsurf**, **VS C
 
 ## Current release
 
-**0.2.54** (⏳ PRE-PUBLISH — not yet on npm) — paired with **Enterprise 1.2.0 / Community 0.2.56**. ⚠️ **A floor bump: requires Community >= 0.2.56** (it was >= 0.2.55 — Enterprise 1.2.0 imports names that first ship in Community 0.2.56, so it would not load below it). New in this release's teaching: the not-comparable bucket also catches a UDP port that did not answer, a CVE lookup that failed, an analysis agent that did not run, and a CVE the vulnerability data stopped attributing while the same program and version still answered; a compliance control can FAIL on a finding the prior scan recorded when this scan did not measure the port or probe it was on, cover its region, or run what produced it — a `<prior title> — [COVERAGE GAP] …` record, never a current finding; how a failed Enterprise load surfaces from Community 0.2.56; and two measured limits — after a CVE lookup that failed, the control its CVE rows failed can still read PASS; and when a later scan left out a plugin the earlier one requested, a row an analysis agent or the CVE mapper derived from it can read fixed, and its control PASS. The 0.2.53 teaching is carried forward.
+**0.2.54** (⏳ PRE-PUBLISH — not yet on npm) — paired with **Enterprise 1.2.0 / Community 0.2.56**. ⚠️ **A floor bump: requires Community >= 0.2.56** (it was >= 0.2.55 — Enterprise 1.2.0 imports names that first ship in Community 0.2.56; below it Enterprise's plugins load, but the scan skips its intelligence, analysis-agent and compliance stages without a word). New in this release's teaching: the not-comparable bucket also catches a UDP port that did not answer, a CVE lookup that failed, an analysis agent that did not run, and a CVE the vulnerability data stopped attributing while the same program and version still answered; a compliance control can FAIL on a finding the prior scan recorded when this scan did not measure the port or probe it was on, cover its region, or run what produced it — a `<prior title> — [COVERAGE GAP] …` record, never a current finding; how a failed Enterprise load surfaces from Community 0.2.56; and two measured limits — after a CVE lookup that failed, the control its CVE rows failed can still read PASS; and when a later scan left out a plugin the earlier one requested, a row an analysis agent or the CVE mapper derived from it can read fixed, and its control PASS; when the earlier scan left the plugin out instead, such a row can read NEW. Keep `--plugins` identical between compared scans. Plugin counts and all eight coverage matrices are unchanged since Enterprise 1.1.0. The 0.2.53 teaching is carried forward.
 
 **Prior: 0.2.53** — paired with **Enterprise 1.1.0 / Community 0.2.55**. ⚠️ **A floor bump: requires Community >= 0.2.55** (it was >= 0.2.49 — Enterprise 1.1.0 calls code that first ships in Community 0.2.55). The skill now INSTALLS itself: `npx nsauditor-ai-agent-skill install` copies it into `~/.claude/skills/` for Claude Code, and `npx nsauditor-ai-agent-skill build-zip --out ~/Desktop` builds the Claude Desktop upload zip. Claude Code users can instead add it as a plugin marketplace — `/plugin marketplace add nsasoft/nsauditor-ai-agent-skill`. ⚠️ A marketplace reaches **Claude Code only**; Claude Desktop accepts skills only as an uploaded zip, and skills do not sync between surfaces. Knowledge updated for the Pro cross-run delta (`report --since`) that ships in Community 0.2.55.
 
@@ -111,6 +111,10 @@ nsauditor-ai-agent-skill/
 │   └── plugins.md                    # Full plugin catalog (56 scanners with ports & protocols — 27 Community + 29 Enterprise)
 ├── examples/
 │   └── agent-interactions.md         # Example agent reasoning chains (9 scenarios)
+├── bin/
+│   └── nsauditor-ai-agent-skill.mjs  # `install` (Claude Code) and `build-zip` (Claude Desktop)
+├── scripts/                          # the Desktop zip builder and its frontmatter check
+├── .claude-plugin/                   # plugin-marketplace manifests (Claude Code only)
 ├── package.json
 ├── README.md
 └── LICENSE
@@ -121,19 +125,18 @@ nsauditor-ai-agent-skill/
 ### Claude Code
 
 ```bash
-# Option 1: Install globally and copy
-npm install -g nsauditor-ai-agent-skill
-cp -r $(npm root -g)/nsauditor-ai-agent-skill ~/.claude/skills/nsauditor-ai
+# Into ~/.claude/skills/nsauditor-ai — creates the folder, or overwrites SKILL.md and references/ in an older copy
+npx nsauditor-ai-agent-skill@latest install
 
-# Option 2: Copy into your project
-cp -r nsauditor-ai-agent-skill .claude/skills/nsauditor-ai
+# Or into one project: .claude/skills/nsauditor-ai
+npx nsauditor-ai-agent-skill@latest install --dest .claude/skills
 ```
 
-Claude Code auto-discovers skills in `.claude/skills/`.
+Keep `@latest` (or name a version): a bare `npx nsauditor-ai-agent-skill` runs a copy already installed in the project or globally whenever one exists, whatever its version. `install` overwrites only the files this version ships; it deletes nothing. Copying the package by hand with `cp -r` fails when `~/.claude/skills` does not exist yet, and over an existing `nsauditor-ai` folder it nests the new copy inside it and leaves the old `SKILL.md` in place — delete the old folder first. Claude Code auto-discovers skills in `.claude/skills/`.
 
 ### Claude Desktop
 
-Build the upload zip with `npx nsauditor-ai-agent-skill build-zip --out ~/Desktop`, then upload that `nsauditor-ai-skill-<version>.zip` in Claude Desktop's Settings (skills). Upload the zip, never `SKILL.md` alone: SKILL.md is under half of the skill, and its links to the reference files would point at nothing. Fully quit and relaunch Desktop after replacing a skill.
+Build the upload zip with `npx nsauditor-ai-agent-skill@latest build-zip --out ~/Desktop`, then upload that `nsauditor-ai-skill-<version>.zip` in Claude Desktop's Settings (skills). Upload the zip, never `SKILL.md` alone: SKILL.md is under half of the skill, and its links to the reference files would point at nothing. Fully quit and relaunch Desktop after replacing a skill.
 
 ### Cursor
 
@@ -150,9 +153,8 @@ Add `SKILL.md` to `.github/copilot-instructions.md` or your workspace's Copilot 
 ### Generic / Custom Agents
 
 ```bash
-npm install nsauditor-ai-agent-skill
-# Copy into wherever your agent loads skills/context from
-cp -r node_modules/nsauditor-ai-agent-skill /path/to/agent/skills/nsauditor-ai
+# Copies SKILL.md and references/ into /path/to/agent/skills/nsauditor-ai
+npx nsauditor-ai-agent-skill@latest install --dest /path/to/agent/skills
 ```
 
 ## What the Agent Learns
@@ -183,19 +185,21 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
    ```bash
    # Claude Code
    nsauditor-ai mcp install-key
-   claude mcp add nsauditor-ai --env NSA_MCP_AUTH_KEY=<from: nsauditor-ai mcp install-key> -- npx nsauditor-ai-mcp
+   claude mcp add nsauditor-ai --env NSA_MCP_AUTH_KEY=<from: nsauditor-ai mcp install-key> -- nsauditor-ai-mcp
 
-   # Claude Desktop (claude_desktop_config.json)
+   # Claude Desktop (claude_desktop_config.json): paste the block `install-key` prints, which names
+   # node and the server script by absolute path, and add NSA_ALLOW_ALL_HOSTS to its env
    {
      "mcpServers": {
        "nsauditor-ai": {
-         "command": "npx",
-         "args": ["-y", "nsauditor-ai-mcp"],
+         "command": "<from: nsauditor-ai mcp install-key — the absolute path to node>",
+         "args": ["<from: nsauditor-ai mcp install-key — the absolute path to bin/nsauditor-ai-mcp.mjs>"],
          "env": { "NSA_ALLOW_ALL_HOSTS": "1", "NSA_MCP_AUTH_KEY": "<from: nsauditor-ai mcp install-key>" }
        }
      }
    }
    ```
+   `NSA_ALLOW_ALL_HOSTS: "1"` lets Claude scan your own network — private addresses such as `192.168.x.x` or `10.x.x.x` — because it turns off the MCP server's check of the address a host name resolves to. The server still refuses a host written as `localhost`, `127.x.x.x`, `::1`, `169.254.x.x` or `metadata.google.internal`, but no longer a name that resolves to a loopback or cloud-metadata address, or a spelling such as `::ffff:127.0.0.1`. `install-key` does not print it, so add it yourself, and remove it if you only scan public hosts.
 
 > ⚠️ **`NSA_MCP_AUTH_KEY` is REQUIRED — the server refuses to start without it.** Generate one with
 > `nsauditor-ai mcp install-key`, then put the SAME value in the `env` block above. Without it the MCP
