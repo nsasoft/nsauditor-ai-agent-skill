@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.54 (⏳ PRE-PUBLISH — opened 2026-09-29, NOT YET ON npm) — Enterprise 1.2.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
+## 0.2.54 (2026-10-04) — Enterprise 1.2.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
 
 Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things and two measured
 limits first, and carries the 0.2.53 teaching forward:
