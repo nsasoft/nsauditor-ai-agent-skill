@@ -277,7 +277,7 @@ never writes a queue. A CVE row, which carries every field:
 
 **Every row:** `id` · `category` · `status` · `title` · `severity` · `cvss` · `target` · `evidence` · `remediation` · `riskScore`
 
-**Most rows:** `description` — four analysis agents' own findings omit it: `auth_agent` · `config_agent` · `crypto_agent` · `service_agent`. The CVE engine's rows, the exposure agent's rows (since Enterprise 1.2.1: the service its title no longer names) and every coverage-gap record carry it.
+**Most rows:** `description` — three analysis agents' own findings omit it: `auth_agent` · `config_agent` · `crypto_agent`. The CVE engine's rows, the exposure agent's rows (since Enterprise 1.2.1: the service its title no longer names), the service agent's rows (since Enterprise 1.2.1: the version its title no longer names) and every coverage-gap record carry it.
 
 **CVE-bearing rows, once KEV / EPSS data is loaded:** `kev` · `knownRansomwareCampaignUse` · `kevMatchedCve` · `kevAsOf` · `kevStoreState` · `epssScore` · `epssPercentile` · `epssMatchedCve` · `epssAsOf` · `epssModelVersion` · `epssStoreState` · `exploitPriority` · `exploitPriorityReason`
 
