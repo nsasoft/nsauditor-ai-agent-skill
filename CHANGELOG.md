@@ -18,7 +18,9 @@ release's register verbatim:
   the prior CVE rows failed are held FAILED. The exposure and service agents' titles moved, so their rows read
   `identity-basis-changed` across the 1.2.0 → 1.3.0 upgrade. The DNS-posture audit (060) declines an IP-address
   target, with its reason on the plugin's status, and on an IP-target compliance scan its controls are held as an
-  evidence gap.
+  evidence gap. The TLS certificate audit (040) grades an IP target's name mismatch LOW when the certificate names DNS
+  names only (HIGH stays HIGH for a DNS-name target, a different address, or no subjectAltName), reads IP SANs, and no
+  longer adds `ca_not_trusted` to a name mismatch on a chain the CA store verified.
 - **The floor (header item (c))** — what a user sees below Community 0.2.57, by Community version.
 - **The decision-tree gloss** no longer says `report --since` reads a derived row as fixed when the later scan left its
   plugin out; it names the two limits that remain.

@@ -314,3 +314,15 @@ test('the scan_host example derives pluginsRan from its own manifest — never a
     'non-vacuity: the example shows a plugin that ran and one that did not');
   assert.equal(v.pluginsRan, v.manifest.filter((m) => m.status === 'ran').length);
 });
+
+// ── 040's name-mismatch grading (Community 0.2.57, taught beside the 060 decline) ────────────────────────────────────
+// Community's tests/tls_cert_ip_target_name_grading.test.mjs drives the behaviour on real TLS; this holds the teaching.
+test('SKILL.md teaches 040\'s graded name mismatch: LOW by address against DNS-only names, HIGH otherwise, IP SANs read', () => {
+  const s = read('SKILL.md').replace(/\s+/g, ' ');
+  assert.match(s, /scanned by ADDRESS, a certificate that names DNS names only reads LOW/);
+  assert.match(s, /a DNS-name target the certificate does not name, a certificate naming a DIFFERENT address and one with no subjectAltName stay HIGH/);
+  assert.match(s, /040 also reads IP SANs now/);
+  assert.match(s, /no longer adds `ca_not_trusted`/);
+  assert.match(s, /A self-signed certificate still raises `self_signed` HIGH/, 'the router case is stated: its exit does not move');
+});
+
