@@ -8,7 +8,8 @@ Multi-step patterns for common security audit scenarios.
 
 The most common MCP workflow: a scan followed by a CVE lookup per service. It is NOT the CLI's full analysis: the
 Enterprise analysis agents and exploit intelligence run only in `nsauditor-ai scan --host <target>` (Enterprise package +
-Pro/Enterprise licence). `scan_host` does return the 040 / 050 / 060 audits (`certAudit`, `tribeHealth`, `dnsSecurity`).
+Pro/Enterprise licence). `scan_host` does return the 040 / 050 / 060 audits (`certAudit`, `tribeHealth`, and
+`dnsSecurity` for a domain-name target — 060 declines an IP address, and the `markdown` says it was not tested).
 
 ```
 Step 1: list_plugins()

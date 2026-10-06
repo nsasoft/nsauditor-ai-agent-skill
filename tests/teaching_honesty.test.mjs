@@ -328,3 +328,34 @@ test('SKILL.md teaches 040\'s graded name mismatch: LOW by address against DNS-o
     'the CN-only case is taught: HIGH, and why');
 });
 
+
+// ── 0.2.55 build 4 (Gate 3-A F-1, the operator's ruling "Fix now"): `dnsSecurity` LANDS ONLY FOR A DOMAIN NAME ─────────
+// The DNS-posture audit (060) declines an IP-address target (Community 0.2.57). Build 3 taught where `dnsSecurity` lands
+// — "on the 53/udp record when the scan found a 53/udp service" — with no condition on the target's form, while the
+// header taught the decline. On a router scanned by address (a 53/udp service) nothing lands, and an absence where a
+// result is promised reads as "no DNS issues". A unit that names `dnsSecurity` must state the decline, or scope itself
+// to a domain target. Units are paragraphs, each list item, and each fenced block whole (a run-on list is the norm here).
+const unitsOf = (text) => text.split(/\n\s*\n/).flatMap((para) => (/^\s*```/m.test(para) ? [para] : para.split(/\n(?=\s*[-*] )/)));
+const DNS_UNIT_OK = (u) => /declin/i.test(u) || /\bon the domain\b/.test(u);
+
+test('(q, first) the dnsSecurity predicate refuses build 3\'s sentence and accepts the conditioned and the domain-scoped forms', () => {
+  assert.equal(DNS_UNIT_OK('the DNS-security audit of the scanned name (060: `dnsSecurity`) lands on the 53/udp record when '
+    + 'the scan found a 53/udp service, otherwise in the conclusion\'s `evidence`.'), false);
+  assert.equal(DNS_UNIT_OK('for an IP-address target 060 DECLINES, and `dnsSecurity` lands only for a domain-name target'), true);
+  assert.equal(DNS_UNIT_OK('scan_host on the domain name: `dnsSecurity` (on the 53/udp record, else in the conclusion\'s evidence)'), true);
+  assert.deepEqual(unitsOf('a\n- one `x`\n- two\n\n```\nb\n```'), ['a', '- one `x`', '- two', '```\nb\n```']);
+});
+
+test('every shipped unit that names dnsSecurity says it lands only for a domain name — an IP address is declined', () => {
+  const offenders = [];
+  let seen = 0;
+  for (const f of [...TEACHING, 'CHANGELOG.md']) {
+    for (const u of unitsOf(read(f))) {
+      if (!u.includes('dnsSecurity')) continue;
+      seen += 1;
+      if (!DNS_UNIT_OK(u)) offenders.push(`${f}: ${u.trim().replace(/\s+/g, ' ').slice(0, 160)}`);
+    }
+  }
+  assert.ok(seen >= 1, 'positive control: the corpus names dnsSecurity');
+  assert.deepEqual(offenders, []);
+});

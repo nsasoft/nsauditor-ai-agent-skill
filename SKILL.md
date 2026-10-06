@@ -180,8 +180,10 @@ certificate, and the MCP server checks — `mcpAnonymousAccess`, `mcpAnonymousTo
 `mcpDeprecatedProtocol`, `mcpInspectorExposed`. Since Community 0.2.57 the records also carry the HTTP probe's methods
 (006: `dangerousMethods`, with `methodsTested` false when no Allow header was read), the NetBIOS/SMB null-session check
 (014: `nullSessionAllowed` and `shares`), the TLS-certificate audit (040: `certAudit`) and the debug-endpoint audit
-(050: `tribeHealth`, only when TCP 8080 is open); the DNS-security audit of the scanned name (060: `dnsSecurity`) lands
-on the 53/udp record when the scan found a 53/udp service, otherwise in the conclusion's `evidence`. Anonymous FTP
+(050: `tribeHealth`, only when TCP 8080 is open). For a domain-name target the DNS-security audit (060: `dnsSecurity`)
+lands on the 53/udp record when the scan found a 53/udp service, otherwise in the conclusion's `evidence`; for an
+IP-address target 060 DECLINES — its `manifest` entry reads `skipped` with the reason, the `markdown` says
+`DNS-security audit (060) not tested`, and nothing lands — so DNS posture is unknown, never clean. Anonymous FTP
 login, zone transfer and the SMB null session are tested only when the MCP server's environment enables them
 (`FTP_CHECK_ANON=true`; `DNS_CHECK_AXFR=true` with `DNS_AXFR_DOMAIN`; `SMB_NULL_SESSION=true`) — all off by default.
 A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never "not
@@ -487,8 +489,9 @@ live total and marks each Enterprise plugin `✓ active` or `✗ requires: <tier
 The Community set groups roughly as service probes, host/network discovery, and intelligence /
 meta plugins, plus three deep-audit Community plugins (040 TLS Certificate & Cipher Auditor, 050
 TRIBE v2 Neural API Security Probe, 060 DNS Security Auditor): `scan_host` runs them on every tier (050 only when
-TCP 8080 is open) and returns their findings on the records — `certAudit`, `tribeHealth`, `dnsSecurity` (060's in the
-conclusion's evidence when the scan found no 53/udp service); `probe_service` (Pro) runs one of them against one port.
+TCP 8080 is open) and returns their findings on the records — `certAudit`, `tribeHealth`, `dnsSecurity` (060's only for
+a domain-name target, in the conclusion's evidence when the scan found no 53/udp service; it declines an IP address);
+`probe_service` (Pro) runs one of them against one port.
 
 > A per-plugin list used to be duplicated here and drifted: it claimed **18** Enterprise plugins
 > while enumerating **15**, against **28** on disk. One catalog, in `references/plugins.md`.

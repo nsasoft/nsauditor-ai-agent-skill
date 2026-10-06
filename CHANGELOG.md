@@ -30,7 +30,8 @@ release's register verbatim:
   the variable admits private ranges only, and loopback, unspecified, link-local and metadata addresses stay refused.
   The SSRF error rows split, because the messages differ.
 - **What `scan_host` returns**: the concluder reaches every adapter, so the TLS-certificate, API-health and
-  DNS-posture audits (`certAudit`, `tribeHealth`, `dnsSecurity`) are returned; `pluginsRan` counts what the manifest
+  DNS-posture audits (`certAudit`, `tribeHealth`, `dnsSecurity`) are returned — `dnsSecurity` only for a domain-name
+  target, because 060 declines an IP address, which the `markdown` says (build 4); `pluginsRan` counts what the manifest
   says ran, and the example's value is derived from its own manifest by a test.
 - **One table grades every service-check finding**, and `--fail-on`, SARIF, the CSV and the Markdown all read it.
   The CI recipes and the SARIF example say so.

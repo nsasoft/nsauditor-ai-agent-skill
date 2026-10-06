@@ -126,7 +126,7 @@ interface ServiceRecord {
   shares?: string[];            // 014: the shares a null session listed
   certAudit?: object;           // the TLS-certificate audit (040) of this port — its issues[] graded at 040's own grades
   tribeHealth?: object;         // the debug-endpoint audit (050), on the 8080 record — { state, severity, findings[] }
-  dnsSecurity?: object;         // the DNS-security audit (060) of the scanned name — here on a 53/udp record, else in the conclusion's evidence[]
+  dnsSecurity?: object;         // the DNS-security audit (060) of a DOMAIN-NAME target — here on a 53/udp record, else in the conclusion's evidence[]; absent for an IP-address target, which 060 declines (manifest: skipped, with the reason) — NOT TESTED, never clean
   weakAlgorithms?: string[];    // SSH weak key-exchange, cipher and MAC names, together in one array (002)
   weakCiphers?: string[];       // TLS weak ciphers (the negotiated cipher per version)
   certSelfSigned?: boolean;     // TLS certificate is self-signed (011)
