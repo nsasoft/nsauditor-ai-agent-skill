@@ -22,7 +22,7 @@ release's register verbatim:
   names only (HIGH stays HIGH for a DNS-name target, a different address, or no subjectAltName), reads IP SANs, and no
   longer adds `ca_not_trusted` to a name mismatch on a chain the CA store verified. A certificate with no
   subjectAltName (CN only, as many consumer routers serve) stays HIGH and says so, and a TLS 1.3 connection no longer
-  reads `no_forward_secrecy`. Its key-size and signature checks fire on real servers for the first time (build 5):
+  reads `no_forward_secrecy`. Its key-size and signature checks fire on real servers for the first time (Community 0.2.57):
   `weak_rsa_key` / `weak_ec_key`, and `weak_signature` / `chain_weak_signature` on a CA-issued certificate; a
   self-signed certificate's own signature is not graded; a key of neither type, or a runtime without signature
   algorithms (Node 20), records `not assessed`. Recorded, not yet routed to a control.
@@ -34,7 +34,7 @@ release's register verbatim:
   The SSRF error rows split, because the messages differ.
 - **What `scan_host` returns**: the concluder reaches every adapter, so the TLS-certificate, API-health and
   DNS-posture audits (`certAudit`, `tribeHealth`, `dnsSecurity`) are returned — `dnsSecurity` only for a domain-name
-  target, because 060 declines an IP address, which the `markdown` says (build 4); `pluginsRan` counts what the manifest
+  target, because 060 declines an IP address, which the `markdown` says; `pluginsRan` counts what the manifest
   says ran, and the example's value is derived from its own manifest by a test.
 - **One table grades every service-check finding**, and `--fail-on`, SARIF, the CSV and the Markdown all read it.
   The CI recipes and the SARIF example say so.
