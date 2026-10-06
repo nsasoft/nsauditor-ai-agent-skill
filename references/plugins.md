@@ -178,7 +178,10 @@ sizes (<2048-bit RSA), and deprecated cipher suites. *(Missing-HSTS detection is
 network-scan `crypto_agent`'s, not this plugin's.)* A hostname mismatch is graded by the target's form (Community 0.2.57): scanned by address against a certificate that
 names DNS names only it is LOW, saying so in its detail; a DNS-name target the certificate does not name, a certificate
 naming a different address, or one with no subjectAltName is HIGH. IP SANs are compared as addresses, and a name
-mismatch on a chain the CA store verified does not also raise `ca_not_trusted`.
+mismatch on a chain the CA store verified does not also raise `ca_not_trusted`. A certificate with no subjectAltName
+(CN only) stays HIGH and says it carries none. A TLS 1.3 connection has forward secrecy by its protocol (every TLS 1.3
+suite is ephemeral); below TLS 1.3 the negotiated cipher decides, so a TLS 1.2 RSA key exchange keeps
+`no_forward_secrecy` MEDIUM.
 
 **050 — TRIBE v2 Neural API Security Probe:** Probes a TRIBE v2 API: `TRIBE_API_HOST` / `TRIBE_API_PORT` /
 `TRIBE_API_SCHEME` set the target; otherwise it is the scan host, on 8080 in a scan (or the port `probe_service`

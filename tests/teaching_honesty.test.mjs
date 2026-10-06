@@ -324,5 +324,7 @@ test('SKILL.md teaches 040\'s graded name mismatch: LOW by address against DNS-o
   assert.match(s, /040 also reads IP SANs now/);
   assert.match(s, /no longer adds `ca_not_trusted`/);
   assert.match(s, /A self-signed certificate still raises `self_signed` HIGH/, 'the router case is stated: its exit does not move');
+  assert.match(s, /A certificate with NO subjectAltName — many consumer routers serve one, naming the device only in its CN — says so/,
+    'the CN-only case is taught: HIGH, and why');
 });
 

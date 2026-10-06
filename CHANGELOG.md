@@ -20,7 +20,9 @@ release's register verbatim:
   target, with its reason on the plugin's status, and on an IP-target compliance scan its controls are held as an
   evidence gap. The TLS certificate audit (040) grades an IP target's name mismatch LOW when the certificate names DNS
   names only (HIGH stays HIGH for a DNS-name target, a different address, or no subjectAltName), reads IP SANs, and no
-  longer adds `ca_not_trusted` to a name mismatch on a chain the CA store verified.
+  longer adds `ca_not_trusted` to a name mismatch on a chain the CA store verified. A certificate with no
+  subjectAltName (CN only, as many consumer routers serve) stays HIGH and says so, and a TLS 1.3 connection no longer
+  reads `no_forward_secrecy`.
 - **The floor (header item (c))** — what a user sees below Community 0.2.57, by Community version.
 - **The decision-tree gloss** no longer says `report --since` reads a derived row as fixed when the later scan left its
   plugin out; it names the two limits that remain.
