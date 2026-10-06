@@ -359,3 +359,20 @@ test('every shipped unit that names dnsSecurity says it lands only for a domain 
   assert.ok(seen >= 1, 'positive control: the corpus names dnsSecurity');
   assert.deepEqual(offenders, []);
 });
+
+// ── 0.2.55 build 5 (Gate 3-A F-3 / F-3b, the operator's ruling "Fix now"): 040's key-size and signature checks ──────────
+// They read fields Node's getPeerCertificate() never sets, so neither could fire on a real server until Community 0.2.57
+// build 5. The skill teaches what a user now sees — a router's 1024-bit key reads weak_rsa_key HIGH — what is not graded
+// (a self-signed certificate's own signature), and what is NOT ASSESSED (a key of neither type, a runtime that cannot
+// read signature algorithms), in the 1.3.0 header and in the 040 entry.
+test('the skill teaches 040\'s revived key-size and signature checks, the self-signed exemption and the not-assessed states', () => {
+  const header = read('SKILL.md').split('\n')[17];
+  const entry = read('references/plugins.md').split('**040 — TLS Certificate & Cipher Auditor:**')[1]?.split('\n\n')[0] ?? '';
+  for (const [where, s] of [['SKILL.md header', header], ['plugins.md 040 entry', entry]]) {
+    assert.match(s, /`weak_rsa_key` HIGH/, `${where}: the weak-key grade`);
+    assert.match(s, /`weak_signature`/, `${where}: the weak-signature grade`);
+    assert.match(s, /self-signed certificate's own signature is not graded/, `${where}: option B`);
+    assert.match(s, /not assessed/, `${where}: the not-assessed states`);
+  }
+  assert.match(header, /recorded, not yet routed to a compliance control/, 'the routing limit is stated');
+});

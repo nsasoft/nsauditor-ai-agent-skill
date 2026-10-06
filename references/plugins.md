@@ -181,7 +181,13 @@ naming a different address, or one with no subjectAltName is HIGH. IP SANs are c
 mismatch on a chain the CA store verified does not also raise `ca_not_trusted`. A certificate with no subjectAltName
 (CN only) stays HIGH and says it carries none. A TLS 1.3 connection has forward secrecy by its protocol (every TLS 1.3
 suite is ephemeral); below TLS 1.3 the negotiated cipher decides, so a TLS 1.2 RSA key exchange keeps
-`no_forward_secrecy` MEDIUM.
+`no_forward_secrecy` MEDIUM. The key-size and signature checks fire on real servers from Community 0.2.57 (they had read
+fields Node never sets): an RSA key under 2048 bits is `weak_rsa_key` HIGH (CRITICAL under 1024), an EC key under 256
+bits `weak_ec_key` HIGH, a CA-issued certificate signed with SHA-1 or MD5 `weak_signature` HIGH, and an issued
+intermediate signed that way `chain_weak_signature` MEDIUM. A self-signed certificate's own signature is not graded —
+no client verifies it — and `self_signed` names the algorithm. A key of neither type (Ed25519), or a runtime that cannot
+read signature algorithms (Node 20; Node 24 reads them), records `not assessed` on `certAudit`. These grades are not yet
+routed to a compliance control.
 
 **050 — TRIBE v2 Neural API Security Probe:** Probes a TRIBE v2 API: `TRIBE_API_HOST` / `TRIBE_API_PORT` /
 `TRIBE_API_SCHEME` set the target; otherwise it is the scan host, on 8080 in a scan (or the port `probe_service`

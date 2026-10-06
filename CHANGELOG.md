@@ -22,7 +22,10 @@ release's register verbatim:
   names only (HIGH stays HIGH for a DNS-name target, a different address, or no subjectAltName), reads IP SANs, and no
   longer adds `ca_not_trusted` to a name mismatch on a chain the CA store verified. A certificate with no
   subjectAltName (CN only, as many consumer routers serve) stays HIGH and says so, and a TLS 1.3 connection no longer
-  reads `no_forward_secrecy`.
+  reads `no_forward_secrecy`. Its key-size and signature checks fire on real servers for the first time (build 5):
+  `weak_rsa_key` / `weak_ec_key`, and `weak_signature` / `chain_weak_signature` on a CA-issued certificate; a
+  self-signed certificate's own signature is not graded; a key of neither type, or a runtime without signature
+  algorithms (Node 20), records `not assessed`. Recorded, not yet routed to a control.
 - **The floor (header item (c))** — what a user sees below Community 0.2.57, by Community version.
 - **The decision-tree gloss** no longer says `report --since` reads a derived row as fixed when the later scan left its
   plugin out; it names the two limits that remain.
