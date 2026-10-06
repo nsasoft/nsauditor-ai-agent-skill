@@ -8,7 +8,7 @@ Multi-step patterns for common security audit scenarios.
 
 The most common MCP workflow: a scan followed by a CVE lookup per service. It is NOT the CLI's full analysis: the
 Enterprise analysis agents and exploit intelligence run only in `nsauditor-ai scan --host <target>` (Enterprise package +
-Pro/Enterprise licence), and `scan_host` does not return the 040 / 050 / 060 auditors' findings (use `probe_service`).
+Pro/Enterprise licence). `scan_host` does return the 040 / 050 / 060 audits (`certAudit`, `tribeHealth`, `dnsSecurity`).
 
 ```
 Step 1: list_plugins()
@@ -123,25 +123,34 @@ and avoid network congestion. The MCP server processes one scan at a time.
 
 ## 4. CI/CD Pipeline Integration
 
-`--fail-on <severity>` reads FOUR service flags, and it is **not computed from the SARIF file** — the two read the same
-flags but grade them differently:
+`--fail-on <severity>` reads every finding the shared service-check table grades — one per item (a method, an
+algorithm, a protocol, a cipher, an audit entry), the same findings at the same grades that the Markdown report, the
+SARIF file and the CSV count. It is **not computed from the SARIF file**, but the two read one table, so they cannot
+grade a finding differently:
 
-| Flag in the scan's conclusion | `--fail-on` grade | SARIF level |
+| Finding in the scan's conclusion | `--fail-on` grade | SARIF level |
 |---|---|---|
 | anonymous FTP login · DNS zone transfer — tested only with `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN`, both off by default | critical | error |
-| weak SSH algorithms | medium | warning |
-| dangerous HTTP methods — read, but they never reach the conclusion in this release (the HTTP probe's result is not carried onto a service record) | medium | warning |
-| any service in a concluded scan | info — so `--fail-on info` fails every scan that concludes | `warning` when open, `note` otherwise |
+| MCP server reachable without authentication · MCP server lists its tools without authentication | critical | error |
+| MCP server over cleartext HTTP · MCP server on a deprecated protocol version | high | error |
+| SNMP default community (`public` / `private`) | high | error |
+| SMB null session — tested only with `SMB_NULL_SESSION=true`; graded high provisionally | high | error |
+| expired certificate, on a port the TLS-certificate auditor (040) did not audit | high | error |
+| weak SSH algorithms · weak TLS protocols · weak TLS ciphers, one per item | medium | warning |
+| dangerous HTTP methods, one per method — only where an Allow header was read | medium | warning |
+| self-signed certificate, on a port 040 did not audit · MCP Inspector exposed | medium | warning |
+| each actionable entry of the TLS-certificate, debug-endpoint and DNS-security audits (040 / 050 / 060) | the auditor's own grade | by that grade |
+| any concluded scan; an open service is inventory | info — so `--fail-on info` fails every scan that concludes | `note`, one per service |
 
-So on a default scan `--fail-on high` and `--fail-on critical` never exit 1, and `--fail-on medium` fires only on weak
-SSH algorithms. Neither the gate nor the SARIF file reads the SNMP default community, weak TLS protocols / ciphers, a
-self-signed certificate, the MCP server checks, the TLS-certificate / DNS-security / debug-endpoint auditors,
-Enterprise's CVE rows or analysis-agent findings (the Markdown report counts the SNMP community and weak TLS protocols /
-ciphers, but not the MCP server checks; none of them gates). Exit 0 is NOT a clean host.
+So a default scan can exit 1 at `--fail-on high` — an SNMP default community, an MCP server finding, an expired
+certificate or a HIGH audit entry is enough — and a pipeline that passed on an earlier Community may fail on findings
+that were always there. One expired certificate is graded once: High where only the TLS scanner (011) saw it,
+Critical where 040 audited it. The gate does not read Enterprise's CVE rows or analysis-agent findings. Exit 0 is NOT a
+clean host.
 
 ```bash
-# Scan with SARIF output and severity gating. --fail-on high fires only on anonymous FTP / zone transfer:
-# set FTP_CHECK_ANON=true and DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN=<zone> first, or it never exits 1.
+# Scan with SARIF output and severity gating. --fail-on high exits 1 on any graded finding at high or above (table
+# above); anonymous FTP and zone transfer are graded only with FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN.
 nsauditor-ai scan --host $TARGET \
   --plugins all \
   --output-format sarif \
@@ -149,8 +158,8 @@ nsauditor-ai scan --host $TARGET \
   --out ./nsauditor-out
 
 # Exit codes:
-#   0 = no gated flag at or above the threshold — NOT a clean host
-#   1 = a gated flag at or above the threshold
+#   0 = no graded finding at or above the threshold — NOT a clean host
+#   1 = a graded finding at or above the threshold
 #   2 = unknown severity, or no scan produced a conclusion
 ```
 
@@ -162,7 +171,7 @@ SARIF file.
 
 ```yaml
 - name: Security Scan
-  env:   # without these, --fail-on high can never exit 1 (both checks are off by default)
+  env:   # both checks are off by default; without these --fail-on high never sees anonymous FTP or a zone transfer
     FTP_CHECK_ANON: "true"
     DNS_CHECK_AXFR: "true"
     DNS_AXFR_DOMAIN: example.com   # the zone to try transferring
@@ -184,7 +193,8 @@ SARIF file.
 ## 5. Continuous Monitoring (CTEM)
 
 Watch mode: every host is re-scanned on an interval and each scan is compared with that host's previous one. Its
-webhook alert does NOT fire on a service change in this release — read what triggers it before offering it.
+webhook alerts a host whose scan changed and that carries a finding at or above `--alert-severity` — read what
+triggers it before offering it.
 
 ```bash
 # NSA_ALLOW_ALL_HOSTS=1 because the range is private (§3). Replace the webhook URL with your own PUBLIC one: the
@@ -200,24 +210,33 @@ NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
 **Features:**
 - Rescans on configurable interval (minutes; default 60); the first cycle runs at once
 - Each host's scan is compared with that host's previous line in `scan_history.jsonl` and printed as a
-  `[ScanHistory]` line: new, removed and changed services, and the findings delta
+  `[ScanHistory]` line: new, removed and changed services, the findings delta, and each service-check finding that
+  appeared, cleared, was first observed or could not be compared (with the reason)
 - Scan history appended to `scan_history.jsonl` in the output directory (`--out`, default `out/`), one line per host
 - CE: 7-day retention; Pro/Enterprise: every line kept (neither is configurable)
 
-**What triggers the webhook — and what does not:**
-- A service, version or finding change does NOT. The cycle comparison the alert is gated on finds no services in
-  the scan results it is handed, so its `=== Delta Report ===` shows no change for any host. The gate opens only
-  when a cycle scanned a different set of hosts from the cycle before (in practice, a cycle cut short by stopping
-  the loop), and never on the first cycle. For changes, read the `[ScanHistory]` lines.
-- When the gate opens, an alert (a JSON POST) goes out for each host whose services carry a flag at or above
-  `--alert-severity` (default `high`; at `info` every service counts, flagged or not): anonymous FTP login or DNS
-  zone transfer (critical; both checks are off unless `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` +
-  `DNS_AXFR_DOMAIN` are set) and weak SSH algorithms (medium). Dangerous HTTP methods never reach a service record
-  (§4) and nothing on the scan path fills a service's CVE list, so at `high` only the two opt-in checks count.
-- The payload is not redacted: the host and its flagged services go in the clear to the URL you supply.
+**What triggers the webhook:**
+- A host alerts when its scan CHANGED since the previous cycle — a service appeared, went or changed, its finding
+  count moved, a service check alone changed, or the comparison could not be made — AND it carries at least one
+  finding at or above `--alert-severity` (default `high`). The first cycle sets the baseline and alerts nobody;
+  `--alert-every-cycle` alerts every host carrying such a finding on every cycle, the first included. Stdout prints
+  each host's change under `=== Delta Report ===`, and `No significant changes detected.` only when no host changed.
+- The findings are the service-check findings `--fail-on` and the reports grade (§4): anonymous FTP login or a DNS
+  zone transfer (critical; both off unless `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN` are
+  set), the MCP server checks, an SNMP default community, an expired certificate, an SMB null session (off unless
+  `SMB_NULL_SESSION=true`), weak SSH algorithms and weak TLS protocols / ciphers, dangerous HTTP methods where an Allow
+  header was read, a self-signed certificate, and each 040 / 050 / 060 audit entry at its own grade. Enterprise's CVE
+  rows and analysis-agent findings are not among them, so they never trigger an alert.
+- A host whose scan failed, or whose summary is missing on either side, is reported not comparable on stdout — never
+  "No changes", never "removed" — and does not alert in this release.
+- Watch mode scans each distinct host once per cycle: a repeated `--host` entry, or one also inside a listed CIDR, is
+  dropped, and the banner says how many.
+- The payload is not redacted: the host and its findings go in the clear to the URL you supply.
 
-**Webhook Payload** (the change itself is NOT in it; `details` lists the host's flagged services, and each
-detail's `severity` is the `--alert-severity` value, not the flag's own grade):
+**Webhook Payload** (the change itself is NOT in it: `details` carries one entry per finding at or above
+`--alert-severity` — `description` is the finding's title and `severity` its own grade, lower-case; a finding with no
+port, such as a domain's DNS-security entry that landed in the conclusion's evidence, carries `port` and `protocol`
+null. The top-level `severity` is the `--alert-severity` value):
 
 ```json
 {
@@ -226,7 +245,7 @@ detail's `severity` is the `--alert-severity` value, not the flag's own grade):
   "severity": "high",
   "findingsCount": 1,
   "summary": "1 finding(s) detected on 192.168.1.20 at severity high or above",
-  "details": [{ "port": 21, "protocol": "tcp", "service": "ftp", "description": null, "severity": "high" }]
+  "details": [{ "port": 21, "protocol": "tcp", "service": "ftp", "description": "FTP anonymous login enabled", "severity": "critical" }]
 }
 ```
 
@@ -302,7 +321,7 @@ port or probe not measured, a CVE lookup that failed, an agent that did not run,
 changing under the same program and version — as RESOLVED. `report --since` reads each of those as
 NOT COMPARABLE with its reason, refuses the comparison outright when either run's chain is altered or cannot be
 measured (naming which side), and says what it did not evaluate.
-A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on the control it failed is held FAILED. Two measured limits in this release: after a CVE lookup that failed, the prior CVE rows are not counted as fixed, but the controls they failed are not held FAILED and can read PASS; and when two compared scans ran different `--plugins` sets, a row an analysis agent or the CVE mapper derived from a plugin only one of them requested can read RESOLVED or NEW. When the later scan left the plugin out, the row also counts as closed in MTTR and its control can read PASS. Keep `--plugins` identical between compared scans.
+A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on the control it failed is held FAILED — including the prior CVE rows on a service whose lookup failed, the CVE mapper's and the service agent's rows on a TCP port whose service the scan could not identify, and an analysis agent's or the CVE mapper's rows when a plugin they read was left out of the scan or did not complete. Two measured limits: a scan made before EE 1.3.0 could not record a plugin left out of it, so in a comparison with one, an agent's row that scan lacks is not refused — the report's Basis cell says so on the row; and a scan that discovered ports with the Nmap plugin (024) alone records no port oracle, so an analysis agent's or the CVE mapper's row on a port it did not measure can read RESOLVED and count as closed in MTTR, and the control it failed can read PASS — include the port scanner (003).
 
 Read from its output:
   - New findings (unexpected exposure) — it compares FINDINGS, not services: a newly exposed service appears only if
@@ -322,13 +341,17 @@ User wants to...
 ├── Check a specific service/port       → probe_service (Pro)
 ├── Look up CVEs for software version   → get_vulnerabilities (Pro)
 ├── See available plugins               → list_plugins
-├── Audit TLS certificates              → probe_service (Pro) with plugin 040 (scan_host RUNS it but does not return its findings)
-├── Check DNS security (SPF/DKIM/DMARC) → probe_service (Pro) with plugin 060 (scan_host RUNS it but does not return its findings)
-├── Detect debug leaks / CORS issues    → probe_service (Pro) with plugin 050 (scan_host RUNS it but does not return its findings)
+├── Audit TLS certificates              → probe_service (Pro) with plugin 040, one port — or scan_host:
+│                                         `certAudit` on each port 040 audited
+├── Check DNS security (SPF/DKIM/DMARC) → probe_service (Pro) with plugin 060 — or scan_host on the domain name:
+│                                         `dnsSecurity` (on the 53/udp record, else in the conclusion's evidence)
+├── Detect debug leaks / CORS issues    → probe_service (Pro) with plugin 050 — or scan_host: `tribeHealth`,
+│                                         only when TCP 8080 is open
 ├── Scan a subnet                       → CLI: --host CIDR --parallel N
 │                                         (a private range needs NSA_ALLOW_ALL_HOSTS=1 — §3)
 ├── Set up continuous monitoring         → CLI: --watch --interval N
-│                                         (its webhook does NOT fire on a service change in this release — §5)
+│                                         (its webhook alerts a changed host carrying a finding at or above
+│                                         --alert-severity; never on the first cycle — §5)
 ├── Compare two scans                   → CLI (Pro): nsauditor-ai report --from <dir> --format executive --since prior
 │                                         (not MCP; NEVER by hand)
 ├── State framework COVERAGE            → compliance_matrix (any tier)

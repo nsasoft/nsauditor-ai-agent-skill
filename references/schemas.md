@@ -73,7 +73,7 @@ Complete data structures for all MCP tool inputs and outputs.
       "duration_ms": 30001
     }
   ],
-  "pluginsRan": 55,
+  "pluginsRan": 1,
   "markdown": "# NSAuditor AI Scan Report …"
 }
 ```
@@ -83,6 +83,8 @@ Complete data structures for all MCP tool inputs and outputs.
   `evidence[]` and, where one could be built, a `cpe` for `get_vulnerabilities`.
 - `manifest[]` is every plugin's run status: `ran`, `skipped` (with its `reason`), `timeout` or
   `error`. A `timeout` or `error` means that surface was **NOT measured** — never read it as clean.
+- `pluginsRan` is the number of `manifest[]` entries whose status is `ran` — in this example, one of the two entries
+  shown. It counts plugins, never ports or results.
 - There is **no `findings` array** in a `scan_host` result, and no `techniques`: the CLI adds ATT&CK
   techniques to its own report, and this tool does not.
 
@@ -108,10 +110,23 @@ interface ServiceRecord {
   authoritative: boolean;       // Takes precedence over other sources for this port
 
   // Optional fields (populated by specific plugins)
-  anonymousLogin?: boolean;     // FTP anonymous login detected — tested only with FTP_CHECK_ANON=true; absent = NOT TESTED
+  anonymousLogin?: boolean | null; // FTP anonymous login detected — tested only with FTP_CHECK_ANON=true; null = NOT TESTED
+  anonymousLoginTested?: true | string | null; // true when measured, else why not: "opt-in-off" · "no-answer"
   axfrAllowed?: boolean | null; // DNS zone transfer allowed — tested only with DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN; null = NOT TESTED
-  community?: string;           // SNMP community accepted, as-is: "public", "private" or a custom SNMP_COMMUNITY value
-  dangerousMethods?: string[];  // NOT carried onto a scan_host record in this release — the HTTP probe (006) records it, and probe_service with 006 returns it
+  axfrTested?: true | string | null; // true when measured, else why not: "opt-in-off" · "no-domain" · "no-answer"
+  community?: string | null;    // SNMP DEFAULT community accepted: "public" or "private"; a custom SNMP_COMMUNITY string is never recorded
+  communityCustom?: boolean;    // true when a custom SNMP_COMMUNITY string answered — not a finding
+  communitiesTried?: string[] | null; // the communities tried, as labels (a custom string reads "custom")
+  dangerousMethods?: string[] | null; // HTTP probe (006): the dangerous methods an Allow header listed; null when methodsTested is false
+  methodsTested?: boolean;      // 006: true only when an Allow header was read — false is NOT TESTED, never "none"
+  allowedMethods?: string[] | null; // 006: every method the Allow header listed
+  headers?: object;             // 006: { "strict-transport-security" } only, on the port-443 HTTPS record, only where a response arrived
+  nullSessionAllowed?: boolean | null; // NetBIOS/SMB (014) — tested only with SMB_NULL_SESSION=true; null = NOT TESTED
+  nullSessionTested?: true | string | null; // true when measured, else why not: "opt-in-off" · "no-answer"
+  shares?: string[];            // 014: the shares a null session listed
+  certAudit?: object;           // the TLS-certificate audit (040) of this port — its issues[] graded at 040's own grades
+  tribeHealth?: object;         // the debug-endpoint audit (050), on the 8080 record — { state, severity, findings[] }
+  dnsSecurity?: object;         // the DNS-security audit (060) of the scanned name — here on a 53/udp record, else in the conclusion's evidence[]
   weakAlgorithms?: string[];    // SSH weak key-exchange, cipher and MAC names, together in one array (002)
   weakCiphers?: string[];       // TLS weak ciphers (the negotiated cipher per version)
   certSelfSigned?: boolean;     // TLS certificate is self-signed (011)
@@ -169,7 +184,8 @@ export default {
     //   tcpOpen: Set<number>,          // TCP ports found open by the plugins that ran before this one
     //   udpOpen: Set<number>,          // UDP ports, likewise
     //   pluginRunStatus: Map,          // id -> "ran" | "timeout" | "error" | "skipped" for each earlier plugin
-    //                                  //   dispatched; one skipped on its requirements has no entry
+    //                                  //   the scan selected — one skipped on its requirements or a missing
+    //                                  //   capability reads "skipped"; no entry = the plugin was never requested
     //   effectiveTimeoutMs: number,    // the budget the manager races this run() against
     // }
     return {
@@ -277,7 +293,7 @@ never writes a queue. A CVE row, which carries every field:
 
 **Every row:** `id` · `category` · `status` · `title` · `severity` · `cvss` · `target` · `evidence` · `remediation` · `riskScore`
 
-**Most rows:** `description` — three analysis agents' own findings omit it: `auth_agent` · `config_agent` · `crypto_agent`. The CVE engine's rows, the exposure agent's rows (since Enterprise 1.2.1: the service its title no longer names), the service agent's rows (since Enterprise 1.2.1: the version its title no longer names) and every coverage-gap record carry it.
+**Most rows:** `description` — three analysis agents' own findings omit it: `auth_agent` · `config_agent` · `crypto_agent`. The CVE engine's rows, the exposure agent's rows (since Enterprise 1.3.0: the service its title no longer names), the service agent's rows (since Enterprise 1.3.0: the version its title no longer names) and every coverage-gap record carry it.
 
 **CVE-bearing rows, once KEV / EPSS data is loaded:** `kev` · `knownRansomwareCampaignUse` · `kevMatchedCve` · `kevAsOf` · `kevStoreState` · `epssScore` · `epssPercentile` · `epssMatchedCve` · `epssAsOf` · `epssModelVersion` · `epssStoreState` · `exploitPriority` · `exploitPriorityReason`
 
@@ -358,27 +374,30 @@ the installed Community's. The file is written to the output directory as `scan_
         "informationUri": "https://github.com/nsasoft/nsauditor-ai",
         "rules": [
           { "id": "vsftpd:3.0.5", "shortDescription": { "text": "ftp service detected" },
-            "helpUri": "https://github.com/nsasoft/nsauditor-ai", "properties": { "severity": "Medium" } },
+            "helpUri": "https://github.com/nsasoft/nsauditor-ai", "properties": { "severity": "Info" } },
           { "id": "ftp-anonymous-login", "shortDescription": { "text": "FTP anonymous login enabled" },
             "helpUri": "https://github.com/nsasoft/nsauditor-ai", "properties": { "severity": "Critical" } }
         ]
       }
     },
     "results": [
-      { "ruleId": "vsftpd:3.0.5", "level": "warning",
+      { "ruleId": "vsftpd:3.0.5", "level": "note",
         "message": { "text": "Service ftp detected on 192.168.1.1:21/tcp. Program: vsftpd. Version: 3.0.5. Status: open" },
         "locations": [{ "physicalLocation": { "artifactLocation": { "uri": "192.168.1.1" } } }] },
       { "ruleId": "ftp-anonymous-login", "level": "error",
-        "message": { "text": "FTP anonymous login is enabled on 192.168.1.1:21. This allows unauthenticated access to the FTP server." },
+        "message": { "text": "FTP anonymous login enabled on 192.168.1.1:21/tcp. ftp on 192.168.1.1:21/tcp accepts anonymous authentication." },
         "locations": [{ "physicalLocation": { "artifactLocation": { "uri": "192.168.1.1" } } }] }
     ]
   }]
 }
 ```
 
-The file carries one result per service (`warning` when open, `note` otherwise) plus anonymous FTP login, zone transfer
-and weak SSH algorithm results — no TLS, SNMP, MCP, CVE or analysis-agent results. Anonymous FTP and zone transfer
-appear only when `FTP_CHECK_ANON` / `DNS_CHECK_AXFR` enabled those checks.
+The file carries one `note` result per service (an open port is inventory) plus one result per graded service-check
+finding — the same findings, at the same grades, that `--fail-on` and the Markdown report read
+(`references/workflows.md` §4), the TLS, SNMP, MCP, certificate, SMB null-session and 040 / 050 / 060 audit results
+included — and no CVE or analysis-agent results. Anonymous FTP, zone transfer and the SMB null session appear only when
+`FTP_CHECK_ANON` / `DNS_CHECK_AXFR` / `SMB_NULL_SESSION` enabled those checks. The rule ids of the four flags SARIF
+graded before Community 0.2.57 are unchanged.
 
 #### SARIF Severity Mapping
 
@@ -445,5 +464,10 @@ Every scan appends one line per host to `scan_history.jsonl` in its output direc
   or resolved findings.
 - `cloudFindingsCount` is the raw number of findings the plugins returned (evidence gaps and scope
   statements included); `findingsCount` is the report loader's shaped count, so the raw figure can exceed it.
+- Since Community 0.2.57 a line also carries `flagsBasis` (`"service-flags-v1"`), `hostFlags` and `hostChecks` (a
+  domain's DNS-security audit), and each service entry `flags` (the comparison identity of each service-check finding,
+  e.g. `"weakAlgorithms:diffie-hellman-group1-sha1"`) and `checks` (per check that applies, `true` when measured, else
+  the reason it was not). The `[ScanHistory]` diff reads them: a finding gone reads CLEARED only where its check was
+  measured this run, else NOT COMPARED with the reason. The two example lines above were written before them.
 - Retention: Community keeps **7 days** (older lines are pruned after each scan); Pro and Enterprise keep
   every line. Neither is configurable.

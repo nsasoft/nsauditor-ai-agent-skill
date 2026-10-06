@@ -10,7 +10,7 @@ Complete reference of all scanner plugins, organized by category.
 |----|------|-----------|-------|----------|-------------|
 | 001 | Ping Checker | ICMP/ARP | — | 10 | — |
 | 002 | SSH Scanner | TCP | 22 | 50 | host: up, tcp_open: [22] |
-| 003 | Port Scanner | TCP/UDP | 50 default (43 TCP + 7 UDP, from `config/services.json`); `--ports` adds more | 30 | host: up |
+| 003 | Port Scanner | TCP/UDP | 50 default (43 TCP + 7 UDP, from `config/services.json`); `--ports` adds more | 30 | — (runs whether or not an earlier plugin marked the host up; a port that answered — open or refused — marks it up) |
 | 004 | FTP Banner Check | TCP | 21 | 40 | host: up, tcp_open: [21] |
 | 005 | Host Up Check | ICMP/TCP/UDP | TCP 21, 22, 80, 443, 3389 · UDP 54321 | 20 | host: down (runs only if not yet up) |
 | 006 | HTTP Probe | TCP | 80, 443 | 60 | host: up, tcp_open: [80, 443] |
@@ -54,7 +54,9 @@ extracts program/version from FTP banner (220 response).
 
 **005 — Host Up Check:** Fallback reachability check: it runs only when no earlier plugin has marked the host
 up (requirements `host: down`). ICMP echo, then a TCP connect to 21, 22, 80, 443 and 3389 (a refused connection
-counts as up), then one UDP datagram to high port 54321.
+counts as up), then one UDP datagram to high port 54321, which counts as up only when the host answers it — an ICMP
+port-unreachable or a reply. An error, or no answer within 3 s, is no evidence either way, never "down"; that wait
+adds up to 3 s to a run in which nothing answers on UDP.
 
 **006 — HTTP Probe:** Extracts HTTP response headers (`Server`, `X-Powered-By`),
 detects redirects, extracts server tokens for vendor/program identification.
@@ -315,4 +317,7 @@ Priority  ID   Plugin                              What it adds
 
 **Auto-skip rules:** Plugins with unmet `requirements` are automatically skipped. For
 example, SSH Scanner (requires `tcp_open: [22]`) skips if the Port Scanner didn't find
-port 22 open. This avoids wasted probes and reduces scan time.
+port 22 open. This avoids wasted probes and reduces scan time. A UDP port opens a `udp_open` gate (007 on 161) only
+when a row there ANSWERED: the port scanner's `no-response` row, or a "No SNMP response for community …" row, does not
+open it. With no evidence the host is up, a `host: up` plugin's skip reason reads *no evidence the host is up*, never
+"down" — and the port scanner (003), which is not gated, runs either way.

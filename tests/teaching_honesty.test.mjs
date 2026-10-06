@@ -53,7 +53,7 @@ test('both decision trees route "compare two scans" to report --since', () => {
 
 test('the scan_host section says it does NOT look up CVEs, and that zero findings is not a clean verdict', () => {
   const s = scanHostSection();
-  assert.match(s, /040/); assert.match(s, /probe_service/, 'the 040 / 050 / 060 findings are named as NOT returned, with their route');
+  for (const f of ['certAudit', 'tribeHealth', 'dnsSecurity']) assert.match(s, new RegExp(`\`${f}\``), 'the 040 / 050 / 060 audits are named as returned, with their fields');
   assert.match(s, /does NOT look up CVEs/);
   assert.match(s, /analysis agents/);
   assert.match(s, /NOT a clean verdict|not a statement that the host has no known vulnerabilities/i);
@@ -130,8 +130,11 @@ test('no teaching file carries the OpenSSH cpe with an unsplit version — the s
 
 // (probe_service returns the RAW plugin result, where 006's dangerousMethods IS present — workflows.md §2 is right to
 // list it; only the scan_host ServiceRecord must not.)
-test('the ServiceRecord schema says dangerousMethods is NOT carried onto a scan_host record', () => {
-  assert.match(read('references/schemas.md'), /dangerousMethods\?: string\[\];[^\n]*NOT carried/);
+test('the ServiceRecord schema carries dangerousMethods with its tested state, and never calls it un-carried', () => {
+  const s = read('references/schemas.md');
+  assert.match(s, /dangerousMethods\?: string\[\] \| null;[^\n]*methodsTested/);
+  assert.match(s, /methodsTested\?: boolean;/);
+  assert.doesNotMatch(s, /NOT carried onto a scan_host record/);
 });
 
 test('the SARIF example shows only rules the writer emits', () => {
@@ -140,9 +143,10 @@ test('the SARIF example shows only rules the writer emits', () => {
   assert.match(s, /"ruleId": "ftp-anonymous-login"/);
 });
 
-test('the CI section says dangerous HTTP methods never arrive and the critical checks are opt-in', () => {
+test('the CI section says dangerous HTTP methods count only where an Allow header was read, and the critical checks are opt-in', () => {
   const s = ciSection();
-  assert.match(s, /FTP_CHECK_ANON/); assert.match(s, /never reach/);
+  assert.match(s, /FTP_CHECK_ANON/); assert.match(s, /only where an Allow header was read/);
+  assert.doesNotMatch(s, /never reach/, 'since Community 0.2.57 the HTTP probe\'s methods reach the conclusion');
   assert.doesNotMatch(s, /the Markdown report counts the first three/, 'the Markdown does not count the MCP checks');
 });
 
@@ -231,14 +235,17 @@ test('the framework list is not counted as seven', () => {
 // phase, holds every copy of R equal and ties R to the behaviour, so it goes red the day a limit stops being true. This
 // block holds the skill's own copy and scopes it to the Enterprise version the header RENDERS: the release that moves
 // `ee-version` must re-adjudicate R against those legs, never carry it forward.
-const R = 'A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on '
-  + 'the control it failed is held FAILED. Two measured limits in this release: after a CVE lookup that failed, the prior '
-  + 'CVE rows are not counted as fixed, but the controls they failed are not held FAILED and can read PASS; and when two '
-  + 'compared scans ran different `--plugins` sets, a row an analysis agent or the CVE mapper derived from a plugin only '
-  + 'one of them requested can read RESOLVED or NEW. When the later scan left the plugin out, the row also counts as closed '
-  + 'in MTTR and its control can read PASS. Keep `--plugins` identical between compared scans.';
+const R = 'A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking '
+  + 'on the control it failed is held FAILED — including the prior CVE rows on a service whose lookup failed, the C'
+  + 'VE mapper\'s and the service agent\'s rows on a TCP port whose service the scan could not identify, and an analy'
+  + 'sis agent\'s or the CVE mapper\'s rows when a plugin they read was left out of the scan or did not complete. Two'
+  + ' measured limits: a scan made before EE 1.3.0 could not record a plugin left out of it, so in a comparison wit'
+  + 'h one, an agent\'s row that scan lacks is not refused — the report\'s Basis cell says so on the row; and a scan '
+  + 'that discovered ports with the Nmap plugin (024) alone records no port oracle, so an analysis agent\'s or the C'
+  + 'VE mapper\'s row on a port it did not measure can read RESOLVED and count as closed in MTTR, and the control it'
+  + ' failed can read PASS — include the port scanner (003).';
 const T = 'a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated';
-const R_EE = '1.2.0'; // the Enterprise release R was measured against
+const R_EE = '1.3.0'; // the Enterprise release R was measured against
 const occurrences = (hay, needle) => hay.split(needle).length - 1;
 const renderedEeVersion = () => /<!-- nsa:derived id="ee-version" -->([^<]+)<!-- \/nsa:derived -->/.exec(read('SKILL.md'))?.[1];
 const currentHeader = () => { const s = read('SKILL.md'); return s.slice(s.indexOf('> **Version:**'), s.indexOf('\n>\n> **Prior:')); };
@@ -285,7 +292,25 @@ test('no teaching file or the changelog carries a 1.2.0 absolute the shipped cod
   assert.match(read('SKILL.md'), /Those refusals' compliance verdicts always failed closed/);
 });
 
-test('the comparison is taught with the case report --since does not catch — the decision tree and README.md', () => {
-  assert.match(read('SKILL.md'), /report --since does too for an\s*\n│\s+agent or CVE row derived from a plugin the later run left out/);
-  assert.match(read('README.md'), /two measured limits — after a CVE lookup that failed, the control its CVE rows failed can still read PASS/);
+test('the comparison is taught with the limits that remain — the decision tree and README.md (1.3.0)', () => {
+  // 1.3.0 refuses a row whose input plugin the later scan left out, so the gloss that said report --since reads it as
+  // fixed is gone; it names the two limits Enterprise's headline legs still measure instead.
+  assert.doesNotMatch(read('SKILL.md'), /report --since does too for an/);
+  assert.match(read('SKILL.md'), /report --since refuses it, but\s*\n│\s+the header's two measured limits still apply/);
+  assert.match(read('README.md'), /two measured limits — a scan made before Enterprise 1\.3\.0 could not record a plugin left out of it/);
+  assert.match(read('README.md'), /Nmap plugin \(024\) alone records no port oracle, so an analysis agent's or the CVE mapper's row on a port it did not measure can read RESOLVED and count as closed in MTTR, and the control it failed can read PASS/);
+});
+
+// ── pluginsRan (Community 0.2.57): the manifest's `ran` entries ──────────────────────────────────────────────────────
+// The scan_host example's `pluginsRan` is DERIVED from the example's own manifest, never typed: no derived id names a
+// per-scan count (`plugins:ce` counts plugins that SHIP, and would print a false "27 ran"), and a region marker inside
+// this ```json block breaks the two Enterprise readers that JSON.parse it. Enterprise's agent_skill_tool_surface leg
+// ties the same definition to the shipped handler's own return.
+test('the scan_host example derives pluginsRan from its own manifest — never a typed count', () => {
+  const s = read('references/schemas.md');
+  const sec = s.slice(s.indexOf('## Scan Result Schema (`scan_host` output)'));
+  const v = JSON.parse(/```json\n([\s\S]*?)\n```/.exec(sec)[1]);
+  assert.ok(v.manifest.some((m) => m.status === 'ran') && v.manifest.some((m) => m.status !== 'ran'),
+    'non-vacuity: the example shows a plugin that ran and one that did not');
+  assert.equal(v.pluginsRan, v.manifest.filter((m) => m.status === 'ran').length);
 });

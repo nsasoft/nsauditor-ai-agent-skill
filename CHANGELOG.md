@@ -4,6 +4,38 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 0.2.55 (⏳ PRE-PUBLISH — opened 2026-10-05, NOT YET ON npm) — Enterprise 1.3.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
+
+Paired with **Enterprise 1.3.0 / Community 0.2.57**. ⚠️ **A floor bump: `peerDependencies["nsauditor-ai"]` moves to
+`>= 0.2.57`** — Enterprise 1.3.0 imports names that first ship in Community 0.2.57. `SKILL.md`'s header carries the
+release's register verbatim:
+
+> A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking on the control it failed is held FAILED — including the prior CVE rows on a service whose lookup failed, the CVE mapper's and the service agent's rows on a TCP port whose service the scan could not identify, and an analysis agent's or the CVE mapper's rows when a plugin they read was left out of the scan or did not complete. Two measured limits: a scan made before EE 1.3.0 could not record a plugin left out of it, so in a comparison with one, an agent's row that scan lacks is not refused — the report's Basis cell says so on the row; and a scan that discovered ports with the Nmap plugin (024) alone records no port oracle, so an analysis agent's or the CVE mapper's row on a port it did not measure can read RESOLVED and count as closed in MTTR, and the control it failed can read PASS — include the port scanner (003).
+
+- **What the rule reaches now (header item (d)).** A CVE-mapper or service-agent row on a TCP port whose service the
+  other run could not identify is `port-not-measured`. An analysis agent's or the CVE mapper's row when a plugin it reads
+  was left out of a scan is `evidence-gap`, and MTTR holds its control FAILED. After a failed CVE lookup the controls
+  the prior CVE rows failed are held FAILED. The exposure and service agents' titles moved, so their rows read
+  `identity-basis-changed` across the 1.2.0 → 1.3.0 upgrade. The DNS-posture audit (060) declines an IP-address
+  target, with its reason on the plugin's status, and on an IP-target compliance scan its controls are held as an
+  evidence gap.
+- **The floor (header item (c))** — what a user sees below Community 0.2.57, by Community version.
+- **The decision-tree gloss** no longer says `report --since` reads a derived row as fixed when the later scan left its
+  plugin out; it names the two limits that remain.
+- **The MCP host guard (`NSA_ALLOW_ALL_HOSTS`)**: every address a name resolves to is checked over MCP in both arms;
+  the variable admits private ranges only, and loopback, unspecified, link-local and metadata addresses stay refused.
+  The SSRF error rows split, because the messages differ.
+- **What `scan_host` returns**: the concluder reaches every adapter, so the TLS-certificate, API-health and
+  DNS-posture audits (`certAudit`, `tribeHealth`, `dnsSecurity`) are returned; `pluginsRan` counts what the manifest
+  says ran, and the example's value is derived from its own manifest by a test.
+- **One table grades every service-check finding**, and `--fail-on`, SARIF, the CSV and the Markdown all read it.
+  The CI recipes and the SARIF example say so.
+- **The `--watch` webhook** alerts a host whose scan changed, never on the first cycle by default; the payload's
+  `details` carries the findings at or above `--alert-severity`.
+- **The Missing-HSTS check fires** on port 443, where the HTTP probe received the HTTPS response.
+- **Scan history** lines carry the service-check channel (`flagsBasis`, `hostFlags`, `hostChecks`, per-service
+  `flags` / `checks`).
+
 ## 0.2.54 (2026-10-04) — Enterprise 1.2.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
 
 Paired with **Enterprise 1.2.0 / Community 0.2.56**. `SKILL.md` teaches three new things and two measured

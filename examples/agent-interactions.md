@@ -23,10 +23,12 @@ it does NOT look up CVEs, so follow with `get_vulnerabilities` for each service 
          ] } },
        manifest: [ … ], pluginsRan: …, markdown: "… **Security findings:** 1 (High: 1) …" }
    There is no findings array: the SNMP flag is `community` on the service record, and the markdown's count is the
-   flags it counts — anonymous FTP login, zone transfer, SNMP default community, weak TLS protocols / ciphers, weak SSH
-   algorithms. It does NOT count the MCP server flags (read `mcp*` off the service records yourself), and it holds no CVE
-   lookup, no analysis-agent finding and no 006 / 014 / 040 / 050 / 060 result. No `anonymousLogin` on a service and a
-   null `axfrAllowed` mean those checks were NOT RUN (they need FTP_CHECK_ANON / DNS_CHECK_AXFR), not that they passed.
+   service-check findings the shared table grades, one per item — anonymous FTP login, zone transfer and the SMB null
+   session (each only when its check is enabled), SNMP default community, weak SSH algorithms, weak TLS protocols /
+   ciphers, dangerous HTTP methods, a self-signed or expired certificate, the MCP server flags and the 040 / 050 / 060
+   audit entries. It holds no CVE lookup and no analysis-agent finding. A null `anonymousLogin` or `axfrAllowed` means
+   the check was NOT TESTED (`anonymousLoginTested` / `axfrTested` say why — `opt-in-off` without FTP_CHECK_ANON /
+   DNS_CHECK_AXFR), not that it passed.
 
 2. get_vulnerabilities({ cpe: "cpe:2.3:a:openbsd:openssh:8.9:p1:*:*:*:*:*:*" })
    → CVE-2023-38408 (CRITICAL 9.8), CVE-2023-48795 (MEDIUM 5.9)
@@ -138,18 +140,21 @@ start-up if the URL does not resolve or resolves to a private, loopback or link-
     --alert-severity high
 
 This rescans every 15 minutes; a [ScanHistory] line per host compares its scan with the previous one (counts of
-new, removed and changed services; the findings delta). In this release the webhook does NOT fire on a service,
-version or finding change: only after a cycle that scanned a different set of hosts from the one before (in
-practice, one cut short by stopping the loop), and at --alert-severity high only for a host where anonymous FTP
-login or a DNS zone transfer succeeded (both checks are off unless FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true +
-DNS_AXFR_DOMAIN are set). Read the [ScanHistory] lines for changes.
+new, removed and changed services; the findings delta; each service-check finding that appeared, cleared or could
+not be compared). The webhook alerts a host whose scan changed since the previous cycle and that carries a finding
+at or above --alert-severity — one detail per finding, each with its own grade; the first cycle sets the baseline and
+alerts nobody, and --alert-every-cycle alerts every such host on every cycle. At high that is anonymous FTP login or a
+DNS zone transfer (both off unless FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN are set), an MCP
+server finding, an SNMP default community, an expired certificate, an SMB null session (off unless
+SMB_NULL_SESSION=true) or a HIGH entry of the 040 / 050 / 060 audits; Enterprise's CVE and analysis-agent findings
+never trigger it.
 
 Each scan appends one line per host to scan_history.jsonl in the output directory (--out, default out/)."
 ```
 
 ---
 
-## Example 6: "Audit DNS security for example.com" — `probe_service` (Pro) with plugin 060 (`scan_host` runs 060 but does not return its findings)
+## Example 6: "Audit DNS security for example.com" — `probe_service` (Pro) with plugin 060 (`scan_host` on the domain returns 060's findings too, as `dnsSecurity`)
 
 **Agent reasoning:** Use the DNS Security Auditor plugin for comprehensive DNS assessment.
 
@@ -191,10 +196,10 @@ Each scan appends one line per host to scan_history.jsonl in the output director
    → isError reply: {"error":"Scanning loopback, link-local, or metadata addresses is not allowed via MCP"}
 
 2. Agent response:
-   "NSAuditor AI's MCP server refuses targets written as localhost, 127.x, ::1, 0.x, 169.254.x, fe80: or
-   metadata.google…, with or without NSA_ALLOW_ALL_HOSTS in its environment; without the variable it also
-   checks the address a host name resolves to. That limits what an agent can reach when the scanner is
-   exposed as an MCP tool.
+   "NSAuditor AI's MCP server refuses loopback, link-local and cloud-metadata addresses in any spelling — written
+   as the target, or returned for a host name, where every answer is checked — with or without NSA_ALLOW_ALL_HOSTS
+   in its environment; that variable admits private ranges only. That limits what an agent can reach when the
+   scanner is exposed as an MCP tool.
 
    To scan your own machine, use the CLI with the guard lifted (without the variable the CLI refuses it too:
    'Scanning blocked address range is not allowed: 127.0.0.1'):
@@ -250,12 +255,11 @@ carry it.
    Security Audit Report: 192.168.1.1
    ═══════════════════════════════════════
 
-   Scope: scan_host's service checks + an NVD lookup per service whose cpe names a version. No analysis agents, no
-   exploit intelligence — for those, run `NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.1` with the
-   Enterprise package and a Pro/Enterprise licence. No TLS-certificate / DNS-security / debug-endpoint / HTTP-method
-   results — for those, run probe_service (Pro) with 040 / 060 / 050 / 006; the CLI scan's reports do not carry them
-   either (only its raw per-plugin results in scan_conclusion_raw.json do). Anonymous FTP and zone transfer were not
-   tested (FTP_CHECK_ANON / DNS_CHECK_AXFR were not set).
+   Scope: scan_host's service checks — the TLS-certificate, DNS-security and debug-endpoint audits and the HTTP
+   methods included, where those plugins ran — plus an NVD lookup per service whose cpe names a version. No analysis
+   agents, no exploit intelligence — for those, run `NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.1` with
+   the Enterprise package and a Pro/Enterprise licence. Anonymous FTP, zone transfer and the SMB null session were not
+   tested (FTP_CHECK_ANON / DNS_CHECK_AXFR / SMB_NULL_SESSION were not set).
 
    Host: Linux (Ubuntu 22.04)
    Services: 4 (SSH, DNS, HTTPS, SNMP)
