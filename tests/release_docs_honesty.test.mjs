@@ -132,7 +132,9 @@ test('npx: no shipped .md runs a package this project does not publish to be run
 // ── (2) below the floor ──────────────────────────────────────────────────────────────────────────────────────────────
 const BELOW_FLOOR_FALSE = [/\b(?:runs?|running|ran) (?:silently )?as Community\b/i, /\bnot load at all\b/i,
   /(?<!index )\bwould not load below it\b/i, /\bload(?:s|ed)? it as "not installed"/i];
-const SYMPTOM = /plugins load, but the scan skips its intelligence, analysis-agent and compliance stages/;
+// Two wordings of the one measured symptom: the 0.2.54 record's ("the plugins load, but the scan skips …") and 0.2.55's,
+// which says the plugins still load on 0.2.56 as well (Gate 3-A finding F-5): "its plugins still do — … — so the scan skips …".
+const SYMPTOM = /plugins (?:load, but|still do[^;:]*?so) the scan skips its intelligence, analysis-agent and compliance stages/;
 
 test('(q) below the floor: the index not loading reads green; Enterprise as a whole not loading reads red', () => {
   assert.ok(!BELOW_FLOOR_FALSE.some((re) => re.test("because Enterprise's index would not LOAD below it")));

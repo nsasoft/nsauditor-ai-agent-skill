@@ -376,3 +376,25 @@ test('the skill teaches 040\'s revived key-size and signature checks, the self-s
   }
   assert.match(header, /recorded, not yet routed to a compliance control/, 'the routing limit is stated');
 });
+
+// ── 0.2.55 build 6 (Gate 3-A K6 → finding F-5, the operator's ruling "Fix now"): below the floor the PLUGINS still load ─
+// Measured: Community 0.2.56 with Enterprise 1.3.0 lists all 29 Enterprise plugins in `license --plugins` and reads
+// "(loaded)", as 0.2.55 did; what fails is Enterprise's core, so the intelligence, analysis-agent and compliance stages
+// are skipped. The floor teaching named the plugins only for 0.2.55, and a Desktop reply inferred "none of the 29
+// Enterprise plugins, so no cloud auditing" on 0.2.56. Both shipped statements of the floor now say the plugins load.
+test('the floor teaching says the Enterprise plugins still load below the floor on 0.2.56 too — only the core\'s stages are skipped', () => {
+  const header = read('SKILL.md').split('\n')[17];
+  const floorItem = header.split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
+  assert.ok(floorItem.length > 100, 'positive control: the header carries the floor item');
+  const readme = read('README.md').split('\n').find((l) => /A floor bump: requires Community/.test(l)) ?? '';
+  assert.ok(readme, 'positive control: the README carries the floor line');
+  for (const [where, s] of [['SKILL.md (c)', floorItem], ['README.md', readme]]) {
+    assert.match(s, /core does not load/, `${where}: it is the core that fails to load`);
+    // bound to the plugins clause: a looser `[^.;]*0\.2\.56` read the later "on Community 0.2.56 that is named on stderr"
+    assert.match(s, /plugins still (?:do|load)\W+on Community 0\.2\.56 as on 0\.2\.55/, `${where}: the plugins load on 0.2.56 as well`);
+    assert.match(s, /intelligence, analysis-agent and compliance stages/, `${where}: the stages that are skipped`);
+    // only what was measured (Gate 3-A K6): never that cloud auditing works below the floor
+    assert.doesNotMatch(s, /cloud (?:auditing|scans?) (?:still )?works?\b/i, `${where}: cloud findings below the floor were not measured`);
+  }
+  assert.match(floorItem, /Whether a cloud scan at Enterprise tier still returns findings below the floor has not been measured/);
+});
