@@ -132,9 +132,16 @@ test('npx: no shipped .md runs a package this project does not publish to be run
 // ── (2) below the floor ──────────────────────────────────────────────────────────────────────────────────────────────
 const BELOW_FLOOR_FALSE = [/\b(?:runs?|running|ran) (?:silently )?as Community\b/i, /\bnot load at all\b/i,
   /(?<!index )\bwould not load below it\b/i, /\bload(?:s|ed)? it as "not installed"/i];
-// Two wordings of the one measured symptom: the 0.2.54 record's ("the plugins load, but the scan skips …") and 0.2.55's,
-// which says the plugins still load on 0.2.56 as well (Gate 3-A finding F-5): "its plugins still do — … — so the scan skips …".
-const SYMPTOM = /plugins (?:load, but|still do[^;:]*?so) the scan skips its intelligence, analysis-agent and compliance stages/;
+// The measured symptom (Gate 3-A K6, finding F-5; measured for 1.3.0 on 0.2.56 and 0.2.55): the core does not load, the
+// plugins do, and the core's stages are skipped. It is read from the CURRENT units only — SKILL.md's header item (c) and
+// the README's current floor line. A whole-file match was satisfied by the 0.2.54 record's wording alone (the architect
+// seat's MS-W: (c) reverted to the old wording, this leg stayed green); a dated record is history and needs no pin.
+const SYMPTOM = /core does not load while its plugins still do — on Community 0\.2\.56 as on 0\.2\.55\b[^]*?so the scan skips its intelligence, analysis-agent and compliance stages/;
+const currentFloorUnits = () => {
+  const c = read('SKILL.md').split('\n')[17].split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
+  const readme = read('README.md').split('\n').find((l) => /A floor bump: requires Community/.test(l)) ?? '';
+  return [['SKILL.md header (c)', c], ['README.md current floor line', readme]];
+};
 
 test('(q) below the floor: the index not loading reads green; Enterprise as a whole not loading reads red', () => {
   assert.ok(!BELOW_FLOOR_FALSE.some((re) => re.test("because Enterprise's index would not LOAD below it")));
@@ -147,10 +154,10 @@ test('below the floor: no shipped .md teaches "runs as Community", and README + 
     const s = read(rel);
     for (const re of BELOW_FLOOR_FALSE) assert.doesNotMatch(s, re, `${rel} teaches a below-floor symptom 0.2.55 does not show`);
   }
-  assert.match(read('README.md'), SYMPTOM);
-  const skill = read('SKILL.md');
-  assert.match(skill, /still loads the Enterprise plugins, and `license --plugins` reports Enterprise 1\.2\.0 `\(loaded\)`, but the scan skips its intelligence, analysis-agent and compliance stages/);
-  assert.match(skill, SYMPTOM);
+  for (const [where, s] of currentFloorUnits()) {
+    assert.ok(s.length > 100, `${where} not found — re-derive this leg's subject`);
+    assert.match(s, SYMPTOM, `${where} does not teach the measured below-floor symptom`);
+  }
 });
 
 // ── (3) NSA_ALLOW_ALL_HOSTS ──────────────────────────────────────────────────────────────────────────────────────────
