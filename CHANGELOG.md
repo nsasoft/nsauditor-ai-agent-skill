@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 0.2.55 (⏳ PRE-PUBLISH — opened 2026-10-05, NOT YET ON npm) — Enterprise 1.3.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
+## 0.2.55 (2026-10-07) — Enterprise 1.3.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
 
 Paired with **Enterprise 1.3.0 / Community 0.2.57**. ⚠️ **A floor bump: `peerDependencies["nsauditor-ai"]` moves to
 `>= 0.2.57`** — Enterprise 1.3.0 imports names that first ship in Community 0.2.57. `SKILL.md`'s header carries the
