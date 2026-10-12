@@ -1041,7 +1041,7 @@ EE's `loadFrameworkMap` was already framework-agnostic (reads `data/compliance/{
 
 ### Zero BAA required (HIPAA §160.103)
 
-Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure. Nsasoft does not see, store, or process customer ePHI under any condition — no Business Associate Agreement needed. This is a self-hosted scanner, not a SaaS service.
+Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure — WITHDRAWN 2026-10-12 as worded, because the opt-in AI and GRC paths send finding text to providers the customer configures; the true claim is party-scoped, that no scan data is ever sent to Nsasoft. Nsasoft does not see, store, or process customer ePHI under any condition — no Business Associate Agreement needed. This is a self-hosted scanner, not a SaaS service.
 
 ### 6 same-session reviewer folds applied (2 + 2 + 1 + 1 docstring; 0 )
 
