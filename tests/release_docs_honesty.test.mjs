@@ -173,7 +173,7 @@ const afterDesktopBlock = (s) => {
   return close < 0 ? null : s.slice(close, close + 1200);
 };
 
-test('NSA_ALLOW_ALL_HOSTS: every Desktop block that sets it is followed by what it opens; no file claims rebinding is blocked', () => {
+test('NSA_ALLOW_ALL_HOSTS: every Desktop block that sets it is followed by what it opens and by the scoped pin; no file claims rebinding is blocked', () => {
   for (const rel of ['README.md', 'SKILL.md']) {
     const after = afterDesktopBlock(read(rel));
     assert.ok(after, `${rel} no longer shows the Desktop env block — re-derive this leg's subject`);
@@ -183,8 +183,15 @@ test('NSA_ALLOW_ALL_HOSTS: every Desktop block that sets it is followed by what 
   const item = /\*\*SSRF Protection:\*\*[\s\S]*?(?=\n\d+\. \*\*|\n\n)/.exec(read('SKILL.md'))?.[0];
   assert.ok(item, 'SKILL.md no longer has its SSRF Protection item — re-derive this leg');
   assert.match(item, DISCLOSES, 'the SSRF Protection item does not say what NSA_ALLOW_ALL_HOSTS opens');
+  // EE 2.0.0 (R1b): Community Edition 1.0.0 PINS the check's answers. The sentence that said it did not is flipped
+  // deliberately, and each place that teaches the guard now says so — scoped to the edition that does it, with both limits,
+  // and with what an older edition does. The unscoped absolute below stays forbidden: "blocked" outruns both limits.
+  const PIN = /From Community Edition 1\.0\.0 the scan connects to the answers the check resolved[\s\S]{0,160}DNS\s+rebinding\)\s+is\s+not\s+followed[\s\S]{0,80}`NODE_USE_ENV_PROXY`[\s\S]{0,120}idle\s+connection[\s\S]{0,80}an\s+older\s+Community\s+Edition\s+does\s+not\s+pin\s+the\s+answer/;
+  for (const rel of ['README.md', 'SKILL.md']) assert.match(afterDesktopBlock(read(rel)), PIN, `${rel}: the Desktop block's pin sentence, scoped, with both limits`);
+  assert.match(item, PIN, 'the SSRF Protection item\'s pin sentence, scoped, with both limits');
   for (const rel of shippedMarkdown()) {
     const s = read(rel);
+    assert.doesNotMatch(s, /The check does not pin the answer, so/, `${rel} still says the check does not pin`);
     assert.doesNotMatch(s, /DNS rebinding is (?:also )?blocked/i, rel);
     assert.doesNotMatch(s, /This prevents SSRF/, rel);
     assert.doesNotMatch(s, STALE_ALLOW_ALL, `${rel} still teaches NSA_ALLOW_ALL_HOSTS as turning the resolved-address check off`);
