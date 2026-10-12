@@ -235,7 +235,7 @@ test('the framework list is not counted as seven', () => {
 // phase, holds every copy of R equal and ties R to the behaviour, so it goes red the day a limit stops being true. This
 // block holds the skill's own copy and scopes it to the Enterprise version the header RENDERS: the release that moves
 // `ee-version` must re-adjudicate R against those legs, never carry it forward.
-const R = 'A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking '
+const R13 = 'A finding on a port, region or producer a scan did not measure is not counted as fixed, and with SLA tracking '
   + 'on the control it failed is held FAILED — including the prior CVE rows on a service whose lookup failed, the C'
   + 'VE mapper\'s and the service agent\'s rows on a TCP port whose service the scan could not identify, and an analy'
   + 'sis agent\'s or the CVE mapper\'s rows when a plugin they read was left out of the scan or did not complete. Two'
@@ -244,16 +244,29 @@ const R = 'A finding on a port, region or producer a scan did not measure is not
   + 'that discovered ports with the Nmap plugin (024) alone records no port oracle, so an analysis agent\'s or the C'
   + 'VE mapper\'s row on a port it did not measure can read RESOLVED and count as closed in MTTR, and the control it'
   + ' failed can read PASS — include the port scanner (003).';
-const T = 'a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated';
-const R_EE = '1.3.0'; // the Enterprise release R was measured against
+// RE-ADJUDICATED AT 1.0.0 (the header renders EE 2.0.0): R13, the 1.3.0 register, stays TRUE — both of its measured limits
+// still hold at 2.0.0, and Enterprise's headline_scope_matches_behaviour legs still drive them — so it is kept where it teaches
+// the comparison (references/workflows.md) and in the CURRENT header after the 2.0.0 items, with the 0.2.55 teaching that
+// goes with it, once each. The header opens with the 2.0.0 register R, which describes what 2.0.0 adds; T is the 1.0.0
+// CHANGELOG heading's short form.
+const R = 'Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside '
+  + 'its pack — controls to fail or to pass, controls that lost measurement, violations new or cleared, and what could not be '
+  + 'measured, never read as cleared — and can notify a webhook, Slack or Teams when a change crosses a severity you set. A scan '
+  + 'connects only to the addresses its host check resolved (Community 1.0.0), the AI payload carries no AWS account ID, and '
+  + 'plugin 040\'s weak-key and weak-signature findings fail the certificate control in six of the eight frameworks.';
+const T = 'Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID';
+const R_EE = '2.0.0'; // the Enterprise release R describes
 const occurrences = (hay, needle) => hay.split(needle).length - 1;
 const renderedEeVersion = () => /<!-- nsa:derived id="ee-version" -->([^<]+)<!-- \/nsa:derived -->/.exec(read('SKILL.md'))?.[1];
 const currentHeader = () => { const s = read('SKILL.md'); return s.slice(s.indexOf('> **Version:**'), s.indexOf('\n>\n> **Prior:')); };
 
-test('(q) the true 1.2.0 teaching stays: the four not-comparable cases (a), the hold (b), an agent that did not run', () => {
-  const s = read('SKILL.md');
-  assert.match(s, /\(a\) \*\*The NOT-COMPARABLE bucket catches four more cases\.\*\*/);
-  assert.match(s, /\(b\) \*\*A compliance control can FAIL on a finding the PRIOR scan recorded\.\*\*/);
+// RE-SCOPED at 1.0.0 to the CURRENT header: this leg read the whole file, so when the bump that opened 1.0.0 moved this
+// teaching onto the 0.2.55 Prior line — history, to an agent — it stayed green; Enterprise's header-scoped leg went red.
+// The items are (e) and (f) now, after 1.0.0's own (a)–(d).
+test('(q) the true 1.2.0 teaching stays IN THE CURRENT HEADER: the four not-comparable cases (e), the hold (f), an agent that did not run', () => {
+  const s = currentHeader();
+  assert.match(s, /\(e\) \*\*The NOT-COMPARABLE bucket catches four more cases\.\*\*/);
+  assert.match(s, /\(f\) \*\*A compliance control can FAIL on a finding the PRIOR scan recorded\.\*\*/);
   assert.match(s, /analysis agent that DID NOT RUN[^\n]*?while that agent's controls fail closed in every framework/);
 });
 
@@ -264,17 +277,19 @@ test('the headline carries the register R verbatim, once, scoped to the Enterpri
   assert.equal(occurrences(h, R), 1, 'SKILL.md\'s current header must carry R verbatim, exactly once');
   assert.ok(h.includes(`— **${R_EE}: ${R}** Teach these first`), 'R is the headline itself, in bold, before "Teach these first"');
   assert.equal(occurrences(read('SKILL.md'), R), 1, 'R is written once in SKILL.md, history included');
+  assert.equal(occurrences(read('SKILL.md'), R13), 1, 'the 1.3.0 register is written once in SKILL.md');
+  assert.equal(occurrences(h, R13), 1, 'the 1.3.0 register is still true, so it stays in the CURRENT header, once');
 });
 
-test('references/workflows.md states R once, at the "never by hand" comparison paragraph', () => {
+test('references/workflows.md states the 1.3.0 register (R13) once, at the "never by hand" comparison paragraph', () => {
   const wf = read('references/workflows.md');
-  assert.equal(occurrences(wf, R), 1, 'workflows.md must carry R verbatim, exactly once');
+  assert.equal(occurrences(wf, R13), 1, 'workflows.md must carry the 1.3.0 register verbatim, exactly once');
   const i = wf.indexOf('the comparison is NEVER done by hand');
-  const j = wf.indexOf(R);
+  const j = wf.indexOf(R13);
   assert.ok(i >= 0 && j > i && j - i < 1200, 'R sits in the paragraph that routes the comparison to report --since');
 });
 
-test('the CHANGELOG 0.2.54 heading carries the short form T', () => {
+test('the CHANGELOG heading of the current version carries the short form T', () => {
   const v = JSON.parse(read('package.json')).version;
   const head = new RegExp(`^## ${v.replace(/\./g, '\\.')} \\([^)]*\\) — (.+)$`, 'm').exec(read('CHANGELOG.md'))?.[1];
   assert.ok(head, `the CHANGELOG has a ## ${v} heading`);
@@ -374,7 +389,9 @@ test('the skill teaches 040\'s revived key-size and signature checks, the self-s
     assert.match(s, /self-signed certificate's own signature is not graded/, `${where}: option B`);
     assert.match(s, /not assessed/, `${where}: the not-assessed states`);
   }
-  assert.match(header, /recorded, not yet routed to a compliance control/, 'the routing limit is stated');
+  // FLIPPED at 1.0.0: from Enterprise 2.0.0 the grades route (the operator's ruling, EE 5b720d9) — the header says where.
+  assert.match(header, /fail the certificate control in six of the eight frameworks from Enterprise 2\.0\.0/, 'the routing is stated');
+  assert.match(header, /GDPR Article 32\s+and NIST SP 800-171 held/, 'and the held packs are named');
 });
 
 // ── 0.2.55 build 6 (Gate 3-A K6 → finding F-5, the operator's ruling "Fix now"): below the floor the PLUGINS still load ─
@@ -391,7 +408,8 @@ test('the floor teaching says the Enterprise plugins still load below the floor 
   for (const [where, s] of [['SKILL.md (c)', floorItem], ['README.md', readme]]) {
     assert.match(s, /core does not load/, `${where}: it is the core that fails to load`);
     // bound to the plugins clause: a looser `[^.;]*0\.2\.56` read the later "on Community 0.2.56 that is named on stderr"
-    assert.match(s, /plugins still (?:do|load)\W+on Community 0\.2\.56 as on 0\.2\.55/, `${where}: the plugins load on 0.2.56 as well`);
+    // RE-MEASURED at 1.0.0 for Enterprise 2.0.0 on Community 0.2.57, 0.2.56 and 0.2.55 (EE tasks/release-plan.md, release prep)
+    assert.match(s, /plugins still (?:do|load)\W+on Community 0\.2\.57 as on 0\.2\.56/, `${where}: the plugins load on 0.2.57 and 0.2.56`);
     assert.match(s, /intelligence, analysis-agent and compliance stages/, `${where}: the stages that are skipped`);
     // only what was measured (Gate 3-A K6): never that cloud auditing works below the floor
     assert.doesNotMatch(s, /cloud (?:auditing|scans?) (?:still )?works?\b/i, `${where}: cloud findings below the floor were not measured`);
