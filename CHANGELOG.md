@@ -4,6 +4,28 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 1.0.0 (⏳ PRE-PUBLISH — opened 2026-10-09, NOT YET ON npm) — Enterprise 2.0.0 / Community 1.0.0: Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID
+
+Paired with **Enterprise 2.0.0 / Community 1.0.0**. ⚠️ **The supported runtime is Node.js 24**, and Enterprise's
+`peerDependencies["nsauditor-ai"]` moves to `>= 1.0.0`. What the skill teaches from this release:
+
+- **The pin.** From Community Edition 1.0.0 a scan connects to the answers its host check resolved — CLI and MCP, the
+  target and each redirect hop — so a name whose answer changes between the check and the scan (DNS rebinding) is not
+  followed, except through an HTTP proxy set with `NODE_USE_ENV_PROXY` (which resolves the name itself) or over an idle
+  connection opened earlier to the same name, for as long as the target keeps it open. An older Community does not pin.
+- **The AI payload.** From Community Edition 1.0.0 an AWS account ID found in an ARN or an AWS URL becomes `[ACCOUNT_ID]`
+  everywhere it occurs and any other 12-digit number `[REDACTED_ID]`; there is no external-redactor hook
+  (`_meta.redactor` reads `builtin`); the system prompt is written beside the payload
+  (`scan_response_ai_system_prompt.txt`) before the request. The not-lists in `SKILL.md` and `references/schemas.md`
+  say what is still sent: emails, internal hostnames, Bearer tokens, AWS access-key IDs, Azure subscription IDs, cloud
+  resource names. The OpenAI default is `gpt-6-luna` (`gpt-4o-mini` before).
+- **Plugin 040.** From Enterprise 2.0.0 its weak-key and weak-signature grades fail the certificate control in SOC 2,
+  HIPAA, NIST CSF 2.0, PCI DSS, ISO 27001 and CIS v8 (GDPR Article 32 and NIST SP 800-171 held); from Community 1.0.0 a
+  refusal with no named reason on a certificate with a graded weak key or signature gets a second handshake at OpenSSL
+  security level 0, and an authorization there means the weak grade is the finding, not `ca_not_trusted`.
+- **Zero Data Exfiltration is party-scoped:** no scan data is ever sent to Nsasoft, and no BAA with Nsasoft is required.
+  Never say nothing leaves the customer's environment.
+
 ## 0.2.55 (2026-10-07) — Enterprise 1.3.0: a finding on a port, region or producer a scan did not measure is not counted as fixed — two measured limits stated
 
 Paired with **Enterprise 1.3.0 / Community 0.2.57**. ⚠️ **A floor bump: `peerDependencies["nsauditor-ai"]` moves to

@@ -587,10 +587,14 @@ See `references/schemas.md` for complete structures:
    `[REDACTED_HOST]`; private IPv4 becomes `[REDACTED_HOST]` in the summary and `[REDACTED_IP]` in
    services and evidence; public IPv4 becomes `[IP]`; link-local and full-form IPv6 and colon-form
    MACs (`[MAC]`) are masked; serial numbers become `[REDACTED_HIDDEN]`, as do values under keys
-   containing a word listed in `CONFIDENTIAL_KEYWORDS` (empty by default). **That payload is NOT
-   scrubbed of** email addresses, internal hostnames, SNMP community strings, Bearer tokens, AWS keys,
-   file paths or compressed IPv6 (`2001:db8::1`); ports, service names, versions and other evidence
-   text go as they are. At Pro and above, the findings block added to the prompt is also masked by
+   containing a word listed in `CONFIDENTIAL_KEYWORDS` (empty by default). From Community Edition 1.0.0
+   an AWS account ID found in an ARN or an `amazonaws.com/<id>/…` URL becomes `[ACCOUNT_ID]` everywhere
+   it occurs, and any other 12-digit number `[REDACTED_ID]`; the system prompt is written beside the
+   payload (`scan_response_ai_system_prompt.txt`) before the request. **That payload is NOT scrubbed
+   of** email addresses, internal hostnames, SNMP community strings, Bearer tokens, AWS access-key IDs,
+   Azure subscription IDs, cloud resource names (an account ID inside one is masked from 1.0.0), file
+   paths or compressed IPv6 (`2001:db8::1`); ports, service names, versions and other evidence text go
+   as they are. At Pro and above, the findings block added to the prompt is also masked by
    default: target hosts, private IPv4, emails, MACs, internal hostnames and `community=<value>`
    strings (a community quoted in a finding title is not); AWS keys, Bearer tokens and file paths
    only with `NSA_AI_REDACT_LEVEL=strict`. With Ollama at its default localhost URL, the AI call
@@ -624,7 +628,7 @@ See `references/schemas.md` for complete structures:
 | `ANTHROPIC_API_KEY` | — | Claude/Anthropic API key |
 | `OPENAI_MODEL` | gpt-6-luna (Community Edition 1.0.0 and later; gpt-4o-mini before) | OpenAI model name |
 | `ANTHROPIC_MODEL` | claude-sonnet-4-6 | Anthropic model name (used when `AI_PROVIDER=claude`) |
-| `OPENAI_REDACT` | true | On the CLI, masks the host, most IP addresses, colon-form MACs and serials in the AI scan payload — NOT emails, internal hostnames, Bearer tokens or AWS keys (see **AI Redaction** above) |
+| `OPENAI_REDACT` | true | On the CLI, masks the host, most IP addresses, colon-form MACs, serials and (from Community Edition 1.0.0) AWS account IDs in the AI scan payload — NOT emails, internal hostnames, Bearer tokens or AWS access keys (see **AI Redaction** above) |
 | `CONFIDENTIAL_KEYWORDS` | unset — no keyword scrub | Comma-separated substrings, e.g. `password,token,secret`: on the CLI, while `OPENAI_REDACT` is on, any AI-payload key containing one (any case) has its value replaced with `[REDACTED_HIDDEN]`. Unset, a key such as `password` is not masked for its name (serial-number keys — `serial`, `serialNumber`, `sn` — are masked either way) |
 | `NSAUDITOR_LICENSE_KEY` | — | Pro/Enterprise JWT license key |
 | `COMPLIANCE_GRC_PROVIDER` | — | **Enterprise** — opt-in scan-time GRC push: `vanta`, `drata`, or `secureframe`. Needs `COMPLIANCE_GRC_TOKEN`; optional `COMPLIANCE_GRC_BASE_URL` / `COMPLIANCE_GRC_CONTROL_MAP` / `COMPLIANCE_GRC_REDACTION` (`off`/`hash`/`remove`, default `off`). Finding content is **NOT redacted by default**: with `off`, a Vanta push carries finding text and `host:port` targets in the clear; `hash` or `remove` scrubs them. Token never serialized. Early-access; live-tenant validation not yet complete. |

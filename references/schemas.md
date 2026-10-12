@@ -418,7 +418,8 @@ Compatible with: GitHub Advanced Security, Azure DevOps, SonarQube, and other SA
 
 When `OPENAI_REDACT=true` (default), the CLI's AI stage (`AI_ENABLED=true`) redacts the scan payload it sends —
 `host`, `host_os_hint`, `summary`, `services`, `evidence` — with Community's built-in redactor, at every tier
-(the Pro-tier external-redactor hook is installed by neither package):
+(from Community 1.0.0 there is no external-redactor hook at all and `_meta.redactor` reads `builtin`; earlier releases
+carried a Pro-tier hook that neither package installed):
 
 | Data | Becomes |
 |------|---------|
@@ -431,12 +432,14 @@ When `OPENAI_REDACT=true` (default), the CLI's AI stage (`AI_ENABLED=true`) reda
 | MAC addresses written with colons (`aa:bb:cc:dd:ee:ff`); hyphen and dotted forms pass unchanged | `[MAC]` |
 | Serial numbers (text `Serial:` / `Serial=`; keys `serial`, `serialNumber`, `sn`, in any case) | `[REDACTED_HIDDEN]` |
 | Values under keys containing a `CONFIDENTIAL_KEYWORDS` entry (unset by default: no key scrub) | `[REDACTED_HIDDEN]` |
+| An AWS account ID in an ARN's account field or an `amazonaws.com/<id>/…` URL — there and everywhere else it occurs, inside resource names too (Community 1.0.0+) | `[ACCOUNT_ID]` |
+| Any other 12-digit number (Community 1.0.0+) | `[REDACTED_ID]` |
 
 Keys dropped entirely: `ip6`, `deviceWebPage`, `deviceWebPageInstruction`, `hardwareVersion`, `firmwareVersion`.
 
 ⚠️ **NOT redacted in that payload:** email addresses, internal hostnames (`.local`, `.corp`, `.internal`), the SNMP
-`community` field, Bearer tokens, AWS access keys and file paths — nor ports, service names, versions, or banner and
-evidence prose beyond the rows above. `OPENAI_REDACT` has no strict level. `CONFIDENTIAL_KEYWORDS` works by KEY
+`community` field, Bearer tokens, AWS access-key IDs, Azure subscription IDs, cloud resource names themselves and file
+paths — nor ports, service names, versions, or banner and evidence prose beyond the rows above. `OPENAI_REDACT` has no strict level. `CONFIDENTIAL_KEYWORDS` works by KEY
 (`community` blanks the `community` field, not the same value inside banner or evidence text). With Ollama at its
 default localhost URL the payload does not leave the host.
 

@@ -186,8 +186,13 @@ fields Node never sets): an RSA key under 2048 bits is `weak_rsa_key` HIGH (CRIT
 bits `weak_ec_key` HIGH, a CA-issued certificate signed with SHA-1 or MD5 `weak_signature` HIGH, and an issued
 intermediate signed that way `chain_weak_signature` MEDIUM. A self-signed certificate's own signature is not graded —
 no client verifies it — and `self_signed` names the algorithm. A key of neither type (Ed25519), or a runtime that cannot
-read signature algorithms (Node 20; Node 24 reads them), records `not assessed` on `certAudit`. These grades are not yet
-routed to a compliance control.
+read signature algorithms (Node 20; Node 24 reads them), records `not assessed` on `certAudit`. From Enterprise 2.0.0 the
+four grades fail the certificate control in SOC 2 (CC6.7), HIPAA (§164.312(e)(1)), NIST CSF 2.0 (PR.DS-02), PCI DSS (Req
+4.2.1), ISO 27001 (A.8.24) and CIS v8 (Safeguard 3.10) — where 040's certificate-validity findings route; GDPR Article 32
+and NIST SP 800-171 are held. From Community 1.0.0, when the runtime refuses the chain with no named reason
+(`UNSPECIFIED`) and a weak key or signature is graded, a second handshake at OpenSSL security level 0 decides whether the
+chain is trusted: if it is, `ca_not_trusted` is not raised and the weak grade is the finding; a weak certificate under an
+untrusted CA is named untrusted at the default level and keeps `ca_not_trusted`.
 
 **050 — TRIBE v2 Neural API Security Probe:** Probes a TRIBE v2 API: `TRIBE_API_HOST` / `TRIBE_API_PORT` /
 `TRIBE_API_SCHEME` set the target; otherwise it is the scan host, on 8080 in a scan (or the port `probe_service`
