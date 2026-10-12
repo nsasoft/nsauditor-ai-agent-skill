@@ -283,6 +283,7 @@ AI_ENABLED=true AI_PROVIDER=openai OPENAI_API_KEY=sk-... OPENAI_REDACT=true NSA_
 | `scan_conclusion_raw.json` | Full unredacted data (admin reference) |
 | `scan_conclusion_raw.html` | Admin HTML dashboard with filters |
 | `scan_response_ai_payload.json` | Redacted payload sent to AI |
+| `scan_response_ai_system_prompt.txt` | System prompt sent to AI, the Pro/Enterprise intelligence block included (from Community 1.0.0) |
 | `scan_response_ai.html` | Styled HTML report with CVE links, severity badges |
 | `scan_response_ai.txt` | AI vulnerability assessment in markdown |
 | `scan_run_<runId>.json` | **Per-run scan record** — written at the ROOT of `--out` (one level above the per-host folders) at run start, appended per host, finalized at the end. It is what `report` is built from, and what lets a report cover STATE its coverage (hosts requested / written / reachable) instead of implying it. On the free tier these are pruned after a retention window. |

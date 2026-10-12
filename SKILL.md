@@ -755,6 +755,7 @@ The CLI's report tags what it finds with MITRE techniques (the `scan_host` tool 
 | `scan_conclusion_raw.json` | JSON | Full unredacted scan data (admin) |
 | `scan_conclusion_raw.html` | HTML | Admin dashboard with filters |
 | `scan_response_ai_payload.json` | JSON | Redacted payload sent to AI |
+| `scan_response_ai_system_prompt.txt` | Text | System prompt sent to AI, the Pro/Enterprise intelligence block included (from Community 1.0.0) |
 | `scan_response_ai.html` | HTML | Styled report with CVE links, severity badges |
 | `scan_response_ai.txt` | Markdown | AI vulnerability assessment (text) |
 | SARIF | JSON | CI/CD integration (GitHub Advanced Security, Azure DevOps) |
