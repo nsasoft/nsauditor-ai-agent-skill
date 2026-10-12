@@ -622,7 +622,7 @@ See `references/schemas.md` for complete structures:
 | `AI_PROVIDER` | openai | `openai` · `claude` · `ollama` |
 | `OPENAI_API_KEY` | — | OpenAI API key (or `keychain:OPENAI_API_KEY`) |
 | `ANTHROPIC_API_KEY` | — | Claude/Anthropic API key |
-| `OPENAI_MODEL` | gpt-4o-mini | OpenAI model name |
+| `OPENAI_MODEL` | gpt-6-luna (Community Edition 1.0.0 and later; gpt-4o-mini before) | OpenAI model name |
 | `ANTHROPIC_MODEL` | claude-sonnet-4-6 | Anthropic model name (used when `AI_PROVIDER=claude`) |
 | `OPENAI_REDACT` | true | On the CLI, masks the host, most IP addresses, colon-form MACs and serials in the AI scan payload — NOT emails, internal hostnames, Bearer tokens or AWS keys (see **AI Redaction** above) |
 | `CONFIDENTIAL_KEYWORDS` | unset — no keyword scrub | Comma-separated substrings, e.g. `password,token,secret`: on the CLI, while `OPENAI_REDACT` is on, any AI-payload key containing one (any case) has its value replaced with `[REDACTED_HIDDEN]`. Unset, a key such as `password` is not masked for its name (serial-number keys — `serial`, `serialNumber`, `sn` — are masked either way) |
