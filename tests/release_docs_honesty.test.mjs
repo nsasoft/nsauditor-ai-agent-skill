@@ -186,12 +186,13 @@ test('NSA_ALLOW_ALL_HOSTS: every Desktop block that sets it is followed by what 
   // EE 2.0.0 (R1b): Community Edition 1.0.0 PINS the check's answers. The sentence that said it did not is flipped
   // deliberately, and each place that teaches the guard now says so — scoped to the edition that does it, with both limits,
   // and with what an older edition does. The unscoped absolute below stays forbidden: "blocked" outruns both limits.
-  const PIN = /From Community Edition 1\.0\.0 the scan connects to the answers the check resolved[\s\S]{0,160}DNS\s+rebinding\)\s+is\s+not\s+followed[\s\S]{0,80}`NODE_USE_ENV_PROXY`[\s\S]{0,120}idle\s+connection[\s\S]{0,80}an\s+older\s+Community\s+Edition\s+does\s+not\s+pin\s+the\s+answer/;
+  const PIN = /From Community Edition 1\.0\.0 the scan connects to the answers the check resolved[\s\S]{0,160}DNS\s+rebinding\)\s+is\s+not\s+followed[\s\S]{0,80}`NODE_USE_ENV_PROXY`[\s\S]{0,120}idle\s+connection[\s\S]{0,80}stays\s+idle\s+in\s+the\s+pool[\s\S]{0,60}Keep-Alive\s+hint\s+holds\s+it\s+longer[\s\S]{0,20}an\s+older\s+Community\s+Edition\s+does\s+not\s+pin\s+the\s+answer/;
   for (const rel of ['README.md', 'SKILL.md']) assert.match(afterDesktopBlock(read(rel)), PIN, `${rel}: the Desktop block's pin sentence, scoped, with both limits`);
   assert.match(item, PIN, 'the SSRF Protection item\'s pin sentence, scoped, with both limits');
   for (const rel of shippedMarkdown()) {
     const s = read(rel);
     assert.doesNotMatch(s, /The check does not pin the answer, so/, `${rel} still says the check does not pin`);
+    assert.doesNotMatch(s, /same\s+name\s+seconds\s+earlier/, `${rel}: the pool window is the TARGET's to set — a Keep-Alive hint falsifies "seconds"`);
     assert.doesNotMatch(s, /DNS rebinding is (?:also )?blocked/i, rel);
     assert.doesNotMatch(s, /This prevents SSRF/, rel);
     assert.doesNotMatch(s, STALE_ALLOW_ALL, `${rel} still teaches NSA_ALLOW_ALL_HOSTS as turning the resolved-address check off`);

@@ -578,9 +578,9 @@ See `references/schemas.md` for complete structures:
    admits private ranges only, never loopback, link-local or metadata. It takes one host: a CIDR or URL-shaped string
    is refused. From Community Edition 1.0.0 the scan connects to the answers the check resolved, so a name whose answer
    changes between the check and the scan (DNS rebinding) is not followed — except through an HTTP proxy set with
-   `NODE_USE_ENV_PROXY`, which resolves the name itself, or over an idle connection opened to the same name seconds
-   earlier; an older Community Edition does not pin the answer. Set the variable **only** for legitimate local network
-   auditing.
+   `NODE_USE_ENV_PROXY`, which resolves the name itself, or over an idle connection opened earlier to the same name, for
+   as long as it stays idle in the pool (a few seconds by default; a server's Keep-Alive hint holds it longer); an older
+   Community Edition does not pin the answer. Set the variable **only** for legitimate local network auditing.
 
 3. **AI Redaction:** with AI analysis on and `OPENAI_REDACT` at its default (on), the scan payload
    (host, summary, services, evidence) is scrubbed at every tier: the host field becomes
@@ -687,7 +687,7 @@ Run `install-key` once per machine, and use the `NSA_MCP_AUTH_KEY` value in the 
 }
 ```
 
-`NSA_ALLOW_ALL_HOSTS: "1"` lets Claude scan your own network — private addresses such as `192.168.x.x` or `10.x.x.x`. It admits private ranges only (RFC 1918, CGNAT `100.64/10`, `fc00::/7`): the server still refuses loopback, link-local and cloud-metadata addresses in any spelling, whether written as the host or returned for a host name — every answer is checked. Only `1`, `true`, `yes` or `on` turn it on. From Community Edition 1.0.0 the scan connects to the answers the check resolved, so a name whose answer changes between the check and the scan (DNS rebinding) is not followed — except through an HTTP proxy set with `NODE_USE_ENV_PROXY`, which resolves the name itself, or over an idle connection opened to the same name seconds earlier; an older Community Edition does not pin the answer. `install-key` does not print it, so add it yourself, and remove it if you only scan public hosts.
+`NSA_ALLOW_ALL_HOSTS: "1"` lets Claude scan your own network — private addresses such as `192.168.x.x` or `10.x.x.x`. It admits private ranges only (RFC 1918, CGNAT `100.64/10`, `fc00::/7`): the server still refuses loopback, link-local and cloud-metadata addresses in any spelling, whether written as the host or returned for a host name — every answer is checked. Only `1`, `true`, `yes` or `on` turn it on. From Community Edition 1.0.0 the scan connects to the answers the check resolved, so a name whose answer changes between the check and the scan (DNS rebinding) is not followed — except through an HTTP proxy set with `NODE_USE_ENV_PROXY`, which resolves the name itself, or over an idle connection opened earlier to the same name, for as long as it stays idle in the pool (a few seconds by default; a server's Keep-Alive hint holds it longer); an older Community Edition does not pin the answer. `install-key` does not print it, so add it yourself, and remove it if you only scan public hosts.
 
 `PLUGIN_TIMEOUT_MS` bounds each plugin `scan_host` runs, not the call: the plugins run one after
 another, so the call takes roughly the sum of their times. On one router, a `scan_host` call timed out
