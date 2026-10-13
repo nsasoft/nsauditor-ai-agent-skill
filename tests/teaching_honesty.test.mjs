@@ -416,3 +416,37 @@ test('the floor teaching says the Enterprise plugins still load below the floor 
   }
   assert.match(floorItem, /Whether a cloud scan at Enterprise tier still returns findings below the floor has not been measured/);
 });
+
+// ── 1.0.0: four teaching folds, each held where it is taught ─────────────────────────────────────────────────────────────
+// One runtime bound for 040's not-assessed state (Node 22 lacks X509Certificate#signatureAlgorithm; Node 24 has it); one
+// window for the pin's idle-connection limit, the one Community's utils/scan_pin.mjs states; the watch alert's two payloads
+// (the default `full` sends the host in the clear, `minimal` drops it); and the second look's self-signed exclusion
+// (040 opens its trust branch only for a certificate that is not self-signed).
+test('the skill states one Node bound for 040, one window for the pin, both watch payloads, and that the second look skips a self-signed certificate', () => {
+  const skill = read('SKILL.md');
+  const header = skill.split('\n')[17];
+  const entry = read('references/plugins.md').split('**040 — TLS Certificate & Cipher Auditor:**')[1]?.split('\n\n')[0] ?? '';
+  const flat = (s) => s.replace(/\s+/g, ' ');
+
+  const bounds = [header, entry].map((s) => flat(s).match(/cannot read signature algorithms \(([^)]*)\)/)?.[1]);
+  assert.ok(bounds[0], 'the header names the runtime that cannot read signature algorithms');
+  assert.equal(bounds[1], bounds[0], 'the 040 entry names a different runtime bound from the header');
+
+  const idle = "for as long as it stays idle in the pool (a few seconds by default; a server's Keep-Alive hint holds it longer)";
+  assert.ok(flat(header).includes(idle), 'the header states the pin\'s idle window as the pool, not the target');
+  // Every position that teaches the idle-connection limit states the same window — counted from the text, never typed.
+  const LIMIT = 'over an idle connection opened earlier to the same name, ';
+  const positions = flat(skill).split(LIMIT).slice(1);
+  assert.ok(positions.length >= 2, `the header and the body both teach the limit (found ${positions.length})`);
+  assert.deepEqual(positions.filter((rest) => !rest.startsWith(idle)).map((rest) => rest.slice(0, 80)), [], 'a position states another window');
+  assert.doesNotMatch(skill, /for as long as the target keeps it open/);
+
+  const wf = flat(read('references/workflows.md'));
+  assert.match(wf, /Under the default `--alert-payload full`, the host and its findings go in the clear to the URL you supply/);
+  assert.match(wf, /`--alert-payload minimal` \(Community 1\.0\.0\) drops the host, the service and the description/);
+  assert.doesNotMatch(wf, /The payload is not redacted: the host and its findings go in the clear/);
+
+  for (const [where, s] of [['SKILL.md header', header], ['plugins.md 040 entry', entry]]) {
+    assert.match(flat(s), /The second look never runs on a self-signed certificate, which reads `self_signed` instead/, where);
+  }
+});

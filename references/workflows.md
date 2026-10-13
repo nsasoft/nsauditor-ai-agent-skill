@@ -232,9 +232,11 @@ NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
   "No changes", never "removed" — and does not alert in this release.
 - Watch mode scans each distinct host once per cycle: a repeated `--host` entry, or one also inside a listed CIDR, is
   dropped, and the banner says how many.
-- The payload is not redacted: the host and its findings go in the clear to the URL you supply.
+- The payload is not redacted. Under the default `--alert-payload full`, the host and its findings go in the clear to the
+  URL you supply; `--alert-payload minimal` (Community 1.0.0) drops the host, the service and the description, and sends
+  a count, the alert severity and each finding's port, protocol and severity.
 
-**Webhook Payload** (the change itself is NOT in it: `details` carries one entry per finding at or above
+**Webhook Payload**, the default `full` (the change itself is NOT in it: `details` carries one entry per finding at or above
 `--alert-severity` — `description` is the finding's title and `severity` its own grade, lower-case; a finding with no
 port, such as a domain's DNS-security entry that landed in the conclusion's evidence, carries `port` and `protocol`
 null. The top-level `severity` is the `--alert-severity` value):
