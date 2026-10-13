@@ -28,7 +28,7 @@ Paired with **Enterprise 2.0.0 / Community 1.0.0**. ⚠️ **The supported runti
 
 `SKILL.md`'s header carries the release's register verbatim:
 
-> Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside its pack — controls to fail or to pass, controls that lost measurement, violations new or cleared, and what could not be measured, never read as cleared — and can notify a webhook, Slack or Teams when a change crosses a severity you set. A scan connects only to the addresses its host check resolved (Community 1.0.0), the AI payload carries no AWS account ID, and plugin 040's weak-key and weak-signature findings fail the certificate control in six of the eight frameworks.
+> Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside its pack — controls to fail or to pass, controls that lost measurement, violations new or cleared, and what could not be measured, never read as cleared — and can notify a webhook, Slack or Teams when a control goes to fail or loses measurement, when a new violation reaches a severity you set, or when the drift could not be compared. A scan connects only to the addresses its host check resolved (Community 1.0.0), the AI payload carries no AWS account ID, and plugin 040's weak-key and weak-signature findings fail the certificate control in six of the eight frameworks.
 
 The 1.3.0 register and both of its measured limits still hold at Enterprise 2.0.0, so the header keeps them, with the
 teaching that goes with them — the NOT-COMPARABLE bucket (e), the compliance holds (f), 1.3.0's reach (g) and 0.2.53's
