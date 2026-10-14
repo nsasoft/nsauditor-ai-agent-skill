@@ -131,7 +131,7 @@ grade a finding differently:
 
 | Finding in the scan's conclusion | `--fail-on` grade | SARIF level |
 |---|---|---|
-| anonymous FTP login · DNS zone transfer — tested only with `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN`, both off by default | critical | error |
+| anonymous FTP login · DNS zone transfer — tested only with `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN` (060's attempt against the domain's nameservers: `DNS_AUDIT_AXFR_CHECK=true`), all off by default | critical | error |
 | MCP server reachable without authentication · MCP server lists its tools without authentication | critical | error |
 | MCP server over cleartext HTTP · MCP server on a deprecated protocol version | high | error |
 | SNMP default community (`public` / `private`) | high | error |
@@ -151,7 +151,8 @@ clean host.
 
 ```bash
 # Scan with SARIF output and severity gating. --fail-on high exits 1 on any graded finding at high or above (table
-# above); anonymous FTP and zone transfer are graded only with FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN.
+# above); anonymous FTP and zone transfer are graded only with FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN
+# (060's attempt against the domain's nameservers: DNS_AUDIT_AXFR_CHECK=true).
 nsauditor-ai scan --host $TARGET \
   --plugins all \
   --output-format sarif \
@@ -173,6 +174,7 @@ SARIF file.
 ```yaml
 - name: Security Scan
   env:   # both checks are off by default; without these --fail-on high never sees anonymous FTP or a zone transfer
+         # (DNS_AUDIT_AXFR_CHECK, also off by default, is 060's own attempt against the scanned domain's nameservers)
     FTP_CHECK_ANON: "true"
     DNS_CHECK_AXFR: "true"
     DNS_AXFR_DOMAIN: example.com   # the zone to try transferring
@@ -223,11 +225,12 @@ NSA_ALLOW_ALL_HOSTS=1 nsauditor-ai scan --host 192.168.1.0/24 --plugins all \
   `--alert-every-cycle` alerts every host carrying such a finding on every cycle, the first included. Stdout prints
   each host's change under `=== Delta Report ===`, and `No significant changes detected.` only when no host changed.
 - The findings are the service-check findings `--fail-on` and the reports grade (§4): anonymous FTP login or a DNS
-  zone transfer (critical; both off unless `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN` are
-  set), the MCP server checks, an SNMP default community, an expired certificate, an SMB null session (off unless
-  `SMB_NULL_SESSION=true`), weak SSH algorithms and weak TLS protocols / ciphers, dangerous HTTP methods where an Allow
-  header was read, a self-signed certificate, and each 040 / 050 / 060 audit entry at its own grade. Enterprise's CVE
-  rows and analysis-agent findings are not among them, so they never trigger an alert.
+  zone transfer (critical; off unless `FTP_CHECK_ANON=true` / `DNS_CHECK_AXFR=true` + `DNS_AXFR_DOMAIN` — or
+  `DNS_AUDIT_AXFR_CHECK=true` for 060's attempt — are set), the MCP server checks, an SNMP default community, an
+  expired certificate, an SMB null session (off unless `SMB_NULL_SESSION=true`), weak SSH algorithms and weak TLS
+  protocols / ciphers, dangerous HTTP methods where an Allow header was read, a self-signed certificate, and each 040 /
+  050 / 060 audit entry at its own grade. Enterprise's CVE rows and analysis-agent findings are not among them, so they
+  never trigger an alert.
 - A host whose scan failed, or whose summary is missing on either side, is reported not comparable on stdout — never
   "No changes", never "removed" — and does not alert in this release.
 - Watch mode scans each distinct host once per cycle: a repeated `--host` entry, or one also inside a listed CIDR, is

@@ -167,7 +167,7 @@ LLMNR poisoning risk).
 |----|------|-------|---------|
 | 040 | TLS Certificate & Cipher Auditor | 443, 465, 587, 636, 853, 993, 995, 8443, 8883, 9443 | Deep TLS audit: cert chain, expiry, self-signed, weak ciphers |
 | 050 | TRIBE v2 Neural API Security Probe | 8080 | Debug endpoints, stack traces in error bodies, leaking headers, CORS misconfiguration, unauthenticated routes and unexpected HTTP methods on a TRIBE v2 API. In a scan it runs only when TCP 8080 is open, so a scan never checks a website's 80/443 |
-| 060 | DNS Security Auditor | 53 | SPF/DKIM/DMARC validation, DNSSEC, zone transfer, MX security, CAA |
+| 060 | DNS Security Auditor | 53 | SPF/DKIM/DMARC validation, DNSSEC, zone transfer (opt-in: `DNS_AUDIT_AXFR_CHECK`), MX security, CAA |
 
 ### Deep-Audit Plugin Details
 
@@ -209,7 +209,8 @@ not check a website's 80/443.
 - **DKIM:** Checks for DKIM selector records
 - **DMARC:** Validates DMARC policy (reject/quarantine/none)
 - **DNSSEC:** Checks for DNSSEC signing and validation chain
-- **Zone Transfer (AXFR):** Tests if zone transfer is allowed (security risk)
+- **Zone Transfer (AXFR):** opt-in (`DNS_AUDIT_AXFR_CHECK=true`, off by default) — tries a transfer of the scanned
+  domain at each nameserver's own address, outside the scan's host check; records only an open transfer
 - **MX:** Flags a missing MX, a null MX, and an MX that points at a CNAME or an IP address — no STARTTLS / TLS check
 - **CAA Records:** Checks Certificate Authority Authorization records
 

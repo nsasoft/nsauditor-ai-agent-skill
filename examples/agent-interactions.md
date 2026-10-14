@@ -144,10 +144,10 @@ new, removed and changed services; the findings delta; each service-check findin
 not be compared). The webhook alerts a host whose scan changed since the previous cycle and that carries a finding
 at or above --alert-severity — one detail per finding, each with its own grade; the first cycle sets the baseline and
 alerts nobody, and --alert-every-cycle alerts every such host on every cycle. At high that is anonymous FTP login or a
-DNS zone transfer (both off unless FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN are set), an MCP
-server finding, an SNMP default community, an expired certificate, an SMB null session (off unless
-SMB_NULL_SESSION=true) or a HIGH entry of the 040 / 050 / 060 audits; Enterprise's CVE and analysis-agent findings
-never trigger it.
+DNS zone transfer (off unless FTP_CHECK_ANON=true / DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN — or
+DNS_AUDIT_AXFR_CHECK=true for 060's attempt — are set), an MCP server finding, an SNMP default community, an expired
+certificate, an SMB null session (off unless SMB_NULL_SESSION=true) or a HIGH entry of the 040 / 050 / 060 audits;
+Enterprise's CVE and analysis-agent findings never trigger it.
 
 Each scan appends one line per host to scan_history.jsonl in the output directory (--out, default out/)."
 ```
@@ -180,7 +180,8 @@ Each scan appends one line per host to scan_history.jsonl in the output director
    ✅ DKIM selector found (google)
    ✅ DMARC policy set to 'reject' (strongest setting)
    ⚠  DNSSEC not enabled (recommended for integrity)
-   ✅ Zone transfer not reported open (060 tries AXFR only against the domain's nameservers)
+   ℹ  Zone transfer NOT TESTED — 060 tries one only with DNS_AUDIT_AXFR_CHECK=true and records only an open
+      transfer, so `axfr: []` is never a pass
    Note: 060's MX checks flag a missing MX, a null MX, and an MX that is a CNAME or an IP address — it does not test
    STARTTLS / TLS on the mail servers.
 ```

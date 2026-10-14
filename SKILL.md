@@ -188,9 +188,11 @@ IP-address target 060 DECLINES — its `manifest` entry reads `skipped` with the
 `DNS-security audit (060) not tested`, and nothing lands — so DNS posture is unknown, never clean. Anonymous FTP
 login, zone transfer and the SMB null session are tested only when the MCP server's environment enables them
 (`FTP_CHECK_ANON=true`; `DNS_CHECK_AXFR=true` with `DNS_AXFR_DOMAIN`; `SMB_NULL_SESSION=true`) — all off by default.
-A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never "not
-allowed" or "none": `anonymousLoginTested`, `axfrTested` and `nullSessionTested` are `true` when measured, else the
-reason (`opt-in-off`, `no-domain`, `no-answer`). With the Enterprise package, the zero-trust assessment (1023) reaches
+060's own zone-transfer attempt against the domain's nameservers runs only with `DNS_AUDIT_AXFR_CHECK=true`, also off
+by default, and it records only an open transfer (`axfr_open` in `dnsSecurity`) — so its absence is never a measured
+"closed". A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never
+"not allowed" or "none": `anonymousLoginTested`, `axfrTested` and `nullSessionTested` are `true` when measured, else
+the reason (`opt-in-off`, `no-domain`, `no-answer`). With the Enterprise package, the zero-trust assessment (1023) reaches
 the conclusion only as one score line in its `evidence`, not its per-dimension findings. It does NOT look up CVEs and
 does NOT run the Enterprise analysis agents or exploit intelligence (those run in the CLI scan's enrichment). So
 `Security findings: 0` in its `markdown` is NOT a clean verdict and not a statement that the host has no known
@@ -290,7 +292,7 @@ Run a single plugin against a specific host:port for deep-dive investigation.
 | 014 | NetBIOS/SMB Scanner | SMB/NetBIOS enumeration, null sessions |
 | 040 | TLS Certificate & Cipher Auditor | Certificate chain, expiry, weak ciphers |
 | 050 | TRIBE v2 Neural API Security Probe | Debug leaks, stack traces, CORS misconfig on a TRIBE v2 API |
-| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer |
+| 060 | DNS Security Auditor | SPF/DKIM/DMARC, DNSSEC, zone transfer (opt-in: `DNS_AUDIT_AXFR_CHECK`) |
 
 ---
 
@@ -638,6 +640,7 @@ See `references/schemas.md` for complete structures:
 | `SMB_NULL_SESSION` | false | Allow SMB null session probe |
 | `FTP_CHECK_ANON` | false | Let the FTP check try an anonymous login — without it no scan reports anonymous FTP |
 | `DNS_CHECK_AXFR` / `DNS_AXFR_DOMAIN` | false / — | Let the DNS check try a zone transfer of that zone — without both, `axfrAllowed` stays null (not tested) |
+| `DNS_AUDIT_AXFR_CHECK` | false | Let the DNS-security audit (060) try a zone transfer of the scanned domain against each of its nameservers (`1`, `true`, `yes` or `on`). It connects to each nameserver's own address, outside the scan's host check, and records only an open transfer |
 | `ENABLE_SYN_SCAN` | false | Enable Nmap TCP SYN scanning (requires root) |
 
 ### Plugin-Specific Timeouts

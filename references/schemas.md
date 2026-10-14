@@ -113,6 +113,7 @@ interface ServiceRecord {
   anonymousLogin?: boolean | null; // FTP anonymous login detected — tested only with FTP_CHECK_ANON=true; null = NOT TESTED
   anonymousLoginTested?: true | string | null; // true when measured, else why not: "opt-in-off" · "no-answer"
   axfrAllowed?: boolean | null; // DNS zone transfer allowed — tested only with DNS_CHECK_AXFR=true + DNS_AXFR_DOMAIN; null = NOT TESTED
+                                // (060's own attempt, DNS_AUDIT_AXFR_CHECK, reports as an axfr_open entry of dnsSecurity, not here)
   axfrTested?: true | string | null; // true when measured, else why not: "opt-in-off" · "no-domain" · "no-answer"
   community?: string | null;    // SNMP DEFAULT community accepted: "public" or "private"; a custom SNMP_COMMUNITY string is never recorded
   communityCustom?: boolean;    // true when a custom SNMP_COMMUNITY string answered — not a finding
@@ -396,8 +397,8 @@ The file carries one `note` result per service (an open port is inventory) plus 
 finding — the same findings, at the same grades, that `--fail-on` and the Markdown report read
 (`references/workflows.md` §4), the TLS, SNMP, MCP, certificate, SMB null-session and 040 / 050 / 060 audit results
 included — and no CVE or analysis-agent results. Anonymous FTP, zone transfer and the SMB null session appear only when
-`FTP_CHECK_ANON` / `DNS_CHECK_AXFR` / `SMB_NULL_SESSION` enabled those checks. The rule ids of the four flags SARIF
-graded before Community 0.2.57 are unchanged.
+`FTP_CHECK_ANON` / `DNS_CHECK_AXFR` (or `DNS_AUDIT_AXFR_CHECK`, for 060's attempt) / `SMB_NULL_SESSION` enabled those
+checks. The rule ids of the four flags SARIF graded before Community 0.2.57 are unchanged.
 
 #### SARIF Severity Mapping
 
