@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 1.0.0 (⏳ PRE-PUBLISH — opened 2026-10-09, NOT YET ON npm) — Enterprise 2.0.0 / Community 1.0.0: Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID
+## 1.0.0 (2026-10-15) — Enterprise 2.0.0 / Community 1.0.0: Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID
 
 Paired with **Enterprise 2.0.0 / Community 1.0.0**. ⚠️ **The supported runtime is Node.js 24**, and Enterprise's
 `peerDependencies["nsauditor-ai"]` moves to `>= 1.0.0`. What the skill teaches from this release:
