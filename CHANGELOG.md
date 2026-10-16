@@ -1069,7 +1069,7 @@ EE's `aws-backup-auditor` Logically Air-Gapped Backup Vault cross-verification (
 
 EE's `loadFrameworkMap` was already framework-agnostic (reads `data/compliance/{framework}.json` by parameter); CE's `--compliance` flag already accepts CSV (wired since EE 0.3.0). Multi-framework workflow shipping today: `nsauditor-ai scan --host aws --plugins all --compliance soc2,hipaa --out evidence/` produces separate `scan_compliance_soc2.{md,html,json}` AND `scan_compliance_hipaa.{md,html,json}` artifact sets in one scan.
 
-### Zero BAA required (HIPAA §160.103)
+### Zero BAA required (HIPAA §160.103) — WITHDRAWN 2026-10-16 as unscoped: the true claim is no BAA with Nsasoft
 
 Zero Data Exfiltration architecture means ePHI never leaves customer infrastructure — WITHDRAWN 2026-10-12 as worded, because the opt-in AI and GRC paths send finding text to providers the customer configures; the true claim is party-scoped, that no scan data is ever sent to Nsasoft. Nsasoft does not see, store, or process customer ePHI under any condition — no Business Associate Agreement needed. This is a self-hosted scanner, not a SaaS service.
 
@@ -1089,9 +1089,9 @@ Against operator's test AWS account: 207 findings analyzed, all routed to correc
 
 ### Agent-skill catalog refresh (this release — 0.1.36)
 
-- `SKILL.md` — "EE SOC 2 substrate-evidence coverage" block updated to "post-EE 0.9.0" + SOC 2 matrix UNCHANGED note + NEW "EE HIPAA §164.312 Technical Safeguards substrate-evidence coverage" block enumerating 7+3+45 + R/A discipline + ransomware-substrate angle + Zero-BAA framing. `compliance_check` tool description updated to surface both SOC 2 AND HIPAA as actively shipped frameworks (previously listed alongside planned-only NIST/HIPAA/GDPR/PCI-DSS).
-- `README.md` — "Plugin awareness" capability row updated 44+ → 50 (17 core + 6 discovery + 3 pro + 24 enterprise; corrects pre-existing stale 18-enterprise claim from when EE had 18 plugins); NEW "Compliance frameworks" capability row enumerating SOC 2 + HIPAA + multi-framework dual-publish + Zero-BAA. `references/plugins.md` reference description updated 44+ → 50.
-- `references/plugins.md` — "Enterprise Plugins (18)" header corrected to "Enterprise Plugins (24)" (pre-existing stale count; EE has had 24 plugins since EE 0.7.0). Plugin-catalog intro extended to mention dual-framework SOC 2 + HIPAA support + multi-framework `--compliance soc2,hipaa` CSV workflow + Zero-BAA architecture for HIPAA.
+- `SKILL.md` — "EE SOC 2 substrate-evidence coverage" block updated to "post-EE 0.9.0" + SOC 2 matrix UNCHANGED note + NEW "EE HIPAA §164.312 Technical Safeguards substrate-evidence coverage" block enumerating 7+3+45 + R/A discipline + ransomware-substrate angle + Zero-BAA framing, WITHDRAWN 2026-10-16 as unscoped. `compliance_check` tool description updated to surface both SOC 2 AND HIPAA as actively shipped frameworks (previously listed alongside planned-only NIST/HIPAA/GDPR/PCI-DSS).
+- `README.md` — "Plugin awareness" capability row updated 44+ → 50 (17 core + 6 discovery + 3 pro + 24 enterprise; corrects pre-existing stale 18-enterprise claim from when EE had 18 plugins); NEW "Compliance frameworks" capability row enumerating SOC 2 + HIPAA + multi-framework dual-publish + Zero-BAA, WITHDRAWN 2026-10-16 as unscoped. `references/plugins.md` reference description updated 44+ → 50.
+- `references/plugins.md` — "Enterprise Plugins (18)" header corrected to "Enterprise Plugins (24)" (pre-existing stale count; EE has had 24 plugins since EE 0.7.0). Plugin-catalog intro extended to mention dual-framework SOC 2 + HIPAA support + multi-framework `--compliance soc2,hipaa` CSV workflow + Zero-BAA architecture for HIPAA, WITHDRAWN 2026-10-16 as unscoped.
 
 ### No breaking changes — additive only
 
