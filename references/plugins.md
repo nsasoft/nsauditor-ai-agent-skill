@@ -267,7 +267,7 @@ not check a website's 80/443.
 | ID | Name | Tier | Purpose | SOC 2 Controls |
 |----|------|------|---------|----------------|
 | 1020 | AWS Cloud Scanner | Enterprise | S3 bucket hardening (PAB, encryption, versioning, Object Lock, MFA Delete) + object-access audit trail as a JOIN of server access logging AND CloudTrail S3 data-event coverage — a bucket a trail records is not a gap; any uncertain answer keeps the finding | CC7.1 / C1.1 / C1.2 / A1.2 |
-| 1021 | GCP Cloud Scanner | Enterprise | Firewall rule audit + IAM bindings + Storage bucket public-access | CC6.1 / CC6.6 / C1.1 |
+| 1021 | GCP Cloud Scanner | Enterprise | Firewall rule audit + IAM bindings + Storage bucket public-access + Compute image inventory (feeds CIS v8 4.1 / 4.2 / 4.6 only) | CC6.1 / CC6.6 / C1.1 |
 | 1022 | Azure Cloud Scanner | Enterprise | NSG rule analysis + RBAC role assignments + Storage account hardening | CC6.1 / CC6.3 / CC6.6 / C1.1 / A1.2 |
 | 1023 | Zero Trust Checker | Enterprise | Segmentation + encryption + identity + lateral movement scoring (reads OBSERVED open ports) | CC6.1 / CC6.2 / CC6.6 / CC6.7 |
 | 1024 | GCP Cloud Storage Auditor (EE 0.6.8) | Enterprise | Multi-cloud parity sister of plugin 1020 AWS S3. 6 dimensions: bucket-level IAM public bindings (allUsers = CRITICAL, allAuthenticatedUsers = HIGH); Uniform Bucket-Level Access enforcement (closes legacy bucket-ACL false-PASS class); Object Versioning; Bucket Lock retention policy (SEC 17a-4 / FINRA 4511 WORM-alignment); CMEK via Cloud KMS (four-tier custody ladder); bucket-level access logging. NEW SDK dep `@google-cloud/storage`. | CC6.1 / CC6.6 / CC7.1 / C1.1 / C1.2 / A1.2 |
