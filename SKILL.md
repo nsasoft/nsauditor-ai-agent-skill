@@ -161,6 +161,13 @@ skill teaches you how to operate it via MCP tools and CLI.
 NSAuditor AI exposes tools via Model Context Protocol (stdio transport). Available tools
 depend on the license tier (Community / Pro / Enterprise).
 
+> **Receipts.** Every tool response ends with a `── MCP call receipt ──` footer and a `call_id`. You cannot verify a
+> response yourself, and you cannot save one — never call a response verified. The operator checks one with
+> `nsauditor-ai mcp verify-call <call_id> --response <file>`, which needs the WHOLE response; when the client showed it
+> truncated, tell them about `NSA_MCP_RESPONSE_DIR` (below): with it set, the server saves each response as
+> `<call_id>.txt`, and the footer says "A copy of this response was saved as <call_id>.txt in the directory
+> NSA_MCP_RESPONSE_DIR names." only when it did.
+
 ### Community Edition Tools (always available)
 
 #### `scan_host`
@@ -644,6 +651,7 @@ See `references/schemas.md` for complete structures:
 | `DNS_CHECK_AXFR` / `DNS_AXFR_DOMAIN` | false / — | Let the DNS check try a zone transfer of that zone — without both, `axfrAllowed` stays null (not tested) |
 | `DNS_AUDIT_AXFR_CHECK` | false | Let the DNS-security audit (060) try a zone transfer of the scanned domain against each of its nameservers (`1`, `true`, `yes` or `on`). It connects to each nameserver's own address, outside the scan's host check, and records only an open transfer |
 | `ENABLE_SYN_SCAN` | false | Enable Nmap TCP SYN scanning (requires root) |
+| `NSA_MCP_RESPONSE_DIR` | unset (off) | MCP server only: an ABSOLUTE directory where the server saves each tool response, exactly as returned, as `<call_id>.txt` (directory `0700`, files `0600`, never overwriting), so `verify-call` works on a response the client truncated. Set in the client config's `env` block, then fully quit and reopen the client. The files hold scan results and are never removed by the server |
 
 ### Plugin-Specific Timeouts
 
