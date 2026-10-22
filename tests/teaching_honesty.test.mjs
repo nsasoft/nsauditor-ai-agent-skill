@@ -450,3 +450,13 @@ test('the skill states one Node bound for 040, one window for the pin, both watc
     assert.match(flat(s), /The second look never runs on a self-signed certificate, which reads `self_signed` instead/, where);
   }
 });
+
+test('a scan_cloud title marked "(+N more via get_findings)" is taught as one entry of several, with the drill that shows them all', () => {
+  const s = read('SKILL.md');
+  const i = s.indexOf('(+N more via get_findings)');
+  assert.ok(i >= 0, 'SKILL.md quotes the marker');
+  const around = s.slice(i, i + 420);
+  assert.match(around, /not the whole finding/);
+  assert.match(around, /`plugin` and `severity`/, 'the drill filters by plugin and severity: a CRITICAL/HIGH entry carries no category');
+  assert.match(around, /evidence statements as well as defects/, 'the entries are not all defects');
+});
