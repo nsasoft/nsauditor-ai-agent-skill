@@ -165,8 +165,9 @@ depend on the license tier (Community / Pro / Enterprise).
 > response yourself, and you cannot save one — never call a response verified. The operator checks one with
 > `nsauditor-ai mcp verify-call <call_id> --response <file>`, which needs the WHOLE response; when the client showed it
 > truncated, tell them about `NSA_MCP_RESPONSE_DIR` (below): with it set, the server saves each response as
-> `<call_id>.txt`, and the footer says "A copy of this response was saved as <call_id>.txt in the directory
-> NSA_MCP_RESPONSE_DIR names." only when it did.
+> `<call_id>.txt` and its request as `<call_id>.request.json`, and the footer says "A copy of this response was saved
+> as <call_id>.txt, and its request as <call_id>.request.json, in the directory NSA_MCP_RESPONSE_DIR names." only
+> when it did. The operator checks both with `--response <file> --request <file>`; you cannot read either file.
 
 ### Community Edition Tools (always available)
 
@@ -659,7 +660,7 @@ See `references/schemas.md` for complete structures:
 | `DNS_AUDIT_AXFR_CHECK` | false | Let the DNS-security audit (060) try a zone transfer of the scanned domain against each of its nameservers (`1`, `true`, `yes` or `on`). It connects to each nameserver's own address, outside the scan's host check, and records only an open transfer |
 | `ENABLE_SYN_SCAN` | false | Enable Nmap TCP SYN scanning (requires root) |
 | `SCAN_HOST_WALL_MS` | 50000 | MCP server only: the time limit for the whole `scan_host` call (`0` = off), so a client that ends tool calls at about 60 s still gets a disclosed partial — read `callWall` |
-| `NSA_MCP_RESPONSE_DIR` | unset (off) | MCP server only: an ABSOLUTE directory where the server saves each tool response, exactly as returned, as `<call_id>.txt` (directory `0700`, files `0600`, never overwriting), so `verify-call` works on a response the client truncated. Set in the client config's `env` block, then fully quit and reopen the client. The files hold scan results and are never removed by the server |
+| `NSA_MCP_RESPONSE_DIR` | unset (off) | MCP server only: an ABSOLUTE directory where the server saves each tool response, exactly as returned, as `<call_id>.txt`, with the call's request (tool and arguments, verbatim) beside it as `<call_id>.request.json`, both or neither (directory `0700`, files `0600`, never overwriting), so `verify-call` works on a response the client truncated and can check what the call asked for (`--request`). Set in the client config's `env` block, then fully quit and reopen the client. The files hold scan results and are never removed by the server |
 
 ### Plugin-Specific Timeouts
 

@@ -460,3 +460,13 @@ test('a scan_cloud title marked "(+N more via get_findings)" is taught as one en
   assert.match(around, /`plugin` and `severity`/, 'the drill filters by plugin and severity: a CRITICAL/HIGH entry carries no category');
   assert.match(around, /evidence statements as well as defects/, 'the entries are not all defects');
 });
+
+test('the receipts note teaches the saved request beside the saved response, and that the model cannot read either', () => {
+  const s = read('SKILL.md');
+  const i = s.indexOf('**Receipts.**');
+  assert.ok(i >= 0, 'the receipts note is present');
+  const note = s.slice(i, i + 1200);
+  assert.match(note, /<call_id>\.request\.json/);
+  assert.match(note, /--request <file>/);
+  assert.match(note, /you cannot read either file/);
+});
