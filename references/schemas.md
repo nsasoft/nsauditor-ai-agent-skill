@@ -74,7 +74,8 @@ Complete data structures for all MCP tool inputs and outputs.
     }
   ],
   "pluginsRan": 1,
-  "markdown": "# NSAuditor AI Scan Report …"
+  "markdown": "# NSAuditor AI Scan Report …",
+  "callWall": { "limitMs": 50000, "reached": false, "notStarted": [], "cutShort": [] }
 }
 ```
 
@@ -85,6 +86,11 @@ Complete data structures for all MCP tool inputs and outputs.
   `error`. A `timeout` or `error` means that surface was **NOT measured** — never read it as clean.
 - `pluginsRan` is the number of `manifest[]` entries whose status is `ran` — in this example, one of the two entries
   shown. It counts plugins, never ports or results.
+- `callWall` is on every response: the call's total time limit (`SCAN_HOST_WALL_MS`, `limitMs` 0 when off) and
+  whether it was `reached`. When it was, `notStarted` (plugins the limit reached before they started) and `cutShort`
+  (plugins stopped at it) list, in the order they would have run, plugins whose `manifest[]` entries read `timeout`;
+  a `note` field and the head of `markdown` say the scan is partial. Never read such a result as the host's whole
+  posture.
 - There is **no `findings` array** in a `scan_host` result, and no `techniques`: the CLI adds ATT&CK
   techniques to its own report, and this tool does not.
 

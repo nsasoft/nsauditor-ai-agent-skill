@@ -179,9 +179,16 @@ order (discovery → service probes → OS detection → result fusion).
 | `host` | string | ✅ | — | Target hostname or IP address |
 
 Every plugin runs under the server's `PLUGIN_TIMEOUT_MS` (default 30000), including a plugin that
-declares a longer budget of its own; there is no per-call timeout. A plugin that runs out of time
+declares a longer budget of its own; the call takes no timeout argument. A plugin that runs out of time
 reads `timeout` in the result's `manifest` — its surface was NOT measured, which is never a clean
-result.
+result. **The whole call stops at `SCAN_HOST_WALL_MS`** (default 50000; `0` = off), because a client may end a
+tool call at a limit of its own (Claude Desktop 3.x at about 60 s) and return nothing. When it stops, the response's
+`callWall.reached` is `true`, `callWall.notStarted` and `callWall.cutShort` list the plugins that did not measure
+(in the order they would have run), a `note` says the scan is partial, and the `markdown` opens with the same. **Say
+so in your answer: name those plugins and say the result is partial — never present the services found as the host's
+whole posture.** The plugins that run late (the TLS Scanner 011, the TLS certificate audit 040) are the first to be
+lost; for a complete scan the operator runs the CLI, or raises `SCAN_HOST_WALL_MS` in a client that does not cut the
+call.
 
 ⚠️ **What `scan_host` returns, and what it does NOT.** Services, the OS, and the flags the service checks leave on
 each service record: weak SSH algorithms, an SNMP default community, weak TLS protocols / ciphers and a self-signed
@@ -216,7 +223,7 @@ analysis-agent findings, and plugins 040 and 060 had recorded 2 and 3 HIGH findi
 response then. Those audit entries land on the records now and are counted; the CVEs and the agent findings still are
 not.
 
-**Returns:** `{ host, conclusion, manifest[], pluginsRan, markdown }` — `conclusion.result` is the fused
+**Returns:** `{ host, conclusion, manifest[], pluginsRan, markdown, callWall{ limitMs, reached, notStarted[], cutShort[] } }` (plus a `note` when `callWall.reached`) — `conclusion.result` is the fused
 record (`summary` is a one-line string; `host`, `services[]`, `evidence[]`), and `manifest[]`
 is every plugin's `{ id, name, status, reason, duration_ms }`; `pluginsRan` is the number of `manifest[]` entries
 whose status is `ran`. There is no `findings` array. See
@@ -651,6 +658,7 @@ See `references/schemas.md` for complete structures:
 | `DNS_CHECK_AXFR` / `DNS_AXFR_DOMAIN` | false / — | Let the DNS check try a zone transfer of that zone — without both, `axfrAllowed` stays null (not tested) |
 | `DNS_AUDIT_AXFR_CHECK` | false | Let the DNS-security audit (060) try a zone transfer of the scanned domain against each of its nameservers (`1`, `true`, `yes` or `on`). It connects to each nameserver's own address, outside the scan's host check, and records only an open transfer |
 | `ENABLE_SYN_SCAN` | false | Enable Nmap TCP SYN scanning (requires root) |
+| `SCAN_HOST_WALL_MS` | 50000 | MCP server only: the time limit for the whole `scan_host` call (`0` = off), so a client that ends tool calls at about 60 s still gets a disclosed partial — read `callWall` |
 | `NSA_MCP_RESPONSE_DIR` | unset (off) | MCP server only: an ABSOLUTE directory where the server saves each tool response, exactly as returned, as `<call_id>.txt` (directory `0700`, files `0600`, never overwriting), so `verify-call` works on a response the client truncated. Set in the client config's `env` block, then fully quit and reopen the client. The files hold scan results and are never removed by the server |
 
 ### Plugin-Specific Timeouts
