@@ -162,6 +162,11 @@ test('below the floor: no shipped .md teaches "runs as Community", and README + 
   for (const [where, s] of currentFloorUnits()) {
     assert.ok(s.length > 100, `${where} not found — re-derive this leg's subject`);
     assert.match(s, SYMPTOM, `${where} does not teach the measured below-floor symptom`);
+    // 1.1.0 (the audit-review seat's ruling): the stderr line is scoped to the install it was measured on, and the SILENT
+    // combined-install shape is taught beside it — a second Community nested under Enterprise, its stages skipped.
+    assert.match(s, /when Enterprise was installed on its own or after Community/, `${where} does not scope the stderr line to its install`);
+    assert.match(s, /in ONE `npm install -g` command is different: npm nests a second Community[^.]*?skipped with no message and no compliance pack/,
+      `${where} does not teach the silent combined-install shape`);
   }
 });
 
