@@ -4,6 +4,42 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 1.1.0 (⏳ PRE-PUBLISH — opened 2026-10-25, NOT YET ON npm) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles
+
+Paired with **Enterprise 2.1.0 / Community 1.1.0**. ⚠️ **The supported runtime is Node.js 24.22.1 or newer** — the October
+2026 Node.js security release for the 24 line (https://nodejs.org/en/blog/vulnerability/october-2026-security-releases);
+Enterprise 2.1.0 and Community 1.1.0 declare `engines.node >=24.22.1`. The Community floor does not move: Enterprise's
+`peerDependencies["nsauditor-ai"]` stays `>= 1.0.0`. What the skill teaches from this release, in `SKILL.md`'s header:
+
+- **(h) An unread cloud inventory is an evidence gap.** The CIS hardened-image census's three producers (1021, 1022, 1210)
+  each record one constant gap when their instance or VM inventory could not be read in full, with the cause as a class in
+  `details.censusLoss`; the CIS report's `cisHardenedImage.partial` names the cloud and the cause. Never read it as an
+  empty project, subscription or region, and never offer a container image as CIS hardened-image evidence.
+- **(i) An AWS region the account has not enabled** is skipped and reported as not scanned — one LOW Region row per
+  walker, 1040's `details.regionsNotEnabled`, 1210's census cause `service-off` — never as a permission to grant;
+  `["all"]` walks the enabled regions. The `scan_cloud` region-scope note says the same. Stated limit: when
+  `ec2:DescribeRegions` is denied the enabled set is unknown, and a listed region is scanned as before.
+- **(j) A cloud with nothing to address reads down:** an Azure scan with no `AZURE_SUBSCRIPTION_ID`, a GCP scan with no
+  project id or no loadable Google credentials returns `up: false` with its cause, so the provider does not read audited.
+- **(k) The MCP server (Community 1.1.0)**, taught as each change landed: `scan_host`'s `callWall` at `SCAN_HOST_WALL_MS`
+  (`9ecb388`); the receipts note — the model cannot verify or save a response, the operator runs `verify-call`
+  (`11bf223`); the request saved beside the response, `<call_id>.request.json` (`b738bb4`); a `scan_cloud` title ending
+  `(+N more via get_findings)` (`21b49d7`); and `get_findings`' `categoriesInScan` on a zero-row category call
+  (`9d20432`), whose note now also says never to say such a category may belong to a later or different release.
+- **(l) Lost measurement per scanner:** each `controls.lostMeasurement` entry names its `sources`; `--notify-severity`
+  governs new violations only; a down scanner's gap rows carry one sentence; a Vanta push names its gap rows.
+- `references/plugins.md`: plugin 1021's row names the Compute image inventory (`7242148`), and plugin 1222's Dim 3
+  reads `@azure/arm-monitor` 8's paged iterator (`b9081f2`).
+
+`SKILL.md`'s header carries the release's register verbatim:
+
+> Node.js 24.22.1 or newer is the supported runtime — the October 2026 Node.js security release for the 24 line. The cloud inventories the scan could not read in full — GCP instances, Azure virtual machines, the AWS EC2 feed of the CIS hardened-image census — are evidence gaps, not empty projects or subscriptions, and a listed AWS region the account has not enabled is skipped and recorded as not enabled, not reported as missing trails or as a permission to grant, wherever the account's enabled regions can be read. Through the MCP server (Community 1.1.0), a host scan stops at a total time limit by default and names the plugins it did not run, a response saved with `NSA_MCP_RESPONSE_DIR` keeps its request beside it for `verify-call`, and a CRITICAL, HIGH or evidence-gap title in `scan_cloud` says when its finding holds more than it shows.
+
+The 2.0.0 register moves to the `Prior: 1.0.0` line as history, because its runtime sentence (Node.js 24) is superseded by
+the 24.22.1 floor; its teaching — the drift file and notification (a), the resolved-address pin (b), the AI payload and
+plugin 040 (d) — still holds and stays in the header, and item (c) now states both floors. The 1.3.0 register and both of
+its measured limits still hold at Enterprise 2.1.0, so the header keeps them with (e), (f) and (g).
+
 ## 1.0.0 (2026-10-15) — Enterprise 2.0.0 / Community 1.0.0: Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID
 
 Paired with **Enterprise 2.0.0 / Community 1.0.0**. ⚠️ **The supported runtime is Node.js 24**, and Enterprise's

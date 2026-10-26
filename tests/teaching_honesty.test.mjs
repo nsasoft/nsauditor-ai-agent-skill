@@ -247,15 +247,27 @@ const R13 = 'A finding on a port, region or producer a scan did not measure is n
 // RE-ADJUDICATED AT 1.0.0 (the header renders EE 2.0.0): R13, the 1.3.0 register, stays TRUE — both of its measured limits
 // still hold at 2.0.0, and Enterprise's headline_scope_matches_behaviour legs still drive them — so it is kept where it teaches
 // the comparison (references/workflows.md) and in the CURRENT header after the 2.0.0 items, with the 0.2.55 teaching that
-// goes with it, once each. The header opens with the 2.0.0 register R, which describes what 2.0.0 adds; T is the 1.0.0
-// CHANGELOG heading's short form.
-const R = 'Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside '
+// goes with it, once each.
+// RE-ADJUDICATED AT 1.1.0 (the header renders EE 2.1.0): R, the 2.1.0 register, opens the header; T is the 1.1.0 CHANGELOG
+// heading's short form. R20, the 2.0.0 register, is HISTORY: its first sentence ("Node.js 24 is the supported runtime") is
+// superseded by the 24.22.1 floor, so it stands once, on the `Prior: 1.0.0` line, and never in the current header — while
+// the 2.0.0 teaching it headed, items (a)–(d), stays in the header. R13 is re-adjudicated as still true (Enterprise's R13
+// tie leg drives both limits at 2.1.0) and stays.
+const R = 'Node.js 24.22.1 or newer is the supported runtime — the October 2026 Node.js security release for the 24 line. '
+  + 'The cloud inventories the scan could not read in full — GCP instances, Azure virtual machines, the AWS EC2 feed of the '
+  + 'CIS hardened-image census — are evidence gaps, not empty projects or subscriptions, and a listed AWS region the account '
+  + 'has not enabled is skipped and recorded as not enabled, not reported as missing trails or as a permission to grant, '
+  + 'wherever the account\'s enabled regions can be read. Through the MCP server (Community 1.1.0), a host scan stops at a '
+  + 'total time limit by default and names the plugins it did not run, a response saved with `NSA_MCP_RESPONSE_DIR` keeps '
+  + 'its request beside it for `verify-call`, and a CRITICAL, HIGH or evidence-gap title in `scan_cloud` says when its '
+  + 'finding holds more than it shows.';
+const T = 'Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles';
+const R_EE = '2.1.0'; // the Enterprise release R describes
+const R20 = 'Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside '
   + 'its pack — controls to fail or to pass, controls that lost measurement, violations new or cleared, and what could not be '
   + 'measured, never read as cleared — and can notify a webhook, Slack or Teams when a control goes to fail or loses measurement, when a new violation reaches a severity you set, or when the drift could not be compared. A scan '
   + 'connects only to the addresses its host check resolved (Community 1.0.0), the AI payload carries no AWS account ID, and '
   + 'plugin 040\'s weak-key and weak-signature findings fail the certificate control in six of the eight frameworks.';
-const T = 'Node.js 24, the resolved-address pin, the drift file and its notification, an AI payload with no AWS account ID';
-const R_EE = '2.0.0'; // the Enterprise release R describes
 const occurrences = (hay, needle) => hay.split(needle).length - 1;
 const renderedEeVersion = () => /<!-- nsa:derived id="ee-version" -->([^<]+)<!-- \/nsa:derived -->/.exec(read('SKILL.md'))?.[1];
 const currentHeader = () => { const s = read('SKILL.md'); return s.slice(s.indexOf('> **Version:**'), s.indexOf('\n>\n> **Prior:')); };
@@ -279,6 +291,19 @@ test('the headline carries the register R verbatim, once, scoped to the Enterpri
   assert.equal(occurrences(read('SKILL.md'), R), 1, 'R is written once in SKILL.md, history included');
   assert.equal(occurrences(read('SKILL.md'), R13), 1, 'the 1.3.0 register is written once in SKILL.md');
   assert.equal(occurrences(h, R13), 1, 'the 1.3.0 register is still true, so it stays in the CURRENT header, once');
+});
+
+test('HISTORY: the 2.0.0 register (R20) stands once in SKILL.md, on the Prior: 1.0.0 line, and never in the current header', () => {
+  const s = read('SKILL.md');
+  assert.equal(occurrences(s, R20), 1, 'R20 is written once in SKILL.md');
+  assert.equal(occurrences(currentHeader(), R20), 0, 'R20\'s runtime sentence is superseded: it is history, never the current header');
+  const prior = s.split('\n').filter((l) => l.startsWith('> **Prior: 1.0.0**'));
+  assert.equal(prior.length, 1, 'the Prior: 1.0.0 line is missing');
+  assert.equal(occurrences(prior[0], `**2.0.0: ${R20}**`), 1, 'the Prior: 1.0.0 line carries the 2.0.0 register verbatim, in bold');
+  // the teaching it headed is still current, so it stays in the header
+  const h = currentHeader();
+  for (const item of ['(a) **The drift file and its notification (Enterprise 2.0.0).**', '(b) **The resolved-address pin (Community 1.0.0).**',
+    '(d) **2.0.0: the AI payload, plugin 040 and the service list.**']) assert.ok(h.includes(item), `the current header keeps ${item}`);
 });
 
 test('references/workflows.md states the 1.3.0 register (R13) once, at the "never by hand" comparison paragraph', () => {
@@ -452,13 +477,18 @@ test('the skill states one Node bound for 040, one window for the pin, both watc
 });
 
 test('a scan_cloud title marked "(+N more via get_findings)" is taught as one entry of several, with the drill that shows them all', () => {
+  // EVERY place SKILL.md quotes the marker teaches it whole (1.1.0: the header's item (k) quotes it before the scan_cloud
+  // note does, and a first-occurrence read then measured the header alone — the note went unread).
   const s = read('SKILL.md');
-  const i = s.indexOf('(+N more via get_findings)');
-  assert.ok(i >= 0, 'SKILL.md quotes the marker');
-  const around = s.slice(i, i + 420);
-  assert.match(around, /not the whole finding/);
-  assert.match(around, /`plugin` and `severity`/, 'the drill filters by plugin and severity: a CRITICAL/HIGH entry carries no category');
-  assert.match(around, /evidence statements as well as defects/, 'the entries are not all defects');
+  const at = [...s.matchAll(/\(\+N more via get_findings\)/g)].map((m) => m.index);
+  assert.ok(at.length >= 2, `SKILL.md quotes the marker in the header item (k) and in the scan_cloud note: found ${at.length}`);
+  assert.ok(at.some((i) => s.lastIndexOf('> **Interpreting `scan_cloud` results', i) > s.lastIndexOf('\n#', i)), 'one of them is in the scan_cloud note');
+  for (const i of at) {
+    const around = s.slice(i, i + 420);
+    assert.match(around, /not the whole finding/);
+    assert.match(around, /`plugin` and `severity`/, 'the drill filters by plugin and severity: a CRITICAL/HIGH entry carries no category');
+    assert.match(around, /evidence statements as well as defects/, 'the entries are not all defects');
+  }
 });
 
 test('the receipts note teaches the saved request beside the saved response, and that the model cannot read either', () => {

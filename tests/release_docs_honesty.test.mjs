@@ -140,7 +140,10 @@ const BELOW_FLOOR_FALSE = [/\b(?:runs?|running|ran) (?:silently )?as Community\b
 const SYMPTOM = /core does not load while its plugins still do — on Community 0\.2\.57 as on 0\.2\.56\b[^]*?so the scan skips its intelligence, analysis-agent and compliance stages/;
 const currentFloorUnits = () => {
   const c = read('SKILL.md').split('\n')[17].split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
-  const readme = read('README.md').split('\n').find((l) => /A floor bump: requires Community/.test(l)) ?? '';
+  // The README's CURRENT release line, found by the version the package ships — never by a phrase a Prior line also carries
+  // (1.1.0 is not a Community floor bump, so "A floor bump: requires Community" now matches only the Prior: 1.0.0 line).
+  const v = JSON.parse(read('package.json')).version;
+  const readme = read('README.md').split('\n').find((l) => l.startsWith(`**${v}** `)) ?? '';
   return [['SKILL.md header (c)', c], ['README.md current floor line', readme]];
 };
 
