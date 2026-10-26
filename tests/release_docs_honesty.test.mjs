@@ -137,6 +137,7 @@ const BELOW_FLOOR_FALSE = [/\b(?:runs?|running|ran) (?:silently )?as Community\b
 // the README's current floor line. A whole-file match was satisfied by the 0.2.54 record's wording alone (the architect
 // seat's MS-W: (c) reverted to the old wording, this leg stayed green); a dated record is history and needs no pin.
 // RE-MEASURED at 1.0.0: Enterprise 2.0.0 on Community 0.2.57 and 0.2.56 — the core does not load, the 29 plugins do.
+// RE-MEASURED at 1.1.0: Enterprise 2.1.0, installed after the published Community 0.2.57 and 0.2.56 — the same shape.
 const SYMPTOM = /core does not load while its plugins still do — on Community 0\.2\.57 as on 0\.2\.56\b[^]*?so the scan skips its intelligence, analysis-agent and compliance stages/;
 const currentFloorUnits = () => {
   const c = read('SKILL.md').split('\n')[17].split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
