@@ -256,6 +256,8 @@ Out of scope, with the control ids and the per-group out-of-scope reasons.
 **ALWAYS call this before stating or tabulating any coverage matrix, and quote what it returns.** Do NOT derive a
 matrix from the plugin inventory, from a scan result, or from documentation — coverage is a property of the shipped
 framework maps, not of the plugin list, and a derived matrix will disagree with the customer's own report.
+It is open at every licence tier but reads the framework maps the Enterprise package ships: with Enterprise not
+installed it returns an error that names the licence the package needs. Say that, and state no matrix.
 
 ⚠️ **QUOTE the severity header the scan printed — never re-type it from the findings you read.** `scan_cloud` renders one line per provider, `N CRITICAL · N HIGH · N MEDIUM · N LOW · N INFO · N PASS`, and **the INFO column is load-bearing: it carries the evidence gaps and the deferred-scope boundaries.** Re-typing that line while summarising is how the column goes missing — measured 2026-09-18, a GCP reply reported `5 CRITICAL · 2 HIGH · 11 MEDIUM · 0 LOW · 11 PASS` over a header that read `… 0 LOW · 3 INFO · 11 PASS`. Every other number was right. **This is the exact regression the product itself fixed at EE 0.32.11**, when a header could read `…0 LOW · 17 PASS` over 62 unreported INFO records — reproduced one layer up, in the retelling. If you report tiers at all, report every tier the product printed, INFO included, even when it is zero.
 
@@ -556,7 +558,7 @@ User wants to...
 │                                         vanished unmeasured as fixed; report --since refuses it, but
 │                                         the header's two measured limits still apply — compare runs
 │                                         made by Enterprise 1.3.0 or later, and include the port scanner 003)
-├── State framework COVERAGE            → compliance_matrix (any tier)
+├── State framework COVERAGE            → compliance_matrix (any tier; needs the Enterprise package installed, which it reads)
 └── Produce a compliance EVIDENCE PACK  → CLI with --compliance (not MCP)
 ```
 

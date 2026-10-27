@@ -361,7 +361,7 @@ User wants to...
 │                                         --alert-severity; never on the first cycle — §5)
 ├── Compare two scans                   → CLI (Pro): nsauditor-ai report --from <dir> --format executive --since prior
 │                                         (not MCP; NEVER by hand)
-├── State framework COVERAGE            → compliance_matrix (any tier)
+├── State framework COVERAGE            → compliance_matrix (any tier; needs the Enterprise package installed, which it reads)
 ├── Produce a compliance EVIDENCE PACK  → CLI: --compliance <fw> --out <dir> (not MCP)
 ├── Generate a formatted report         → CLI: --output-format sarif|csv|md (not MCP)
 └── Produce a CLIENT-FACING report      → CLI (Pro): nsauditor-ai report --from <dir>
