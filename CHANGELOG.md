@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 1.1.0 (⏳ PRE-PUBLISH — opened 2026-10-25, NOT YET ON npm) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles
+## 1.1.0 (2026-10-26) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles
 
 Paired with **Enterprise 2.1.0 / Community 1.1.0**. ⚠️ **The supported runtime is Node.js 24.22.1 or newer** — the October
 2026 Node.js security release for the 24 line (https://nodejs.org/en/blog/vulnerability/october-2026-security-releases);
