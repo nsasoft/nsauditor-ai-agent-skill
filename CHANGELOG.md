@@ -15,12 +15,12 @@ Enterprise 2.1.0 and Community 1.1.0 declare `engines.node >=24.22.1`. The Commu
   each record one constant gap when their instance or VM inventory could not be read in full, with the cause as a class in
   `details.censusLoss`; the CIS report's `cisHardenedImage.partial` names the cloud and the cause. Never read it as an
   empty project, subscription or region, and never offer a container image as CIS hardened-image evidence.
-- **(i) An AWS region the account has not enabled** is skipped and reported as not scanned — one LOW Region row per
+- **(i) A listed AWS region the account has not enabled** is skipped and reported as not scanned — one LOW Region row per
   walker, 1040's `details.regionsNotEnabled`, 1210's census cause `service-off` — never as a permission to grant;
   `["all"]` walks the enabled regions. The `scan_cloud` region-scope note says the same. Stated limit: when
-  `ec2:DescribeRegions` is denied the enabled set is unknown, and a listed region is scanned as before.
-- **(j) A cloud with nothing to address reads down:** an Azure scan with no `AZURE_SUBSCRIPTION_ID`, a GCP scan with no
-  project id or no loadable Google credentials returns `up: false` with its cause, so the provider does not read audited.
+  `ec2:DescribeRegions` is denied the enabled set is unknown, and a listed region is scanned as before. A region named by `AWS_REGION` rather than listed is not covered by this change.
+- **(j) No subscription or project? The scan says why:** the four Azure plugins (no `AZURE_SUBSCRIPTION_ID`) and the GCP security audit 1021 (no
+  project id or no loadable Google credentials) return `up: false` with the cause. Azure then reads not audited; GCP can still read audited, because the GCP Cloud Storage auditor (1024) still reports itself up (taught in SKILL.md (j)).
 - **(k) The MCP server (Community 1.1.0)**, taught as each change landed: `scan_host`'s `callWall` at `SCAN_HOST_WALL_MS`
   (`9ecb388`); the receipts note — the model cannot verify or save a response, the operator runs `verify-call`
   (`11bf223`); the request saved beside the response, `<call_id>.request.json` (`b738bb4`); a `scan_cloud` title ending
