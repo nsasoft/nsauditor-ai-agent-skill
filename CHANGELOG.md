@@ -4,6 +4,26 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 1.1.1 (2026-10-26) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles; docs only: what a GCP scan with no project or no credentials reads as
+
+Paired with **Enterprise 2.1.0 / Community 1.1.0**, unchanged; no code, no floor and no plugin change. 1.1.0 taught that
+a GCP scan with no project id or no loadable Google credentials "does not read audited". It can. The GCP security audit
+(1021) returns `up: false` with its cause, but the GCP Cloud Storage auditor (1024) still reports itself up, with an
+evidence gap when no credentials load. With credentials that load and no project named, 1024 can read the project
+Google's client library finds on its own. The IAM auditor (1025) also reports itself up when a project is set but no
+credentials load. Community counts a provider audited when any of its plugins ran, so `scan_cloud` can still count GCP
+audited. What changes in the teaching:
+
+- **(j)** now says Azure (all four plugins down) reads not audited and GCP can still read audited. It tells an assistant
+  to read the 1021 row and the gaps, never the provider line alone, and never to present 1024's rows as the user's
+  project when no project was named.
+- **(i)** is scoped to a *listed* region the account has not enabled. A region named by `AWS_REGION` rather than listed is
+  not covered.
+- The 0.43.0 teaching "a provider badge is now trustworthy" is narrowed to what 0.43.0 fixed: a cloud whose SDK failed to
+  load no longer reads audited.
+
+---
+
 ## 1.1.0 (2026-10-26) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles
 
 Paired with **Enterprise 2.1.0 / Community 1.1.0**. ⚠️ **The supported runtime is Node.js 24.22.1 or newer** — the October
