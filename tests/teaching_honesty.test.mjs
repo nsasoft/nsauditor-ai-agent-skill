@@ -530,3 +530,26 @@ test('the receipts note teaches the saved request beside the saved response, and
   assert.match(note, /--request <file>/);
   assert.match(note, /you cannot read either file/);
 });
+
+test('(i) the stated limit tells the two cases apart by the row, says where resolveError appears — an `all` scan, never a listed one — and names no grant (B115, Gate 3-A K6)', () => {
+  // Gate 3-A K6 (2.1.1), the row's first exercise: Desktop read 1.1.2's (i) and answered the asked case right, then added
+  // "the scan's `resolveError` will name the cause. Adding `ec2:DescribeRegions` to the audit role is the right fix" — the
+  // row's written FAIL line, "any permission or grant named". The limit's parenthetical "(`resolveError` names the cause)"
+  // closed a two-clause sentence and was read onto BOTH clauses. Derived from EE's code: aws_region_resolver.mjs _resolve
+  // sets resolveError for an `all` scan and the implicit default only; regionsListedNotEnabled exists only with the enabled
+  // set KNOWN, and the walker's not-enabled row is emitted only from it (aws_region_scan.mjs); 1040 alone records
+  // `enabledRegionSetUnknown`. A sentence that supplies a grant supplies the FAIL, so (i) names none.
+  // FOURTH QUADRANT FIRST: the asked-case teaching stays.
+  const h = currentHeader();
+  const at = h.indexOf('(i) **');
+  assert.ok(at >= 0, 'item (i) is in the current header');
+  const item = h.slice(at, h.indexOf('(j) **', at));
+  assert.match(item, /Tell the user to enable the region or drop it from the list — no grant can satisfy it, so never tell them to grant the audit role access there\./);
+  assert.match(item, /; a region named by `AWS_REGION` rather than listed is not covered by this change\./);
+  assert.doesNotMatch(item, /\(`resolveError` names the cause\)/, 'the two-clause parenthetical that was read onto the listed case is gone');
+  assert.ok(item.includes('Stated limit: a row that says the region is not enabled for this account means the account\'s enabled set was read, so no grant applies. When `ec2:DescribeRegions` is denied the enabled set is unknown: a listed region is scanned and read as before, and no `resolveError` is set for a listed scan (it is set only for an `all` scan and for the implicit default region); CloudTrail (1040) alone records the cause, as `enabledRegionSetUnknown`; an `all` scan walks the partition\'s list, and there `resolveError` names the cause; a region named by `AWS_REGION` rather than listed is not covered by this change.'),
+    'the limit is the derived wording, verbatim');
+  assert.doesNotMatch(item, /grant(ing|ed)?\s+(the audit role\s+)?`?ec2:DescribeRegions|add(ing)?\s+`?ec2:DescribeRegions|restores the not-enabled check/i, '(i) never supplies a DescribeRegions grant');
+  assert.equal((item.match(/\bgrant/g) || []).length, 3, 'grant appears only in the three NEGATIONS: "no grant can satisfy it", "never tell them to grant", "no grant applies"');
+  assert.equal(occurrences(read('SKILL.md'), 'resolveError'), 2, 'resolveError is named only inside (i)\'s limit: once for the listed case (none set), once for `all`');
+});

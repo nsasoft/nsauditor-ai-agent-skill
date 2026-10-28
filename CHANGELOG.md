@@ -19,6 +19,11 @@ to a `Prior: 1.1.1` line, kept word for word, and every item it carried still ho
   tokens the provider read and the input's estimate; never present such an assessment as covering the scan.
 - **(n) new: a tier denial names the tools the caller can use now (Community 1.1.1).**
 - **(o) new: `nsauditor-ai license` with an unknown subcommand, or none, exits 2 (Community 1.1.1).**
+- **(i)'s stated limit corrected, re-cut in place before publish (Gate 3-A K6, EE board B115).** It ended "(`resolveError`
+  names the cause)" after a two-clause sentence, so it read as true of a listed scan, which sets no `resolveError`. Now the
+  not-enabled row means the enabled set was read; with `ec2:DescribeRegions` denied, a listed scan sets no `resolveError`,
+  CloudTrail (1040) alone records `enabledRegionSetUnknown`, and an `all` scan's `resolveError` names the cause. It names
+  no grant.
 - **`compliance_matrix` is open at every tier but needs the Enterprise package installed** (SKILL.md and
   `references/workflows.md`; board B98's skill half).
 - `.DS_Store` is ignored (B96's skill half).
