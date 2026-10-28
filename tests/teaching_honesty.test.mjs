@@ -253,7 +253,24 @@ const R13 = 'A finding on a port, region or producer a scan did not measure is n
 // superseded by the 24.22.1 floor, so it stands once, on the `Prior: 1.0.0` line, and never in the current header — while
 // the 2.0.0 teaching it headed, items (a)–(d), stays in the header. R13 is re-adjudicated as still true (Enterprise's R13
 // tie leg drives both limits at 2.1.0) and stays.
-const R = 'Node.js 24.22.1 or newer is the supported runtime — the October 2026 Node.js security release for the 24 line. '
+// RE-ADJUDICATED AT 1.1.2 (the header renders EE 2.1.1): R, the 2.1.1 register, opens the header; T is the 1.1.2 CHANGELOG
+// heading's short form. R210, the 2.1.0 register, is SUPERSEDED AS HEADLINE, STILL TRUE: every clause of it still holds at
+// 2.1.1, so unlike R20 nothing in it went false. It stands once, on the `Prior: 1.1.1` line, never in the current header,
+// while the 2.1.0 teaching it headed, items (h)–(l), stays in the header, with (j) rewritten for 2.1.1's GCP plugins.
+// NOT CLAIMED by R (each deliberately): that a GCP scan with no project or no credentials no longer reads audited (the
+// provider-line consequence was not driven through scan_cloud); anything advisory-free (msal ships under the operator's
+// renewed override); 'for every install shape' (R names the shape Community's SECURITY.md measured); and anything about the
+// Claude provider's threshold (not measured).
+const R = 'The GCP Cloud Storage (1024) and IAM (1025) auditors report themselves down, with the cause, when no GCP project is se'
+  + 't or no usable credential loads, as the GCP security audit (1021) does. Community 1.1.1 moves its OpenAI client to `op'
+  + 'enai` 7, so a project that depends on it holds one `zod` at 4.6.6 or later, with no `overrides`; its AI stage says at '
+  + 'the head of the assessment when the provider reports reading less than half of the input, by the stage\'s own estimate;'
+  + ' a tier denial names the tools the caller can use now; and `nsauditor-ai license` with an unknown subcommand, or none,'
+  + ' exits 2.';
+const T = 'GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use';
+const R_EE = '2.1.1'; // the Enterprise release R describes
+// R210 (2.1.0) — superseded as headline, still true: kept byte for byte on the Prior: 1.1.1 line.
+const R210 = 'Node.js 24.22.1 or newer is the supported runtime — the October 2026 Node.js security release for the 24 line. '
   + 'The cloud inventories the scan could not read in full — GCP instances, Azure virtual machines, the AWS EC2 feed of the '
   + 'CIS hardened-image census — are evidence gaps, not empty projects or subscriptions, and a listed AWS region the account '
   + 'has not enabled is skipped and recorded as not enabled, not reported as missing trails or as a permission to grant, '
@@ -261,8 +278,7 @@ const R = 'Node.js 24.22.1 or newer is the supported runtime — the October 202
   + 'total time limit by default and names the plugins it did not run, a response saved with `NSA_MCP_RESPONSE_DIR` keeps '
   + 'its request beside it for `verify-call`, and a CRITICAL, HIGH or evidence-gap title in `scan_cloud` says when its '
   + 'finding holds more than it shows.';
-const T = 'Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles';
-const R_EE = '2.1.0'; // the Enterprise release R describes
+const T210 = 'Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles';
 const R20 = 'Node.js 24 is the supported runtime. Every one-shot compliance scan writes what changed since the previous scan beside '
   + 'its pack — controls to fail or to pass, controls that lost measurement, violations new or cleared, and what could not be '
   + 'measured, never read as cleared — and can notify a webhook, Slack or Teams when a control goes to fail or loses measurement, when a new violation reaches a severity you set, or when the drift could not be compared. A scan '
@@ -304,6 +320,20 @@ test('HISTORY: the 2.0.0 register (R20) stands once in SKILL.md, on the Prior: 1
   const h = currentHeader();
   for (const item of ['(a) **The drift file and its notification (Enterprise 2.0.0).**', '(b) **The resolved-address pin (Community 1.0.0).**',
     '(d) **2.0.0: the AI payload, plugin 040 and the service list.**']) assert.ok(h.includes(item), `the current header keeps ${item}`);
+});
+
+// FOURTH QUADRANT FIRST: the record must be byte-exact (a one-character edit is a different sentence) and must stand on its
+// own Prior line; R210 on the current header is the other failure, and the label says why this leg is not R20's.
+test('2.1.0 RECORD (superseded as headline, still true): R210 stands once, on the Prior: 1.1.1 line, never in the current header', () => {
+  const s = read('SKILL.md');
+  const prior = s.split('\n').filter((l) => l.startsWith('> **Prior: 1.1.1**'));
+  assert.equal(prior.length, 1, 'the Prior: 1.1.1 line is missing');
+  assert.equal(occurrences(prior[0], `**2.1.0: ${R210}**`), 1, 'the Prior: 1.1.1 line carries the 2.1.0 register verbatim, in bold — a one-character edit fails here');
+  assert.equal(occurrences(s, R210), 1, 'R210 is written once in SKILL.md');
+  assert.equal(occurrences(currentHeader(), R210), 0, 'R210 is the 2.1.0 headline: superseded as headline, so never in the current header');
+  const h = currentHeader();
+  for (const item of ['(h) **', '(i) **', '(j) **No subscription or project? The scan says why (Enterprise 2.1.0; the other two GCP plugins from 2.1.1).**', '(k) **', '(l) **'])
+    assert.ok(h.includes(item), `the 2.1.0 teaching it headed stays in the current header: ${item}`);
 });
 
 test('references/workflows.md states the 1.3.0 register (R13) once, at the "never by hand" comparison paragraph', () => {

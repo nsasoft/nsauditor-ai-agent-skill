@@ -4,6 +4,25 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## 1.1.2 (⏳ PRE-PUBLISH — opened 2026-10-27, NOT YET ON npm) — Enterprise 2.1.1 / Community 1.1.1: GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use
+
+Paired with **Enterprise 2.1.1 / Community 1.1.1**. No floor change: requires Community >= 1.0.0, as 1.0.0 did, and
+Community 1.1.1 is recommended beside Enterprise 2.1.1. The header opens with the 2.1.1 headline; the 2.1.0 headline moves
+to a `Prior: 1.1.1` line, kept word for word, and every item it carried still holds.
+
+- **(j) rewritten.** From Enterprise 2.1.1 the GCP Cloud Storage (1024) and IAM (1025) auditors return `up: false` with
+  the cause when no project is set or no usable credential loads, as the security audit (1021) does from 2.1.0. What 1.1.1
+  taught about 1024 and 1025 reading up is kept, scoped to Enterprise 2.1.0. The stated limit holds on 2.1.1: without
+  impersonation, a key file that loads but is revoked, or lacks the IAM permission, still fails at the first call and stays
+  a LOW evidence gap with `up: true`.
+- **(m) new: an AI assessment of part of the scan says so (Community 1.1.1).** The files open with one line naming the
+  tokens the provider read and the input's estimate; never present such an assessment as covering the scan.
+- **(n) new: a tier denial names the tools the caller can use now (Community 1.1.1).**
+- **(o) new: `nsauditor-ai license` with an unknown subcommand, or none, exits 2 (Community 1.1.1).**
+- **`compliance_matrix` is open at every tier but needs the Enterprise package installed** (SKILL.md and
+  `references/workflows.md`; board B98's skill half).
+- `.DS_Store` is ignored (B96's skill half).
+
 ## 1.1.1 (2026-10-26) — Enterprise 2.1.0 / Community 1.1.0: Node.js 24.22.1, unread cloud inventories as evidence gaps, regions the account has not enabled, the scan_host time limit, saved requests and multi-entry titles; docs only: what a GCP scan with no project or no credentials reads as
 
 Paired with **Enterprise 2.1.0 / Community 1.1.0**, unchanged; no code, no floor and no plugin change. 1.1.0 taught that
