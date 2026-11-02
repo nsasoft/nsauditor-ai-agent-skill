@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 1.1.2 (⏳ PRE-PUBLISH — opened 2026-10-27, NOT YET ON npm) — Enterprise 2.1.1 / Community 1.1.1: GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use
+## 1.1.2 (2026-11-01) — Enterprise 2.1.1 / Community 1.1.1: GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use
 
 Paired with **Enterprise 2.1.1 / Community 1.1.1**. No floor change: requires Community >= 1.0.0, as 1.0.0 did, and
 Community 1.1.1 is recommended beside Enterprise 2.1.1. The header opens with the 2.1.1 headline; the 2.1.0 headline moves
