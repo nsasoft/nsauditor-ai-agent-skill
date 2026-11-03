@@ -4,6 +4,10 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
+## Unreleased
+
+- **An evidence pack is described as built for auditor review, not as already accepted (EE board B146).** SKILL.md's multi-framework paragraph and `references/plugins.md`'s plugin-ID note each said a scan produces a pack the auditor would take as it stands; acceptance is the auditor's to confer, so both now say one complete evidence pack per framework requested, built for auditor review. Teaching text only; rides the skill's next trio lines.
+
 ## 1.1.2 (2026-11-01) — Enterprise 2.1.1 / Community 1.1.1: GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use
 
 Paired with **Enterprise 2.1.1 / Community 1.1.1**. No floor change: requires Community >= 1.0.0, as 1.0.0 did, and
