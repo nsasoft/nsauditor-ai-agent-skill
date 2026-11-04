@@ -221,7 +221,7 @@ This package provides **knowledge about** NSAuditor AI. To actually **run** scan
 | Edition | Price | Highlights |
 |---------|-------|-----------|
 | **Community** | Free / MIT | 27 plugins (service probes + host/network discovery + intelligence/meta), basic AI, SARIF, CTEM, scan history |
-| **Pro** | $49/mo | + CVE matching, risk scoring, and intelligence-enriched AI prompts (CVE + MITRE ATT&CK context injected) |
+| **Pro** | $470/yr | + CVE matching, risk scoring, and intelligence-enriched AI prompts (CVE + MITRE ATT&CK context injected) |
 | **Enterprise** | $2k+/yr | + 29 enterprise plugins (1020-1230 range) — 28 cloud-substrate auditors across AWS / Azure / GCP plus `1023 Zero Trust Assessment`, which scores zero-trust posture from a NETWORK-host scan and does not run on a cloud pass, multi-framework evidence-pack (SOC 2 / HIPAA / NIST CSF 2.0 / PCI DSS v4.0.1 / ISO 27001:2022 / CIS Controls v8 / GDPR Art. 32 / NIST SP 800-171 Rev 2), SHA-256 chain-of-custody attestations, the suppression-approval CLI with opt-in Ed25519 signing (reachable from EE 0.35.0, proven 0.36.0, verified per approver holding key material), air-gapped operation (offline licensing + offline CVE matching) |
 
 → [Pricing](https://www.nsauditor.com/ai/pricing/)
