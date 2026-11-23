@@ -631,12 +631,13 @@ See `references/schemas.md` for complete structures:
    Never scan hosts without explicit user instruction. Unauthorized scanning is illegal.
 
 5. **Non-Destructive:** every scanner probe is a read-only query — NSAuditor AI never
-   exploits vulnerabilities or modifies target systems. (Active *verification* probes are
-   WITHDRAWN — not shipped and not planned; findings are emitted UNVERIFIED.) Every row of the
-   finding queue carries `UNVERIFIED`, `[COVERAGE GAP]` rows included, so the status says nothing
-   about a row: report a finding as what the scanner detected, never as "tried and could not be
-   confirmed". What says a check did NOT measure is a `[COVERAGE GAP]` title, an
-   `evidenceGap: true` marker or a `coverage UNVERIFIED` summary line.
+   exploits vulnerabilities or modifies target systems.
+   (Active *verification* probes are WITHDRAWN — not shipped and not planned; findings are
+   emitted UNVERIFIED.) Every row of the finding queue carries `UNVERIFIED`, `[COVERAGE GAP]`
+   rows included, so the status says nothing about a row: report a finding as what the
+   scanner detected, never as "tried and could not be confirmed". What says a check did NOT
+   measure is a `[COVERAGE GAP]` title, an `evidenceGap: true` marker or a
+   `coverage UNVERIFIED` summary line.
 
 ---
 
