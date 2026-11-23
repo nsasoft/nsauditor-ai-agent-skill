@@ -257,18 +257,41 @@ const R13 = 'A finding on a port, region or producer a scan did not measure is n
 // heading's short form. R210, the 2.1.0 register, is SUPERSEDED AS HEADLINE, STILL TRUE: every clause of it still holds at
 // 2.1.1, so unlike R20 nothing in it went false. It stands once, on the `Prior: 1.1.1` line, never in the current header,
 // while the 2.1.0 teaching it headed, items (h)–(l), stays in the header, with (j) rewritten for 2.1.1's GCP plugins.
-// NOT CLAIMED by R (each deliberately): that a GCP scan with no project or no credentials no longer reads audited (the
+// NOT CLAIMED by R211 (each deliberately): that a GCP scan with no project or no credentials no longer reads audited (the
 // provider-line consequence was not driven through scan_cloud); anything advisory-free (msal ships under the operator's
-// renewed override); 'for every install shape' (R names the shape Community's SECURITY.md measured); and anything about the
-// Claude provider's threshold (not measured).
-const R = 'The GCP Cloud Storage (1024) and IAM (1025) auditors report themselves down, with the cause, when no GCP project is se'
+// renewed override); 'for every install shape' (R211 names the shape Community's SECURITY.md measured); and anything about
+// the Claude provider's threshold (not measured).
+// RE-ADJUDICATED AT 1.2.0 (the header renders EE 2.2.0; EE v301 item 5, the architect's Q1(d)/G-D): R, the 2.2.0 register
+// as the architect ruled it (q1-q6 Q4 sentences 1 and 3; the 96037d0 R-clause verdict, sentence 2; sentence 4 as re-ruled
+// in architect-verdict-v304-item5-precommit-q1-q3.md, "opt-in" twice, because the GRC push and verify and the RFC 3161
+// query are default-off in utils/egress_register.mjs and only the NVD lookup is default-on), opens the header; T is
+// the 1.2.0 CHANGELOG heading's short form. R211, the 2.1.1 register, is SUPERSEDED AS HEADLINE; each clause was
+// re-adjudicated at 2.2.0 before it stands on the `Prior: 1.1.2` line (see R211_ADJUDICATION below), and the 2.1.1 teaching
+// it headed, items (j) and (m)–(o), stays in the header.
+const R = 'Node.js 24.22.3 or newer is the supported runtime — the November 2026 Node.js security release for the 24 line — '
+  + 'and Enterprise 2.2.0 declares Community 1.2.0 or newer as its peer. With Community 1.2.0 or newer, a proxy password '
+  + 'that a customer-configured credential helper prints is removed from a plugin\'s result and its throw before the '
+  + 'compliance report, the drift file and the AI payload are built — as written, percent-decoded, re-encoded and '
+  + 'JSON-escaped, each form when it is at least 8 characters long. The EC2 security-group auditor (1170) fails its '
+  + 'controls closed when a security-group or network-interface listing is refused, as it does when one fails; a pack '
+  + 'produced earlier is not corrected, and the CHANGELOG says how to recognise one the defect reached. The opt-in GRC push '
+  + 'and verify, the opt-in RFC 3161 timestamp query and Community\'s NVD lookup refuse a redirect, and the GCP auditors refuse a '
+  + 'universe-domain variable or a credential file that names a host outside googleapis.com, and a Cloud Storage client '
+  + 'bound to a custom endpoint.';
+const T = 'Node.js 24.22.3 and Community 1.2.0, a helper-printed proxy password removed from plugin results, refused 1170 listings fail closed, three requests refuse a redirect, three GCP settings refused';
+const R_EE = '2.2.0'; // the Enterprise release R describes
+// R211 (2.1.1) — superseded as headline at 1.2.0; kept on the Prior: 1.1.2 line.
+const R211 = 'The GCP Cloud Storage (1024) and IAM (1025) auditors report themselves down, with the cause, when no GCP project is se'
   + 't or no usable credential loads, as the GCP security audit (1021) does. Community 1.1.1 moves its OpenAI client to `op'
   + 'enai` 7, so a project that depends on it holds one `zod` at 4.6.6 or later, with no `overrides`; its AI stage says at '
   + 'the head of the assessment when the provider reports reading less than half of the input, by the stage\'s own estimate;'
   + ' a tier denial names the tools the caller can use now; and `nsauditor-ai license` with an unknown subcommand, or none,'
   + ' exits 2.';
-const T = 'GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use';
-const R_EE = '2.1.1'; // the Enterprise release R describes
+const R211_NOTE = 'Re-adjudicated at 2.2.0, clause by clause: clauses 1, 3, 4 and 5 hold of Enterprise 2.2.0 and Community 1.2.0. '
+  + 'Clause 2 is Community 1.1.1\'s: Community 1.2.0 declares the same `openai` and `zod` ranges, with no `overrides`; the one-'
+  + '`zod` install was measured for 1.1.1 and has not been measured for 1.2.0. Its teaching — items (j) and (m)–(o) — is '
+  + 'carried forward in the header above; no clause of it is superseded.';
+const T211 = 'GCP 1024 and 1025 down with a cause, openai 7 and one zod, a partial AI read stated, tier denials that name what you can use';
 // R210 (2.1.0) — superseded as headline, still true: kept byte for byte on the Prior: 1.1.1 line.
 const R210 = 'Node.js 24.22.1 or newer is the supported runtime — the October 2026 Node.js security release for the 24 line. '
   + 'The cloud inventories the scan could not read in full — GCP instances, Azure virtual machines, the AWS EC2 feed of the '
@@ -334,6 +357,41 @@ test('2.1.0 RECORD (superseded as headline, still true): R210 stands once, on th
   const h = currentHeader();
   for (const item of ['(h) **', '(i) **', '(j) **No subscription or project? The scan says why (Enterprise 2.1.0; the other two GCP plugins from 2.1.1).**', '(k) **', '(l) **'])
     assert.ok(h.includes(item), `the 2.1.0 teaching it headed stays in the current header: ${item}`);
+});
+
+// FOURTH QUADRANT FIRST, as for R210: the record is byte-exact and stands on its own Prior line, and the 2.1.1 teaching it
+// headed stays current. Re-adjudicated clause by clause at 2.2.0 (the architect's Q1(d)): every clause still holds of
+// Enterprise 2.2.0 / Community 1.2.0, so it moves whole, like R210 at 1.1.2.
+test('2.1.1 RECORD (superseded as headline at 1.2.0): R211 stands once, on the Prior: 1.1.2 line, never in the current header', () => {
+  const s = read('SKILL.md');
+  const prior = s.split('\n').filter((l) => l.startsWith('> **Prior: 1.1.2**'));
+  assert.equal(prior.length, 1, 'the Prior: 1.1.2 line is missing');
+  assert.equal(occurrences(prior[0], `**2.1.1: ${R211}**`), 1, 'the Prior: 1.1.2 line carries the 2.1.1 register verbatim, in bold — a one-character edit fails here');
+  assert.equal(occurrences(s, R211), 1, 'R211 is written once in SKILL.md');
+  assert.equal(occurrences(currentHeader(), R211), 0, 'R211 is the 2.1.1 headline: superseded as headline, so never in the current header');
+  // Q3 of the v304 item-5 pre-commit verdict: clause 2 is Community 1.1.1's, and equal ranges are not equal resolution, so the
+  // note says which clauses hold of 2.2.0 / 1.2.0 and what was measured for clause 2, never one sentence about all five.
+  assert.equal(occurrences(prior[0], R211_NOTE), 1, 'the Prior: 1.1.2 line carries the re-adjudication note as ruled');
+  assert.ok(prior[0].indexOf(R211_NOTE) > prior[0].indexOf(R211), 'the note follows the record');
+  assert.doesNotMatch(prior[0], /each still holds of Enterprise 2\.2\.0 and Community 1\.2\.0/, 'no blanket "each still holds" over clause 2');
+  const h = currentHeader();
+  for (const item of ['(j) **No subscription or project? The scan says why (Enterprise 2.1.0; the other two GCP plugins from 2.1.1).**',
+    '(m) **An AI assessment of part of the scan says so (Community 1.1.1).**', '(n) **A tier denial names the tools the caller can use now (Community 1.1.1).**',
+    '(o) **`nsauditor-ai license` with an unknown subcommand, or none, exits 2 (Community 1.1.1'])
+    assert.ok(h.includes(item), `the 2.1.1 teaching it headed stays in the current header: ${item}`);
+  const cl = read('CHANGELOG.md');
+  assert.equal(occurrences(cl, T211), 1, 'the 1.1.2 CHANGELOG heading keeps its short form, once');
+});
+
+// R-7 (EE architect verdict 77328a4, G-9): a Prior line is history, so it carries hand text. A derived region there is
+// re-rendered to the CURRENT trio by every render:derived run and turns a dated record into a false statement about it.
+// FOURTH QUADRANT FIRST: the accept side is that the CURRENT header still carries its derived regions.
+test('R-7: no nsa:derived region on a line that begins "> **Prior:" in SKILL.md; the current header keeps its regions', () => {
+  const lines = read('SKILL.md').split('\n');
+  assert.ok(/<!-- nsa:derived id="ee-version" -->/.test(lines[17]) && /<!-- nsa:derived id="ce-floor" -->/.test(lines[17]),
+    'positive control: the current header (line 18) carries the derived ee-version and ce-floor regions');
+  const bad = lines.map((l, i) => [i + 1, l]).filter(([, l]) => l.startsWith('> **Prior:') && /<!-- nsa:derived /.test(l)).map(([n]) => n);
+  assert.deepEqual(bad, [], `Prior lines carrying a derived region: ${bad.join(', ')}`);
 });
 
 test('references/workflows.md states the 1.3.0 register (R13) once, at the "never by hand" comparison paragraph', () => {
@@ -450,26 +508,50 @@ test('the skill teaches 040\'s revived key-size and signature checks, the self-s
 });
 
 // ── 0.2.55 build 6 (Gate 3-A K6 → finding F-5, the operator's ruling "Fix now"): below the floor the PLUGINS still load ─
-// Measured: Community 0.2.56 with Enterprise 1.3.0 lists all 29 Enterprise plugins in `license --plugins` and reads
-// "(loaded)", as 0.2.55 did; what fails is Enterprise's core, so the intelligence, analysis-agent and compliance stages
-// are skipped. The floor teaching named the plugins only for 0.2.55, and a Desktop reply inferred "none of the 29
-// Enterprise plugins, so no cloud auditing" on 0.2.56. Both shipped statements of the floor now say the plugins load.
-test('the floor teaching says the Enterprise plugins still load below the floor on 0.2.56 too — only the core\'s stages are skipped', () => {
+// HISTORY: measured for Enterprise 1.3.0 on Community 0.2.56 and 0.2.55, and re-measured for 2.0.0 and 2.1.0 — the core did
+// not load, the plugins did, so the intelligence, analysis-agent and compliance stages were skipped. That leg pinned the
+// symptom in the CURRENT floor units and was RE-POINTED at 1.2.0, because the symptom changed.
+// ── 1.2.0 (EE 2.2.0, v301 item 5; R-5 `b224-d1-d5/r5-packed`, the architect's W-1..W-6 and C-1/C-2): Enterprise REFUSES ──
+// A tarball packed from Enterprise's code before the 2.2.0 version bump, installed globally after Community 1.1.1, 1.0.0 and
+// 0.2.57: one guard line on stderr, `license --plugins` lists no Enterprise plugin, `scan --host azure` matches 0 Azure
+// plugins and exits 1, the MCP server exits 1 after a `scan_cloud` call. The three things a user sees are taught as
+// INSTRUCTIONS to the assistant, in the header item only: the MCP note that names the wrong cause, `audited: false`, and
+// `license --status` "(loaded)". W-1 names the three versions; W-3/W-4 scope `eeLoadError`; W-5 never lets
+// `license --status` show a load; W-6 never says the MCP response names the refusal; C-1 names the subject as packed.
+test('the floor teaching states R-5\'s rows for Enterprise 2.2.0 on Community 1.1.1, 1.0.0 and 0.2.57, and teaches the three symptoms as instructions', () => {
   const header = read('SKILL.md').split('\n')[17];
   const floorItem = header.split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
   assert.ok(floorItem.length > 100, 'positive control: the header carries the floor item');
-  const readme = read('README.md').split('\n').find((l) => /A floor bump: requires Community/.test(l)) ?? '';
-  assert.ok(readme, 'positive control: the README carries the floor line');
+  const v = JSON.parse(read('package.json')).version;
+  const readme = read('README.md').split('\n').find((l) => l.startsWith(`**${v}** `)) ?? '';
+  assert.ok(readme, `positive control: the README carries the ${v} release line`);
   for (const [where, s] of [['SKILL.md (c)', floorItem], ['README.md', readme]]) {
-    assert.match(s, /core does not load/, `${where}: it is the core that fails to load`);
-    // bound to the plugins clause: a looser `[^.;]*0\.2\.56` read the later "on Community 0.2.56 that is named on stderr"
-    // RE-MEASURED at 1.0.0 for Enterprise 2.0.0 on Community 0.2.57, 0.2.56 and 0.2.55 (EE tasks/release-plan.md, release prep)
-    assert.match(s, /plugins still (?:do|load)\W+on Community 0\.2\.57 as on 0\.2\.56/, `${where}: the plugins load on 0.2.57 and 0.2.56`);
-    assert.match(s, /intelligence, analysis-agent and compliance stages/, `${where}: the stages that are skipped`);
-    // only what was measured (Gate 3-A K6): never that cloud auditing works below the floor
+    // the split on '(c) **A FLOOR BUMP' consumes those words, so the item's remainder opens ' to Community 1.2.0'
+    assert.match(s, /A floor bump: requires Community >= 1\.2\.0|^ to Community 1\.2\.0 and Node\.js 24\.22\.3 \(Enterprise 2\.2\.0\)/, `${where}: the floor is Community 1.2.0`);
+    assert.match(s, /Community 1\.1\.1, 1\.0\.0 and 0\.2\.57/, `${where} (W-1): the three measured Community versions are named`);
+    assert.doesNotMatch(s, /any Community (?:version )?below the floor/i, `${where} (W-1): no "any Community below the floor"`);
+    assert.match(s, /packed from Enterprise's code before the version bump/, `${where} (C-1): the subject is named as packed`);
+    assert.doesNotMatch(s, /Enterprise 2\.2\.0 was measured|measured (?:for|on) Enterprise 2\.2\.0/, `${where} (C-1): never "Enterprise 2.2.0 was measured"`);
+    assert.match(s, /refuses to load: found Community <version> \(resolved, running\) in <that copy's directory>; … \(EE_CE_BELOW_FLOOR\)`, whose fix is to upgrade that copy/,
+      `${where}: the guard line and its fix`);
+    assert.doesNotMatch(s, /plugins still (?:do|load)/, `${where} (W-2): the 2.1.x "plugins still do" is false for 2.2.0`);
+    assert.match(s, /`license --plugins` lists no Enterprise plugin and exits 0/, `${where} (W-2)`);
+    assert.match(s, /`scan --host azure` matches 0 Azure plugins, prints `\[EE\] Enterprise is installed but FAILED TO LOAD`, writes no compliance report and exits 1/, `${where} (W-2)`);
+    assert.match(s, /after a `scan_cloud` call, the MCP server exits 1 when its input closes/, `${where} (C-2): the MCP rows hold after a tool call`);
+    assert.match(s, /the refusal \(`EE_CE_BELOW_FLOOR`\) on 1\.1\.1 and 1\.0\.0; on 0\.2\.57[^.;]*Node's link error/, `${where} (W-3, W-4): eeLoadError scoped per version`);
+    assert.match(s, /`license --status` exits 0 and prints `\(loaded\)` on all three/, `${where} (W-5): its exit 0 is stated`);
+    assert.doesNotMatch(s, /`license --status`[^.;]*\bshows? (?:that )?Enterprise (?:is |has )?loaded/, `${where} (W-5)`);
+    assert.doesNotMatch(s, /MCP (?:response|note|server)[^.;]*\bnames? the refusal/, `${where} (W-6)`);
+    assert.match(s, /AWS and GCP scans below the floor were not driven/, `${where}: what was not driven`);
     assert.doesNotMatch(s, /cloud (?:auditing|scans?) (?:still )?works?\b/i, `${where}: cloud findings below the floor were not measured`);
   }
-  assert.match(floorItem, /Whether a cloud scan at Enterprise tier still returns findings below the floor has not been measured/);
+  // the three symptoms, as instructions to the assistant (header item only)
+  assert.match(floorItem, /`Enterprise EE plugins not installed`[^.]*?on a machine where Enterprise is installed[^.]*?check the Community version against the floor/,
+    'the MCP note names the wrong cause below the floor: check the Community version');
+  assert.match(floorItem, /`audited: false`[^.]*?is never a clean result/, '`audited: false` is never clean');
+  assert.match(floorItem, /`license --status`[^.]*?`\(loaded\)`[^.]*?does not show whether Enterprise loaded/, '"(loaded)" does not show a load');
+  // d1-d5 R5(d): the npx run, or its stated limit
+  assert.match(floorItem, /`npx`[^.]*?has not been measured below the floor/, 'the npx limit is stated');
 });
 
 // ── 1.0.0: four teaching folds, each held where it is taught ─────────────────────────────────────────────────────────────

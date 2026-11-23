@@ -138,7 +138,12 @@ const BELOW_FLOOR_FALSE = [/\b(?:runs?|running|ran) (?:silently )?as Community\b
 // seat's MS-W: (c) reverted to the old wording, this leg stayed green); a dated record is history and needs no pin.
 // RE-MEASURED at 1.0.0: Enterprise 2.0.0 on Community 0.2.57 and 0.2.56 — the core does not load, the 29 plugins do.
 // RE-MEASURED at 1.1.0: Enterprise 2.1.0, installed after the published Community 0.2.57 and 0.2.56 — the same shape.
-const SYMPTOM = /core does not load while its plugins still do — on Community 0\.2\.57 as on 0\.2\.56\b[^]*?so the scan skips its intelligence, analysis-agent and compliance stages/;
+// RE-MEASURED at 1.2.0 (EE R-5, `b224-d1-d5/r5-packed`, the architect's W-1..W-6): a tarball packed from Enterprise 2.2.0's
+// code before the version bump, installed globally after Community 1.1.1, 1.0.0 and 0.2.57 — the shape CHANGED. Enterprise
+// refuses to load: its plugins no longer load, `license --plugins` lists none, and a cloud scan matches 0 plugins and exits
+// 1. The old "plugins still do" symptom is false for 2.2.0 and stands only on the Prior lines (STALE_SYMPTOM, below).
+const SYMPTOM = /refuses to load \(measured on a tarball packed from Enterprise's code before the version bump, installed globally after Community 1\.1\.1, 1\.0\.0 and 0\.2\.57\)[^]*?`license --plugins` lists no Enterprise plugin and exits 0[^]*?matches 0 Azure plugins, prints `\[EE\] Enterprise is installed but FAILED TO LOAD`, writes no compliance report and exits 1/;
+const STALE_SYMPTOM = /plugins still (?:do|load)/;
 const currentFloorUnits = () => {
   const c = read('SKILL.md').split('\n')[17].split('(c) **A FLOOR BUMP')[1]?.split('(d) **')[0] ?? '';
   // The README's CURRENT release line, found by the version the package ships — never by a phrase a Prior line also carries
@@ -162,11 +167,14 @@ test('below the floor: no shipped .md teaches "runs as Community", and README + 
   for (const [where, s] of currentFloorUnits()) {
     assert.ok(s.length > 100, `${where} not found — re-derive this leg's subject`);
     assert.match(s, SYMPTOM, `${where} does not teach the measured below-floor symptom`);
+    assert.doesNotMatch(s, STALE_SYMPTOM, `${where} still teaches the 2.1.x symptom ("plugins still do"), false for Enterprise 2.2.0`);
     // 1.1.0 (the audit-review seat's ruling): the stderr line is scoped to the install it was measured on, and the SILENT
     // combined-install shape is taught beside it — a second Community nested under Enterprise, its stages skipped.
-    assert.match(s, /when Enterprise was installed on its own or after Community/, `${where} does not scope the stderr line to its install`);
-    assert.match(s, /in ONE `npm install -g` command is different: npm nests a second Community[^.]*?skipped with no message and no compliance pack/,
-      `${where} does not teach the silent combined-install shape`);
+    // RE-SCOPED at 1.2.0: R-5 measured the separate global install only, so the combined-install shape is Enterprise 2.1.0's
+    // measurement, said in the past tense, with its not-measured-for-this-release limit beside it.
+    assert.match(s, /installed globally after Community 1\.1\.1, 1\.0\.0 and 0\.2\.57/, `${where} does not scope the rows to the install R-5 measured`);
+    assert.match(s, /For Enterprise 2\.1\.0, naming an older Community \(below 1\.0\.0\) and Enterprise in ONE `npm install -g` command was different: npm nests a second Community[^.]*?skipped with no message and no compliance pack \(measured for Enterprise 2\.1\.0 with Community 0\.2\.55–0\.2\.57, npm 11\.19\); that install has not been measured for this release/,
+      `${where} does not teach the combined-install shape as 2.1.0's measurement with its limit`);
   }
 });
 
