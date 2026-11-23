@@ -50,7 +50,7 @@
     ".claude-plugin/"
   ],
   "peerDependencies": {
-    "nsauditor-ai": ">=1.0.0"
+    "nsauditor-ai": ">=1.2.0"
   },
   "peerDependenciesMeta": {
     "nsauditor-ai": {
