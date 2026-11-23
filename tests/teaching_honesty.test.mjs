@@ -383,6 +383,20 @@ test('2.1.1 RECORD (superseded as headline at 1.2.0): R211 stands once, on the P
   assert.equal(occurrences(cl, T211), 1, 'the 1.1.2 CHANGELOG heading keeps its short form, once');
 });
 
+// C-1 (architect verdict on b74ff6b): the 1.2.0 entry's lede re-states the Q3 adjudication, never a blanket "still holds" over
+// the 2.1.1 register — M14 pins SKILL.md's note only, and the CHANGELOG said "every item it carried still holds" again.
+test('C-1: the 1.2.0 CHANGELOG entry states which clauses of the 2.1.1 register hold, and that clause 2 is Community 1.1.1\'s', () => {
+  const cl = read('CHANGELOG.md');
+  const a = cl.search(/^## 1\.2\.0 /m);
+  assert.ok(a >= 0, 'positive control: the CHANGELOG has a ## 1.2.0 entry');
+  const b = cl.indexOf('\n## ', a + 1);
+  const entry = cl.slice(a, b < 0 ? undefined : b);
+  assert.doesNotMatch(entry, /every item it carried still holds/, 'the 1.2.0 entry: no "every item it carried still holds"');
+  assert.doesNotMatch(entry, /each still holds/, 'the 1.2.0 entry: no "each still holds"');
+  assert.ok(entry.replace(/\s+/g, ' ').includes('clauses 1, 3, 4 and 5 hold of Enterprise 2.2.0 and Community 1.2.0, and clause 2 is '
+    + 'Community 1.1.1\'s — its one-`zod` install has not been measured for 1.2.0.'), 'the 1.2.0 entry carries the clause-2 words as ruled');
+});
+
 // R-7 (EE architect verdict 77328a4, G-9): a Prior line is history, so it carries hand text. A derived region there is
 // re-rendered to the CURRENT trio by every render:derived run and turns a dated record into a false statement about it.
 // FOURTH QUADRANT FIRST: the accept side is that the CURRENT header still carries its derived regions.
@@ -550,6 +564,11 @@ test('the floor teaching states R-5\'s rows for Enterprise 2.2.0 on Community 1.
     'the MCP note names the wrong cause below the floor: check the Community version');
   assert.match(floorItem, /`audited: false`[^.]*?is never a clean result/, '`audited: false` is never clean');
   assert.match(floorItem, /`license --status`[^.]*?`\(loaded\)`[^.]*?does not show whether Enterprise loaded/, '"(loaded)" does not show a load');
+  // C-2 (architect verdict on b74ff6b): in R-5's arms H, I and J `license --plugins` shows Community's 27 active rows, and R-5 has
+  // no arm for a machine without Enterprise, so the listing is not shown to differ from "not installed" — the wrong cause (c)
+  // exists to rule out. Only the stderr line is taught as what shows the refusal.
+  assert.match(floorItem, /does not show whether Enterprise loaded — the stderr line is what shows the refusal\./, 'C-2: the stderr line shows the refusal');
+  assert.doesNotMatch(floorItem, /`license --plugins` that lists no Enterprise plugin (?:are|is) what shows?/, 'C-2: the listing is not taught as showing the refusal');
   // d1-d5 R5(d): the npx run, or its stated limit
   assert.match(floorItem, /`npx`[^.]*?has not been measured below the floor/, 'the npx limit is stated');
 });

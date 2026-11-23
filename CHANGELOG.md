@@ -8,18 +8,20 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 Paired with **Enterprise 2.2.0 / Community 1.2.0**. ⚠️ **A floor bump: requires Community >= 1.2.0** (it was >= 1.0.0),
 and Node.js 24.22.3 or newer. The header opens with the 2.2.0 headline; the 2.1.1 headline moves to a `Prior: 1.1.2`
-line, re-adjudicated clause by clause at 2.2.0 and kept word for word, and every item it carried still holds.
+line, re-adjudicated clause by clause at 2.2.0 and kept word for word: clauses 1, 3, 4 and 5 hold of Enterprise 2.2.0
+and Community 1.2.0, and clause 2 is Community 1.1.1's — its one-`zod` install has not been measured for 1.2.0.
 
 - **(c) rewritten: the Community 1.2.0 floor.** Below it Enterprise refuses to load (measured on a tarball packed from
   Enterprise's code before the version bump, installed globally after Community 1.1.1, 1.0.0 and 0.2.57): one stderr
   line names the Community copy and its fix; `license --plugins` lists no Enterprise plugin and exits 0; `scan --host
   azure` matches 0 Azure plugins, writes no compliance report and exits 1; after a `scan_cloud` call the MCP server exits
   1 when its input closes. What 1.1.x taught below the floor (the core does not load while the plugins still do) is kept
-  on the Prior lines, as Enterprise 2.0.0's and 2.1.x's measurement; it is false for 2.2.0.
+  on the Prior lines, as Enterprise 2.0.0's and 2.1.x's measurement; on the three Community versions measured, this
+  release's plugins refuse as well.
 - **Three readings taught to the assistant (c).** A `scan_cloud` note that says `Enterprise EE plugins not installed` on
   a machine where Enterprise is installed names the wrong cause: check the Community version against the floor first.
-  `audited: false` is never a clean result. `license --status` exits 0 and prints `(loaded)` below the floor, so it does
-  not show whether Enterprise loaded.
+  `audited: false` is never a clean result. `license --status` exits 0 and prints `(loaded)` on all three measured
+  versions, so it does not show whether Enterprise loaded.
 - **Stated limits.** AWS and GCP scans below the floor were not driven; a run through `npx` has not been measured below
   the floor; the one-command `npm install -g` shape (a second Community nested under Enterprise) was measured for
   Enterprise 2.1.0 and not for this release. The headline does not claim what the Enterprise and Community CHANGELOGs
