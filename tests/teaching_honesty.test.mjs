@@ -391,9 +391,12 @@ test('C-1: the 1.2.0 CHANGELOG entry states which clauses of the 2.1.1 register 
   assert.ok(a >= 0, 'positive control: the CHANGELOG has a ## 1.2.0 entry');
   const b = cl.indexOf('\n## ', a + 1);
   const entry = cl.slice(a, b < 0 ? undefined : b);
-  assert.doesNotMatch(entry, /every item it carried still holds/, 'the 1.2.0 entry: no "every item it carried still holds"');
-  assert.doesNotMatch(entry, /each still holds/, 'the 1.2.0 entry: no "each still holds"');
-  assert.ok(entry.replace(/\s+/g, ' ').includes('clauses 1, 3, 4 and 5 hold of Enterprise 2.2.0 and Community 1.2.0, and clause 2 is '
+  // N-1 (EE architect): the refusals read the same whitespace-joined string as the required words, so a phrase split by a
+  // hard wrap ("every item it carried" / "still holds" on two lines) is refused, not passed.
+  const joined = entry.replace(/\s+/g, ' ');
+  assert.doesNotMatch(joined, /every item it carried still holds/, 'the 1.2.0 entry: no "every item it carried still holds"');
+  assert.doesNotMatch(joined, /each still holds/, 'the 1.2.0 entry: no "each still holds"');
+  assert.ok(joined.includes('clauses 1, 3, 4 and 5 hold of Enterprise 2.2.0 and Community 1.2.0, and clause 2 is '
     + 'Community 1.1.1\'s — its one-`zod` install has not been measured for 1.2.0.'), 'the 1.2.0 entry carries the clause-2 words as ruled');
 });
 
