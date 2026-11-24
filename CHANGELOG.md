@@ -4,7 +4,7 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
 
 ---
 
-## 1.2.0 (⏳ PRE-PUBLISH — opened 2026-11-23, NOT YET ON npm) — Enterprise 2.2.0 / Community 1.2.0: Node.js 24.22.3 and Community 1.2.0, a helper-printed proxy password removed from plugin results, refused 1170 listings fail closed, three requests refuse a redirect, three GCP settings refused
+## 1.2.0 (2026-11-24) — Enterprise 2.2.0 / Community 1.2.0: Node.js 24.22.3 and Community 1.2.0, a helper-printed proxy password removed from plugin results, refused 1170 listings fail closed, three requests refuse a redirect, three GCP settings refused
 
 Paired with **Enterprise 2.2.0 / Community 1.2.0**. ⚠️ **A floor bump: requires Community >= 1.2.0** (it was >= 1.0.0),
 and Node.js 24.22.3 or newer. The header opens with the 2.2.0 headline; the 2.1.1 headline moves to a `Prior: 1.1.2`
