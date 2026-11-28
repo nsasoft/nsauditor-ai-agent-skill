@@ -209,8 +209,10 @@ not check a website's 80/443.
 - **DKIM:** Checks for DKIM selector records
 - **DMARC:** Validates DMARC policy (reject/quarantine/none)
 - **DNSSEC:** asks the configured resolver for the zone's DNSKEY and DS records and reports which are present, as the
-  resolver reports them; signatures not validated. A resolver SERVFAIL, or a zone apex the resolver cannot find, is
-  recorded as not measured (an entry with `check: "dnssec"` in `details.notMeasured`), never as a result
+  resolver reports them; signatures not validated. No DNSSEC row beside an entry with `check: "dnssec"` in
+  `details.notMeasured` means not tested, whatever the entry's `code` — never a result. Causes are examples only: no
+  resolver answered, the zone apex was not found, the name does not exist, a SERVFAIL withheld a PASS.
+  `details.dnssec.servfail: true` beside a MEDIUM row means one resolver answered SERVFAIL and the row stands
 - **Zone Transfer (AXFR):** opt-in (`DNS_AUDIT_AXFR_CHECK=true`, off by default) — tries a transfer of the scanned
   domain at each nameserver's own address, outside the scan's host check; records only an open transfer
 - **MX:** Flags a missing MX, a null MX, and an MX that points at a CNAME or an IP address — no STARTTLS / TLS check

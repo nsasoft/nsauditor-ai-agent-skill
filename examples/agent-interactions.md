@@ -184,11 +184,13 @@ Each scan appends one line per host to scan_history.jsonl in the output director
    ⚠  No DNSSEC records (no DNSKEY or DS), as the configured resolver reports them
    ℹ  Zone transfer NOT TESTED — 060 tries one only with DNS_AUDIT_AXFR_CHECK=true and records only an open
       transfer, so `axfr: []` is never a pass
-   ℹ  DNSSEC: when the resolver SERVFAILs, cannot find the zone apex or does not answer, 060 writes NO DNSSEC row —
-      `dnssec: []` — and records { check: "dnssec", rrtype, name, code } in `details.notMeasured`, counted in
-      `summary.notMeasured`, with `up: false` (probe_service returns 060's result under `result`, so these read
+   ℹ  DNSSEC: read the ENTRY, never its cause. No DNSSEC row (`dnssec: []`) beside an entry { check: "dnssec",
+      rrtype, name, code } in `details.notMeasured`, counted in `summary.notMeasured`, with `up: false`, means DNSSEC
+      was NOT TESTED, whatever the entry's `code` (probe_service returns 060's result under `result`, so these read
       `result.details.notMeasured` and `result.summary.notMeasured`; scan_host on the domain carries the entry in
-      `dnsSecurity.notMeasured`). That entry means DNSSEC was NOT TESTED, so `dnssec: []` is never a pass. A
+      `dnsSecurity.notMeasured`), so `dnssec: []` is never a pass. Causes are examples only: no resolver answered, the
+      zone apex was not found, the name does not exist, a SERVFAIL withheld a PASS. Here `servfail: false`; with
+      `servfail: true` beside a MEDIUM row, one resolver answered SERVFAIL and the row stands. A
       `dnssec_active` row means DNSKEY and DS are present as the resolver reports them; signatures not validated —
       say no more than that.
    Note: 060's MX checks flag a missing MX, a null MX, and an MX that is a CNAME or an IP address — it does not test

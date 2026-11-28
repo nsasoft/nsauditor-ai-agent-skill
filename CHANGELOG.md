@@ -10,10 +10,11 @@ Release notes for **`nsauditor-ai-agent-skill`** — installable knowledge packa
   Community 1.2.0) asks the configured resolver for the zone's DNSKEY and DS records and reports which are present, as
   the resolver reports them; signatures not validated. `references/plugins.md`, published in 1.2.0, described a check 060
   does not make; it now says what is asked. Example 6 quotes the `no_dnssec` row and `details.dnssec` that 060 returns
-  for an unsigned zone, copied from a run on a loopback fixture. `SKILL.md` and Example 6 teach the not-measured entry: a
-  resolver SERVFAIL, a zone apex the resolver cannot find or no answer writes no DNSSEC row and records `{ check:
-  "dnssec", rrtype, name, code }` in `details.notMeasured` (`result.details.notMeasured` from `probe_service`), so an
-  empty `dnssec` array is never a pass.
+  for an unsigned zone, copied from a run on a loopback fixture. `SKILL.md`, Example 6 and `references/plugins.md` teach
+  the not-measured entry, keyed on the entry and never on its cause (EE VERDICT-v421 K-a): no DNSSEC row beside `{ check:
+  "dnssec", rrtype, name, code }` in `details.notMeasured` (`result.details.notMeasured` from `probe_service`) means
+  DNSSEC was not tested, whatever the `code`, so an empty `dnssec` array is never a pass; and `details.dnssec.servfail:
+  true` beside a MEDIUM row means one resolver answered SERVFAIL and the row stands.
 
 ## 1.2.0 (2026-11-24) — Enterprise 2.2.0 / Community 1.2.0: Node.js 24.22.3 and Community 1.2.0, a helper-printed proxy password removed from plugin results, refused 1170 listings fail closed, three requests refuse a redirect, three GCP settings refused
 

@@ -161,9 +161,28 @@ test('Example 1 reports the SNMP community finding once, and Example 6 claims no
 // ── G-75 (f), EE VERDICT-v420 S4: 060's DNSSEC check asks the configured resolver for DNSKEY and DS and validates nothing ──
 // Community 060 (fd1f80b) reports which of DNSKEY and DS the configured resolver returns at the zone apex; every DNSSEC
 // row's own detail says "as reported by the configured resolver; signatures not validated". plugins.md taught "Checks for
-// DNSSEC signing and validation chain" (published in agent-skill 1.2.0). Scope: the 060 entry's DNSSEC bullet and Example
-// 6 — the SPF and DMARC bullets of the same entry say "Validates …" about their own records and are outside it.
-test('060\'s DNSSEC bullet and Example 6 never say "validat" or "verif" outside the row\'s own "not validated" (VERDICT-v420 S4)', () => {
+// DNSSEC signing and validation chain" (published in agent-skill 1.2.0). Scope: the 060 entry's DNSSEC bullet, Example 6
+// and (EE VERDICT-v421 K-b) EVERY SKILL.md sentence that names DNSSEC — the SPF and DMARC bullets of the same entry say
+// "Validates …" about their own records and are outside it. SKILL.md is read in SENTENCES, not lines: its prose is
+// hard-wrapped, so a claim word can sit on the line after the one that names DNSSEC. A table row, a heading and a fenced
+// line are each their own unit; a list item or a blockquote opens a new paragraph; consecutive prose lines join and split
+// at . ! or ? followed by whitespace (never after "e.g." or "i.e.").
+const sentenceUnits = (text) => {
+  const out = []; let para = []; let fence = false; let quote = false;
+  const flush = () => { if (para.length) out.push(...para.join(' ').split(/(?<!\b(?:e\.g|i\.e))(?<=[.!?])\s+/)); para = []; };
+  for (const line of text.split('\n')) {
+    if (/^\s*```/.test(line)) { flush(); fence = !fence; continue; }
+    if (fence || /^\s*(\||#)/.test(line)) { flush(); out.push(line.trim()); continue; }
+    if (line.trim() === '') { flush(); quote = false; continue; }
+    const isQuote = /^\s*>/.test(line);
+    if (/^\s*([-*] |\d+\. )/.test(line) || (isQuote && !quote)) flush();
+    quote = isQuote;
+    para.push(line.trim());
+  }
+  flush();
+  return out;
+};
+test('060\'s DNSSEC bullet, Example 6 and every SKILL.md sentence naming DNSSEC never say "validat" or "verif" outside the row\'s own "not validated" (VERDICT-v420 S4, v421 K-b)', () => {
   const claims = (s) => /validat|verif/i.test(s.replace(/not validated/gi, ''));
   // the predicate itself: the row's negation passes, the published wording does not
   assert.equal(claims('as reported by the configured resolver; signatures not validated'), false);
@@ -184,6 +203,32 @@ test('060\'s DNSSEC bullet and Example 6 never say "validat" or "verif" outside 
   assert.ok(six.includes('check: "no_dnssec"'), 'positive control: Example 6 shows a DNSSEC row');
   const hits = six.split('\n').filter(claims);
   assert.deepEqual(hits, [], 'Example 6 says "validat" or "verif" outside "not validated"');
+  // K-b, the unit reader first, fourth quadrant first: a claim WRAPPED onto the next line is read with its DNSSEC
+  // sentence (a line-scoped leg misses it) …
+  // "names DNSSEC": the word in any case, never the `dnsSecurity` payload key ("dnsSec…" matches /dnssec/i)
+  // The scope is the UNION of every sentence and every physical line that names DNSSEC: a sentence catches a claim wrapped
+  // onto the next line, a line catches a second sentence that sits beside the one naming DNSSEC (VERDICT-v421 K-b says lines).
+  const DN = /dnssec(?!urity)/i;
+  const names = (t) => [...sentenceUnits(t).filter((u) => DN.test(u)), ...t.split('\n').filter((l) => DN.test(l))];
+  assert.deepEqual(names('060\'s DNSSEC check asks the resolver and\nvalidates the chain of trust.').filter(claims).length, 1,
+    'a claim wrapped onto the next line is read with its DNSSEC sentence');
+  // … and a claim in the NEXT sentence on a line that names DNSSEC is read with that line (a sentence-scoped leg misses it)
+  assert.deepEqual(names('The `dnssec` array lists rows. Every row is verified.').filter(claims).length, 1,
+    'a claim in the next sentence on a DNSSEC line is read with that line');
+  // … ACCEPT: a neighbouring sentence that says "verifies" about something else is outside the DNSSEC scope, and the
+  // row's own negation in the DNSSEC sentence passes; a table row is its own unit and joins no neighbour.
+  const acc = names('060\'s DNSSEC check reports the records; signatures not validated. The certificate audit\nverifies the chain.\n| 060 | DNSSEC |\nThe audit verifies SPF. Its `dnsSecurity` record is verified.');
+  assert.deepEqual(acc, ['060\'s DNSSEC check reports the records; signatures not validated.', '| 060 | DNSSEC |',
+    '060\'s DNSSEC check reports the records; signatures not validated. The certificate audit', '| 060 | DNSSEC |'],
+    'the scope holds the DNSSEC sentence, the DNSSEC lines and the table row — never a neighbour or `dnsSecurity`');
+  assert.deepEqual(acc.filter(claims), []);
+  const skill = names(read('SKILL.md'));
+  // positive controls on the real file: the dnssec_active teaching and the frontmatter trigger are in scope, and a
+  // DNSSEC sentence carries the "not validated" the predicate exempts (the accept case, on the shipped text)
+  assert.ok(skill.some((u) => u.includes('`dnssec_active` means')), 'the dnssec_active sentence is in scope');
+  assert.ok(skill.some((u) => u.includes("'SPF/DKIM/DMARC/DNSSEC'")), 'the frontmatter trigger is in scope');
+  assert.deepEqual(skill.filter(claims), [], 'a SKILL.md sentence naming DNSSEC says "validat" or "verif" outside "not validated"');
+  assert.ok(skill.some((u) => /not validated/i.test(u)), 'a SKILL.md DNSSEC sentence carries "not validated"');
 });
 
 // ── BUILD 4: Gate 3-A on EE 1.2.0 build 3 and the skill-claims audit (audit-evidence-samples/ee-1.2.0-gate3/) ─────────

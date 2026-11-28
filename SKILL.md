@@ -213,11 +213,14 @@ login, zone transfer and the SMB null session are tested only when the MCP serve
 by default, and it records only an open transfer (`axfr_open` in `dnsSecurity`) — so its absence is never a measured
 "closed". 060's DNSSEC check asks the configured resolver for the zone's DNSKEY and DS records and reports which are
 present: `dnssec_active` means both are present as the resolver reports them, signatures not validated, and never more
-than that. When the resolver SERVFAILs, cannot find the zone apex or does not answer, 060 writes NO DNSSEC row and
-records an entry `{ check: "dnssec", rrtype, name, code }` instead — in `dnsSecurity.notMeasured` (the `markdown` lists
-it under Coverage gaps, and `dnsSecurity.status` reads `incomplete` when nothing measured is actionable); from
-`probe_service` it is `result.details.notMeasured`, counted in `result.summary.notMeasured`, with `result.up` false.
-That entry means DNSSEC was NOT TESTED, so an empty `dnssec` array is never a pass. A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never
+than that. Read the ENTRY, never its cause: no DNSSEC row together with an entry `{ check: "dnssec", rrtype, name,
+code }` — in `dnsSecurity.notMeasured` (the `markdown` lists it under Coverage gaps, and `dnsSecurity.status` reads
+`incomplete` when nothing measured is actionable); from `probe_service` in `result.details.notMeasured`, counted in
+`result.summary.notMeasured`, with `result.up` false — means DNSSEC was NOT TESTED, whatever the entry's `code`, so an
+empty `dnssec` array is never a pass. Causes are examples only: no configured resolver answered, the zone apex was not
+found, the name does not exist (`ENOTFOUND`), a SERVFAIL withheld a PASS (`ESERVFAIL`). A SERVFAIL does not always remove
+the row: from `probe_service`, `result.details.dnssec.servfail: true` beside a MEDIUM DNSSEC row means one resolver
+answered SERVFAIL and the row stands (`dnsSecurity` from `scan_host` does not carry that field). A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never
 "not allowed" or "none": `anonymousLoginTested`, `axfrTested` and `nullSessionTested` are `true` when measured, else
 the reason (`opt-in-off`, `no-domain`, `no-answer`). With the Enterprise package, the zero-trust assessment (1023) reaches
 the conclusion only as one score line in its `evidence`, not its per-dimension findings. It does NOT look up CVEs and
