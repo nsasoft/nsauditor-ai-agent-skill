@@ -208,7 +208,9 @@ not check a website's 80/443.
 - **SPF:** Validates Sender Policy Framework record syntax and coverage
 - **DKIM:** Checks for DKIM selector records
 - **DMARC:** Validates DMARC policy (reject/quarantine/none)
-- **DNSSEC:** Checks for DNSSEC signing and validation chain
+- **DNSSEC:** asks the configured resolver for the zone's DNSKEY and DS records and reports which are present, as the
+  resolver reports them; signatures not validated. A resolver SERVFAIL, or a zone apex the resolver cannot find, is
+  recorded as not measured (an entry with `check: "dnssec"` in `details.notMeasured`), never as a result
 - **Zone Transfer (AXFR):** opt-in (`DNS_AUDIT_AXFR_CHECK=true`, off by default) — tries a transfer of the scanned
   domain at each nameserver's own address, outside the scan's host check; records only an open transfer
 - **MX:** Flags a missing MX, a null MX, and an MX that points at a CNAME or an IP address — no STARTTLS / TLS check

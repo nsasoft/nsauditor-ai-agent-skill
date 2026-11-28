@@ -158,6 +158,34 @@ test('Example 1 reports the SNMP community finding once, and Example 6 claims no
   assert.doesNotMatch(read('references/plugins.md'), /mail exchange records and TLS support/);
 });
 
+// ── G-75 (f), EE VERDICT-v420 S4: 060's DNSSEC check asks the configured resolver for DNSKEY and DS and validates nothing ──
+// Community 060 (fd1f80b) reports which of DNSKEY and DS the configured resolver returns at the zone apex; every DNSSEC
+// row's own detail says "as reported by the configured resolver; signatures not validated". plugins.md taught "Checks for
+// DNSSEC signing and validation chain" (published in agent-skill 1.2.0). Scope: the 060 entry's DNSSEC bullet and Example
+// 6 — the SPF and DMARC bullets of the same entry say "Validates …" about their own records and are outside it.
+test('060\'s DNSSEC bullet and Example 6 never say "validat" or "verif" outside the row\'s own "not validated" (VERDICT-v420 S4)', () => {
+  const claims = (s) => /validat|verif/i.test(s.replace(/not validated/gi, ''));
+  // the predicate itself: the row's negation passes, the published wording does not
+  assert.equal(claims('as reported by the configured resolver; signatures not validated'), false);
+  assert.equal(claims('Checks for DNSSEC signing and validation chain'), true);
+  const entry = read('references/plugins.md').split('**060 — DNS Security Auditor:**')[1]?.split('\n\n')[0] ?? '';
+  const bullets = entry.split(/\n(?=- \*\*)/);
+  const dnssec = bullets.filter((b) => b.startsWith('- **DNSSEC:**'));
+  assert.equal(dnssec.length, 1, 'the 060 entry has one DNSSEC bullet');
+  // ACCEPT, in the same leg: the SPF and DMARC bullets keep "Validates …" and the scope does not reach them
+  for (const k of ['SPF', 'DMARC']) {
+    const b = bullets.find((x) => x.startsWith(`- **${k}:**`));
+    assert.ok(b && claims(b), `the ${k} bullet is present and says "Validates …" (the predicate would fire on it)`);
+    assert.ok(!dnssec.includes(b), `the ${k} bullet is outside the DNSSEC scope`);
+  }
+  assert.equal(claims(dnssec[0]), false, `plugins.md's DNSSEC bullet claims validation: ${dnssec[0].trim()}`);
+  const ex = read('examples/agent-interactions.md');
+  const six = ex.slice(ex.indexOf('## Example 6'), ex.indexOf('## Example 7'));
+  assert.ok(six.includes('check: "no_dnssec"'), 'positive control: Example 6 shows a DNSSEC row');
+  const hits = six.split('\n').filter(claims);
+  assert.deepEqual(hits, [], 'Example 6 says "validat" or "verif" outside "not validated"');
+});
+
 // ── BUILD 4: Gate 3-A on EE 1.2.0 build 3 and the skill-claims audit (audit-evidence-samples/ee-1.2.0-gate3/) ─────────
 // Capability wordings the shipped code refutes. The facts that are DATA (HSTS routing, the default port set, the egress
 // register, the redaction tokens, PCI eligibility, the EE table's SOC 2 column, CE priorities) are derived on the EE side:

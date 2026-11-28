@@ -211,7 +211,13 @@ login, zone transfer and the SMB null session are tested only when the MCP serve
 (`FTP_CHECK_ANON=true`; `DNS_CHECK_AXFR=true` with `DNS_AXFR_DOMAIN`; `SMB_NULL_SESSION=true`) — all off by default.
 060's own zone-transfer attempt against the domain's nameservers runs only with `DNS_AUDIT_AXFR_CHECK=true`, also off
 by default, and it records only an open transfer (`axfr_open` in `dnsSecurity`) — so its absence is never a measured
-"closed". A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never
+"closed". 060's DNSSEC check asks the configured resolver for the zone's DNSKEY and DS records and reports which are
+present: `dnssec_active` means both are present as the resolver reports them, signatures not validated, and never more
+than that. When the resolver SERVFAILs, cannot find the zone apex or does not answer, 060 writes NO DNSSEC row and
+records an entry `{ check: "dnssec", rrtype, name, code }` instead — in `dnsSecurity.notMeasured` (the `markdown` lists
+it under Coverage gaps, and `dnsSecurity.status` reads `incomplete` when nothing measured is actionable); from
+`probe_service` it is `result.details.notMeasured`, counted in `result.summary.notMeasured`, with `result.up` false.
+That entry means DNSSEC was NOT TESTED, so an empty `dnssec` array is never a pass. A null `anonymousLogin`, `axfrAllowed`, `nullSessionAllowed` or `dangerousMethods` means NOT TESTED, never
 "not allowed" or "none": `anonymousLoginTested`, `axfrTested` and `nullSessionTested` are `true` when measured, else
 the reason (`opt-in-off`, `no-domain`, `no-answer`). With the Enterprise package, the zero-trust assessment (1023) reaches
 the conclusion only as one score line in its `evidence`, not its per-dimension findings. It does NOT look up CVEs and
