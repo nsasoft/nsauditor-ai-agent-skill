@@ -231,6 +231,93 @@ test('060\'s DNSSEC bullet, Example 6 and every SKILL.md sentence naming DNSSEC 
   assert.ok(skill.some((u) => /not validated/i.test(u)), 'a SKILL.md DNSSEC sentence carries "not validated"');
 });
 
+// ── G-75 (skill2), EE VERDICT-v422 K-c: the not-measured DNSSEC entry stays keyed on the ENTRY, never its cause ──────────
+// K-a (c7ddc91) taught, in three places — SKILL.md's DNSSEC sentences, the Example 6 note and the plugins.md DNSSEC bullet —
+// that no DNSSEC row beside a `check: "dnssec"` entry in notMeasured means NOT TESTED whatever the entry's `code`, that
+// causes are examples only, and that `servfail: true` beside a MEDIUM row means one resolver answered SERVFAIL and the row
+// STANDS (060 keeps the row; a SERVFAIL vetoes only dnssec_active). Nothing held that text: the cause-keyed rule ("a
+// SERVFAIL writes NO DNSSEC row") and its mirror ("servfail true means not tested") each went back in with the suite green
+// (the architect's KA1–KA3, Z/architect-v422/arch_skill_mut.py). This leg holds, in every place:
+//   (i)  the entry-keyed rule in ONE sentence (no DNSSEC row + not tested + "whatever the entry's `code`"), naming no
+//        SERVFAIL; causes listed as examples, "a SERVFAIL withheld a PASS" among them; and every sentence naming
+//        `servfail: true` says "the row stands" and never that the row is not tested, not a result, removed or withdrawn;
+//   (ii) no sentence naming DNSSEC or SERVFAIL says a SERVFAIL removes the row unless "withheld a PASS" is in it.
+// STATED LIMITS. The removal test is a word list ("no DNSSEC row", "no row", "writes no", "removes the row", "drops the
+// row", "withdraw"): a removal in other words reads clean. KB7 (an anaphoric claim on its own line) and KB8 (a claim
+// without "validat" or "verif") are limits of the S4 leg above, not this leg's subject; both stay green here (board B3).
+const DNSSEC_OR_SERVFAIL = /dnssec(?!urity)|servfail/i;
+const kcPlaces = () => {
+  const skill = sentenceUnits(read('SKILL.md')).filter((u) => DNSSEC_OR_SERVFAIL.test(u));
+  const ex = read('examples/agent-interactions.md');
+  const lines = ex.slice(ex.indexOf('## Example 6'), ex.indexOf('## Example 7')).split('\n');
+  const at = lines.findIndex((l) => /^\s*ℹ\s+DNSSEC:/.test(l));
+  assert.ok(at >= 0, 'Example 6 has its ℹ DNSSEC note');
+  const note = [lines[at].replace(/^\s*ℹ\s+/, '')];
+  for (const l of lines.slice(at + 1)) {
+    if (l.trim() === '' || /^\s*(ℹ|⚠|✅|Note:|```)/.test(l)) break;
+    note.push(l.trim());
+  }
+  const entry = read('references/plugins.md').split('**060 — DNS Security Auditor:**')[1]?.split('\n\n')[0] ?? '';
+  const bullet = entry.split(/\n(?=- \*\*)/).filter((b) => b.startsWith('- **DNSSEC:**'));
+  assert.equal(bullet.length, 1, 'the 060 entry has one DNSSEC bullet');
+  return { 'SKILL.md': skill, 'Example 6 note': sentenceUnits(note.join(' ')), 'plugins.md DNSSEC bullet': sentenceUnits(bullet[0]) };
+};
+const kcRule = (u) => /no DNSSEC row/i.test(u) && /not tested/i.test(u) && u.includes("whatever the entry's `code`");
+const kcCauses = (u) => /Causes are examples only/.test(u) && /a SERVFAIL withheld a PASS/.test(u);
+const kcRowStands = (u) => u.includes('the row stands') && !/not tested|not a result|removed|withdrawn/i.test(u);
+const kcRemoval = (u) => /servfail/i.test(u)
+  && /\bno (?:DNSSEC )?row\b|\bwrites? no\b|\bremoves the row\b|\bdrops the row\b|\bwithdraw/i.test(u)
+  && !/withheld a PASS/.test(u);
+
+test('K-c, fourth quadrant first: the predicates accept the shipped forms and refuse the cause-keyed ones (VERDICT-v422 K-c)', () => {
+  // ACCEPT: the plugins.md rule, a cause list carrying the SERVFAIL example, the row-stands sentence, and a SERVFAIL
+  // that removes the row only beside "withheld a PASS"
+  assert.equal(kcRule("No DNSSEC row beside an entry with `check: \"dnssec\"` in `details.notMeasured` means not tested, whatever the entry's `code` — never a result."), true);
+  assert.equal(kcCauses('Causes are examples only: no resolver answered, a SERVFAIL withheld a PASS.'), true);
+  assert.equal(kcRowStands('`servfail: true` beside a MEDIUM row means one resolver answered SERVFAIL and the row stands'), true);
+  assert.equal(kcRemoval('A SERVFAIL that withheld a PASS leaves no DNSSEC row.'), false);
+  assert.equal(kcRemoval('A SERVFAIL does not always remove the row: `servfail: true` beside a MEDIUM row means the row stands.'), false);
+  // REFUSE: the rule without "whatever the entry's `code`", the mirror (KA2, KA3), and the cause-keyed rule (KA1)
+  assert.equal(kcRule('No DNSSEC row beside an entry means not tested.'), false);
+  assert.equal(kcCauses('Causes are examples only: no resolver answered.'), false);
+  assert.equal(kcRowStands('`servfail: true` means one resolver answered SERVFAIL and the row must be read as not tested'), false);
+  assert.equal(kcRowStands('`servfail: true` means one resolver answered SERVFAIL and the row is not a result'), false);
+  assert.equal(kcRowStands('the row stands, though it is not tested'), false);
+  assert.equal(kcRemoval('When the resolver SERVFAILs, 060 writes NO DNSSEC row: no DNSSEC row together with an entry.'), true);
+  assert.equal(kcRemoval('A SERVFAIL removes the row.'), true);
+});
+
+test('K-c (i): each place carries the entry-keyed rule naming no SERVFAIL, and the SERVFAIL cause as an example (VERDICT-v422 K-c)', () => {
+  const places = kcPlaces();
+  const missing = [];
+  for (const [place, units] of Object.entries(places)) {
+    const rule = units.filter(kcRule);
+    if (rule.length === 0) missing.push(`${place}: no sentence carries no DNSSEC row + not tested + "whatever the entry's \`code\`"`);
+    for (const u of rule.filter((x) => /servfail/i.test(x))) missing.push(`${place}: the entry-keyed rule names a SERVFAIL: ${u}`);
+    if (!units.some(kcCauses)) missing.push(`${place}: no "Causes are examples only" sentence carrying "a SERVFAIL withheld a PASS"`);
+  }
+  assert.deepEqual(missing, [], 'the entry-keyed rule, keyed on the entry and never on a SERVFAIL, in every place');
+});
+
+test('K-c (i): in each place every sentence naming `servfail: true` says the row stands, and never that it is not tested (VERDICT-v422 K-c)', () => {
+  const places = kcPlaces();
+  const wrong = [];
+  for (const [place, units] of Object.entries(places)) {
+    const sf = units.filter((u) => u.includes('servfail: true'));
+    if (sf.length === 0) wrong.push(`${place}: no sentence names \`servfail: true\``);
+    for (const u of sf.filter((x) => !kcRowStands(x))) wrong.push(`${place}: ${u}`);
+  }
+  assert.deepEqual(wrong, [], '`servfail: true` beside a MEDIUM row: the row stands, in every place');
+});
+
+test('K-c (ii): no sentence naming DNSSEC or SERVFAIL says a SERVFAIL removes the row without "withheld a PASS" (VERDICT-v422 K-c)', () => {
+  const places = kcPlaces();
+  // positive control on the real files: the scope reaches the SERVFAIL sentences in every place
+  for (const [place, units] of Object.entries(places)) assert.ok(units.some((u) => /servfail/i.test(u)), `${place}: a sentence names SERVFAIL`);
+  const hits = Object.entries(places).flatMap(([place, units]) => units.filter(kcRemoval).map((u) => `${place}: ${u}`));
+  assert.deepEqual(hits, [], 'a SERVFAIL taught as removing the DNSSEC row, outside the "withheld a PASS" example');
+});
+
 // ── BUILD 4: Gate 3-A on EE 1.2.0 build 3 and the skill-claims audit (audit-evidence-samples/ee-1.2.0-gate3/) ─────────
 // Capability wordings the shipped code refutes. The facts that are DATA (HSTS routing, the default port set, the egress
 // register, the redaction tokens, PCI eligibility, the EE table's SOC 2 column, CE priorities) are derived on the EE side:
